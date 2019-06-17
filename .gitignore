@@ -1,0 +1,6 @@
+encoded/
+results/
+.idea/
+__pycache__/
+
+temp.txt
