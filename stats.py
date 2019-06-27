@@ -12,11 +12,11 @@ sl = util.check_system()['sl']
 
 
 def main():
-    # stats()
+    stats()
     # graph1()
     # graph2()
     # graph3()
-    graph4()
+    # graph4()
     # hist()
     pass
 
@@ -370,18 +370,19 @@ def stats():
     video_seg.segment_base = 'segment'
 
     # To iterate
-    decoders = ['ffmpeg', 'mp4client']
+    decoders = ['ffmpeg']
     videos_list = config.videos_list
     tile_list = config.tile_list
-    q_factors = ['rate', 'qp']
+    q_factors = ['crf']
     multithreads = ['single']
-    times = dict()
+    times = {}
+
     for factors in product(decoders, videos_list, tile_list, q_factors, multithreads):
         video_seg.decoder = factors[0]
         video_seg.name = factors[1]
         video_seg.fmt = factors[2]
         video_seg.factor = factors[3]
-        video_seg.thread = factors[4]
+        video_seg.multithread = factors[4]
         video_seg.dectime_base = f'dectime_{video_seg.decoder}'
 
         video_seg.quality_list = getattr(config, f'{video_seg.factor}_list')
