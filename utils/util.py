@@ -596,22 +596,23 @@ def collect_data(video_seg: VideoSegment):
 def _get_times(dectime: VideoSegment) -> list:
     times = []
     with open(f'{dectime.log_path}.txt', 'r') as f:
-        for line in f:
-            idx = line.find(dectime.bench_stamp)
+        for line_ in f:
+            idx = line_.find(dectime.bench_stamp)
             if idx >= 0:
                 if dectime.decoder in 'ffmpeg':
-                    line = line.strip().split(' ')
+                    line = line_.strip().split(' ')
                     ut = line[1]
                     st = line[2]
                     rt = line[3]
-                    bench_time = dict(ut=float(ut[6:-1]),
-                                      st=float(st[6:-1]),
-                                      rt=float(rt[6:-1]))
+                    # bench_time = dict(ut=float(ut[6:-1]),
+                    #                   st=float(st[6:-1]),
+                    #                   rt=float(rt[6:-1]))
+                    bench_time = dict(ut=float(ut[6:-1]))
                     times.append(bench_time)
                 elif dectime.decoder in 'mp4client':
-                    bench_time = float(dectime.fps) / float(line.split(' ')[4])
+                    bench_time = float(dectime.fps) / float(line_.split(' ')[4])
                 else:
-                    exit('[_get_times] ')
+                    exit('[_get_times] Decoder errado')
 
                 times.append(bench_time)
     return times
