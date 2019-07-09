@@ -12,8 +12,8 @@ sl = util.check_system()['sl']
 
 
 def main():
-    stats()
-    # graph1()
+    # stats()
+    graph1()
     # graph2()
     # graph3()
     # graph4()
@@ -43,7 +43,7 @@ def graph4():
     config = util.Config('Config.json')
     dectime = util.load_json('times.json')
 
-    dirname = 'graph4'
+    dirname = f'results{sl}graph4'
     os.makedirs(f'{dirname}', exist_ok=True)
 
     for fmt in config.tile_list:
@@ -72,15 +72,15 @@ def graph4():
             #         times[name][str(quality)] = s
 
             for chunk in range(1, config.duration + 1):
-                times_a_ld.append(dectime['ffmpeg']['om_nom'][fmt]['rate'][str(2000000)][str(tile)][str(chunk)]['single']['times']['ut'])
-                sizes_a_ld.append(dectime['ffmpeg']['om_nom'][fmt]['rate'][str(2000000)][str(tile)][str(chunk)]['single']['size'])
-                times_a_hd.append(dectime['ffmpeg']['om_nom'][fmt]['rate'][str(24000000)][str(tile)][str(chunk)]['single']['times']['ut'])
-                sizes_a_hd.append(dectime['ffmpeg']['om_nom'][fmt]['rate'][str(24000000)][str(tile)][str(chunk)]['single']['size'])
+                times_a_ld.append(dectime['ffmpeg']['om_nom'][fmt]['rate'][str(2000000)][str(tile)][str(chunk)]['single']['times'][0])
+                # sizes_a_ld.append(dectime['ffmpeg']['om_nom'][fmt]['rate'][str(2000000)][str(tile)][str(chunk)]['single']['size'])
+                times_a_hd.append(dectime['ffmpeg']['om_nom'][fmt]['rate'][str(24000000)][str(tile)][str(chunk)]['single']['times'][0])
+                # sizes_a_hd.append(dectime['ffmpeg']['om_nom'][fmt]['rate'][str(24000000)][str(tile)][str(chunk)]['single']['size'])
 
-                times_b_ld.append(dectime['ffmpeg']['rollercoaster'][fmt]['rate'][str(2000000)][str(tile)][str(chunk)]['single']['times']['ut'])
-                sizes_b_ld.append(dectime['ffmpeg']['rollercoaster'][fmt]['rate'][str(2000000)][str(tile)][str(chunk)]['single']['size'])
-                times_b_hd.append(dectime['ffmpeg']['rollercoaster'][fmt]['rate'][str(24000000)][str(tile)][str(chunk)]['single']['times']['ut'])
-                sizes_b_hd.append(dectime['ffmpeg']['rollercoaster'][fmt]['rate'][str(24000000)][str(tile)][str(chunk)]['single']['size'])
+                times_b_ld.append(dectime['ffmpeg']['rollercoaster'][fmt]['rate'][str(2000000)][str(tile)][str(chunk)]['single']['times'][0])
+                # sizes_b_ld.append(dectime['ffmpeg']['rollercoaster'][fmt]['rate'][str(2000000)][str(tile)][str(chunk)]['single']['size'])
+                times_b_hd.append(dectime['ffmpeg']['rollercoaster'][fmt]['rate'][str(24000000)][str(tile)][str(chunk)]['single']['times'][0])
+                # sizes_b_hd.append(dectime['ffmpeg']['rollercoaster'][fmt]['rate'][str(24000000)][str(tile)][str(chunk)]['single']['size'])
 
             # a = plt.Axes()
             plt.close()
@@ -218,13 +218,14 @@ def graph2() -> None:
     tile X average_dec_time (seconds) and tile X average_rate (Bytes)
     :return: None
     """
-    dirname = 'graph2'
+    dirname = f'results{sl}graph2'
+    os.makedirs(dirname, exist_ok=True)
 
     config = util.Config('config.json')
     dectime = util.load_json('times.json')
 
     # decoders = ['ffmpeg', 'mp4client']
-    factors = ['rate']
+    factors = ['crf']
     threads = ['single']
 
     # for decoder in decoders:
@@ -240,8 +241,8 @@ def graph2() -> None:
                     quality_list = getattr(config, f'{factor}_list')
                     offset = 0
                     for quality in quality_list:
-                        average_size = []
-                        std_size = []
+                        # average_size = []
+                        # std_size = []
                         average_time = []
                         std_time = []
 
@@ -249,15 +250,15 @@ def graph2() -> None:
                         start_position = (0.8 - width) / 2
 
                         for tile in range(1, m * n + 1):
-                            size = []
+                            # size = []
                             time = []
 
                             for chunk in range(1, config.duration + 1):
-                                size.append(dectime['ffmpeg'][name][fmt][factor][str(quality)][str(tile)][str(chunk)][thread]['size'])
-                                time.append(dectime['ffmpeg'][name][fmt][factor][str(quality)][str(tile)][str(chunk)][thread]['times']['ut'])
+                                # size.append(dectime['ffmpeg'][name][fmt][factor][str(quality)][str(tile)][str(chunk)][thread]['size'])
+                                time.append(dectime['ffmpeg'][name][fmt][factor][str(quality)][str(tile)][str(chunk)][thread]['times'][0])
 
-                            average_size.append(np.average(size))
-                            std_size.append(np.std(size))
+                            # average_size.append(np.average(size))
+                            # std_size.append(np.std(size))
                             average_time.append(np.average(time))
                             std_time.append(np.std(time))
 
@@ -267,8 +268,9 @@ def graph2() -> None:
                         if factor in 'rate':
                             quality = int(quality / (m * n))
 
-                        ax[0].bar(x, average_time, width=width, yerr=std_time, label=f'quality={quality}_corr={np.corrcoef(x=(average_time, average_size))[1][0]}')
-                        ax[1].bar(x, average_size, width=width, yerr=std_size, label=f'quality={quality}_ffmpeg')
+                        # ax[0].bar(x, average_time, width=width, yerr=std_time, label=f'quality={quality}_corr={np.corrcoef(x=(average_time, average_size))[1][0]}')
+                        ax[0].bar(x, average_time, width=width, yerr=std_time, label=f'quality={quality}_corr=0')
+                        # ax[1].bar(x, average_size, width=width, yerr=std_size, label=f'quality={quality}_ffmpeg')
 
                     ax[0].set_xlabel('Tile')
                     ax[1].set_xlabel('Tile')
@@ -285,7 +287,7 @@ def graph2() -> None:
                     print(f'Salvando {dirname}{sl}{name}_{fmt}_{factor}.')
                     fig.savefig(f'{dirname}{sl}{name}_{fmt}_{factor}')
                     # plt.show()
-                    1
+                    # print('1')
 
 
 def graph1() -> None:
@@ -293,13 +295,14 @@ def graph1() -> None:
     chunks X dec_time (seconds) and chunks X file_size (Bytes)
     :return:
     """
-    dirname = 'graph1'
+    dirname = f'results{sl}graph1'
+    os.makedirs(dirname, exist_ok=True)
 
     config = util.Config('config.json')
     dectime = util.load_json('times.json')
 
     # decoders = ['ffmpeg', 'mp4client']
-    factors = ['rate']
+    factors = ['crf']
     threads = ['single']
 
     # for decoder in decoders:
@@ -319,8 +322,8 @@ def graph1() -> None:
                             # time_mp4client = []
 
                             for chunk in range(1, config.duration + 1):
-                                size.append(dectime['ffmpeg'][name][fmt][factor][str(quality)][str(tile)][str(chunk)][thread]['size'])
-                                time_ffmpeg.append(dectime['ffmpeg'][name][fmt][factor][str(quality)][str(tile)][str(chunk)][thread]['times']['ut'])
+                                # size.append(dectime['ffmpeg'][name][fmt][factor][str(quality)][str(tile)][str(chunk)][thread]['size'])
+                                time_ffmpeg.append(dectime['ffmpeg'][name][fmt][factor][str(quality)][str(tile)][str(chunk)][thread]['times'][0])
                                 # time_mp4client.append(dectime['mp4client'][name][fmt][factor][str(quality)][str(tile)][str(chunk)][thread]['times'])
 
                             ax[0].plot(time_ffmpeg, label=f'ffmpeg_tile={tile}_ffmpeg')
@@ -353,11 +356,10 @@ def graph1() -> None:
                         ax[1].legend(loc='upper left', ncol=2, bbox_to_anchor=(1.01, 1.0))
                         plt.tight_layout()
                         # plt.()
-                        os.makedirs(dirname, exist_ok=True)
                         print(f'Salvando {dirname}{sl}{name}_{fmt}_{factor}={quality_ind}.')
-                        fig.savefig(f'{dirname}{sl}{name}_{fmt}_{factor}={quality_ind}')
-                        # fig.show()
-                        1
+                        # fig.savefig(f'{dirname}{sl}{name}_{fmt}_{factor}={quality_ind}')
+                        fig.show()
+                        print('')
 
 
 def stats():

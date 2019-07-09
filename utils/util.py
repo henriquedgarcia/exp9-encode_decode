@@ -4,7 +4,7 @@ import os
 import platform
 import subprocess
 import time
-
+import numpy as np
 
 # Minhas classes
 class AutoDict(dict):
@@ -568,7 +568,7 @@ def _run_bench(command, log_path, ext, overwrite=True, log_mode='a'):
 
 # Funções para estatística
 def collect_data(video_seg: VideoSegment):
-    video_seg.dectime_base = f'{video_seg.decoder}_dectime'
+    video_seg.dectime_base = f'dectime_{video_seg.decoder}'
 
     if video_seg.decoder in 'ffmpeg':
         video_seg.bench_stamp = 'bench: utime'
@@ -577,6 +577,7 @@ def collect_data(video_seg: VideoSegment):
 
     tiles = range(1, video_seg.num_tiles + 1)
     chunks = range(1, video_seg.duration * video_seg.fps + 1)
+    print(f'Processing {video_seg.basename}.txt')
 
     for segments in itertools.product(tiles, chunks):
         video_seg.tile = segments[0]
@@ -584,38 +585,37 @@ def collect_data(video_seg: VideoSegment):
 
         if os.path.isfile(f'{video_seg.segment_path}.mp4'):
             video_seg.size = os.path.getsize(f'{video_seg.segment_path}.mp4')
-            print(f'Processing {video_seg.segment_path}.mp4')
 
         if os.path.isfile(f'{video_seg.log_path}.txt'):
             video_seg.times = _get_times(video_seg)
-            print(f'Processing {video_seg.log_path}.txt')
 
     return dict(video_seg.dectime)
 
 
 def _get_times(dectime: VideoSegment) -> list:
-    times = []
-    with open(f'{dectime.log_path}.txt', 'r') as f:
-        for line_ in f:
-            idx = line_.find(dectime.bench_stamp)
-            if idx >= 0:
-                if dectime.decoder in 'ffmpeg':
-                    line = line_.strip().split(' ')
-                    ut = line[1]
-                    st = line[2]
-                    rt = line[3]
-                    # bench_time = dict(ut=float(ut[6:-1]),
-                    #                   st=float(st[6:-1]),
-                    #                   rt=float(rt[6:-1]))
-                    bench_time = dict(ut=float(ut[6:-1]))
-                    times.append(bench_time)
-                elif dectime.decoder in 'mp4client':
-                    bench_time = float(dectime.fps) / float(line_.split(' ')[4])
-                else:
-                    exit('[_get_times] Decoder errado')
+    # with open(f'{dectime.log_path}.txt', 'r') as f:
+    try:
+        f = open(f'{dectime.log_path}.txt', 'r')
+    except FileNotFoundError:
+        print(f'O arquivo {dectime.log_path}.txt não existe')
+        return [0]*5
 
-                times.append(bench_time)
-    return times
+    times = []
+    for line in f:
+        idx = line.find(dectime.bench_stamp)
+        if idx >= 0:
+            if dectime.decoder in 'ffmpeg':
+                line1 = line.replace('bench: ', ' ')
+                line2 = line1.replace('s ', ' ')
+                line3 = line2.strip()[:-1]
+                line4 = line3.split(' ')
+                for i in range(0, 15, 3):
+                    try:
+                        times.append(float(line4[i][6:]))
+                    except IndexError:
+                        print(f'O video {dectime.basename} deu faltou o índice {i}.')
+    f.close()
+    return np.average(times)
 
 
 # Utilitários e funções gerais
