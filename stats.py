@@ -107,31 +107,76 @@ def graph4():
             print(f'hist_{fmt}_tile{tile}')
 
             # plt.hist(times, bins=20)
+def hist1():
+    """
+    Faz os histogramas e agrega por qualidade
+    :return:
+    """
+
+    config = util.Config('Config.json')
+    dectime = util.load_json('times2.json')
+
+    dirname = f'results{sl}hist1'
+    os.makedirs(f'{dirname}', exist_ok=True)
+
+    for fmt in config.tile_list:
+        m, n = list(map(int, fmt.split('x')))
+
+        for name in config.single_videos_list:
+            times = []  # Lim superior
+            sizes = []
             plt.close()
-            fig, ax = plt.subplots(2, 1, figsize=(8, 6), dpi=100)
-            ax[0].bar(np.array(range(len(times_a_ld))) - 0.3, times_a_ld, width=0.2, label=f'om_nom-{fmt}-rate{2000000}')
-            ax[0].bar(np.array(range(len(times_a_hd))) - 0.1, times_a_hd, width=0.2, label=f'om_nom-{fmt}-rate{24000000}')
-            ax[0].bar(np.array(range(len(times_b_ld))) + 0.1, times_b_ld, width=0.2, label=f'rollercoaster-{fmt}-rate{2000000}')
-            ax[0].bar(np.array(range(len(times_b_hd))) + 0.3, times_b_hd, width=0.2, label=f'rollercoaster-{fmt}-rate{24000000}')
-            ax[0].set_title(f'Tile {tile} - Atrasos')
-            ax[0].set_ylabel("Time")
+            fig, ax = plt.subplots(2, 1, figsize=(10, 6), dpi=100)
+            for quality in config.crf_list:
+                for tile in range(1, m * n + 1):
+                    for chunk in range(1, config.duration + 1):
+                        if name in 'ninja_turtles' and chunk > 58:
+                            continue
+                        times.append(dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['times'])
+                        sizes.append(dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['size'])
 
-            ax[1].plot(sizes_a_ld, label=f'om_nom-{fmt}-rate{2000000}')
-            ax[1].plot(sizes_a_hd, label=f'om_nom-{fmt}-rate{24000000}')
-            ax[1].plot(sizes_b_ld, label=f'rollercoaster-{fmt}-rate{2000000}')
-            ax[1].plot(sizes_b_hd, label=f'rollercoaster-{fmt}-rate{24000000}')
-            ax[1].set_title(f'Tile {tile} - Taxas')
-            ax[1].set_xlabel("Chunk")
-            ax[1].set_ylabel("Time")
+                ax[0].hist(times, bins=50, histtype='step', label=f'{name}_{fmt}_crf{quality}')
+                ax[1].hist(sizes, bins=50, density=True, cumulative=True, histtype='step', label=f'{name}_{fmt}_crf{quality}')
 
-            ax[0].legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
-            ax[1].legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
+                ax[0].set_title(f'Video {name}, quality {quality}')
+                ax[0].set_xlabel('Times')
+                ax[0].set_ylabel("Occurrence")
+                ax[0].legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
 
-            plt.tight_layout()
-            plt.savefig(f'{dirname}{sl}graph_{fmt}_tile{tile}')
+                ax[1].set_xlabel('Times')
+                ax[1].set_ylabel("CDF")
+                ax[1].legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
 
+                plt.tight_layout()
+                plt.savefig(f'{dirname}{sl}hist_{name}_{fmt}_quality{quality}')
+                # plt.show()
+                print(f'{dirname}{sl}hist_{name}_quality{quality}')
+
+            # plt.hist(times, bins=20)
+            # plt.close()
+            # fig, ax = plt.subplots(2, 1, figsize=(8, 6), dpi=100)
+            # ax[0].bar(np.array(range(len(times_a_ld))) - 0.3, times_a_ld, width=0.2, label=f'om_nom-{fmt}-rate{2000000}')
+            # ax[0].bar(np.array(range(len(times_a_hd))) - 0.1, times_a_hd, width=0.2, label=f'om_nom-{fmt}-rate{24000000}')
+            # ax[0].bar(np.array(range(len(times_b_ld))) + 0.1, times_b_ld, width=0.2, label=f'rollercoaster-{fmt}-rate{2000000}')
+            # ax[0].bar(np.array(range(len(times_b_hd))) + 0.3, times_b_hd, width=0.2, label=f'rollercoaster-{fmt}-rate{24000000}')
+            # ax[0].set_title(f'Tile {tile} - Atrasos')
+            # ax[0].set_ylabel("Time")
+            #
+            # ax[1].plot(sizes_a_ld, label=f'om_nom-{fmt}-rate{2000000}')
+            # ax[1].plot(sizes_a_hd, label=f'om_nom-{fmt}-rate{24000000}')
+            # ax[1].plot(sizes_b_ld, label=f'rollercoaster-{fmt}-rate{2000000}')
+            # ax[1].plot(sizes_b_hd, label=f'rollercoaster-{fmt}-rate{24000000}')
+            # ax[1].set_title(f'Tile {tile} - Taxas')
+            # ax[1].set_xlabel("Chunk")
+            # ax[1].set_ylabel("Time")
+            #
+            # ax[0].legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
+            # ax[1].legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
+            #
+            # plt.tight_layout()
+            # # plt.savefig(f'{dirname}{sl}graph_{fmt}_tile{tile}')
             # plt.show()
-            print(f'graph_{fmt}_tile{tile}')
+            # print(f'graph_{fmt}_tile{tile}')
 
 
 def graph3() -> None:
