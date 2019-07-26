@@ -34,9 +34,72 @@ def hist():
     pass
 
 
-def graph4():
+def hist1sameplt():
     """
-    Este plot compara tile a tile a taxa e o tempo de decodificação para diferentes qualidades.
+    Compara os histogramas. Para cada video-fmt plota todas as qualidades (agrega tiles e chunks)
+    :return:
+    """
+    config = util.Config('Config.json')
+    dectime = util.load_json('times2.json')
+    color_list = ['blue', 'orange', 'green', 'red']
+    dirname = f'results{sl}{"hist1sameplt"}'
+    os.makedirs(f'{dirname}', exist_ok=True)
+
+    for fmt in config.tile_list:
+        m, n = list(map(int, fmt.split('x')))
+
+        for name in config.single_videos_list:
+            times = {}  # Lim superior
+            sizes = {}
+
+            for quality in config.crf_list:
+                times[quality] = []
+                sizes[quality] = []
+                for tile in range(1, m * n + 1):
+                    for chunk in range(1, config.duration + 1):
+                        if name in 'ninja_turtles' and chunk > 58:
+                            continue
+                        times[quality].append(dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['times'])
+                        sizes[quality].append(dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['size'])
+                        # plt.hist
+
+            plt.close()
+            fig = plt.figure(figsize=(12, 8), dpi=100)
+
+            # O plot da PDF
+            color = iter(color_list)
+            ax = fig.add_subplot(2, 1, 1)
+            ax.set_title(f'{name}, {fmt}')
+            for idx, quality in enumerate(times, 1):
+                label = (f'crf{quality},\n'
+                         f'Avg={np.average(times[quality]):.03f}\n'
+                         f''f'std={np.std(times[quality]):.03f}')
+                ax.hist(times[quality], color=next(color), bins=50, histtype='step', label=label)
+                ax.set_ylabel("PDF")
+                ax.set_xlabel('Times')
+                ax.legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
+
+            # O plot da CDF
+            color = iter(['blue', 'orange', 'green', 'red'])
+            ax = fig.add_subplot(2, 1, 2)
+            ax.set_ylabel("CDF")
+            ax.set_xlabel("Decoder Times")
+            for quality in times:
+                ax.hist(times[quality], color=next(color), bins=50, density=True, cumulative=True, histtype='step', label=f'crf{quality}')
+            ax.legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
+
+            ''' histtype:
+            ‘bar’ is a traditional bar-type histogram. If multiple data are given the bars are aranged side by side.
+            ‘barstacked’ is a bar-type histogram where multiple data are stacked on top of each other.
+            ‘step’ generates a lineplot that is by default unfilled.
+            ‘stepfilled’ generates a lineplot that is by default filled.'''
+
+            plt.tight_layout()
+
+            plt.savefig(f'{dirname}{sl}hist_{name}_{fmt}')
+            # plt.show()
+            print(f'hist_{name}_{fmt}')
+
 
 def hist1samefig():
     """
