@@ -38,7 +38,6 @@ class Config:
 
 
 class Video:
-class VideoSegment:
     class AutoDict(dict):
         def __missing__(self, key):
             value = self[key] = type(self)()
