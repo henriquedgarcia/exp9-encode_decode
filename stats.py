@@ -218,76 +218,68 @@ def graph2() -> None:
     tile X average_dec_time (seconds) and tile X average_rate (Bytes)
     :return: None
     """
-    dirname = f'results{sl}graph2'
+    dirname = f'results{sl}graph2-2'
     os.makedirs(dirname, exist_ok=True)
 
     config = util.Config('config.json')
-    dectime = util.load_json('times.json')
+    dectime = util.load_json('times2.json')
 
-    # decoders = ['ffmpeg', 'mp4client']
-    factors = ['crf']
-    threads = ['single']
+    for name in config.single_videos_list:
+        for fmt in config.tile_list:
+            m, n = list(map(int, fmt.split('x')))
 
-    # for decoder in decoders:
-    for name in config.videos_list:
-        for factor in factors:
+            plt.close()
+            fig, ax = plt.subplots(2, 1, figsize=(10, 5))
+            offset = 0
+            width = 0.8 / len(config.crf_list)
+            start_position = (0.8 - width) / 2
 
-            for thread in threads:
-                for fmt in config.tile_list:
-                    m, n = list(map(int, fmt.split('x')))
-                    plt.close()
-                    fig, ax = plt.subplots(2, 1, figsize=(10, 5))
+            for quality in config.crf_list:
+                average_time = []
+                std_time = []
+                average_size = []
+                std_size = []
 
-                    quality_list = getattr(config, f'{factor}_list')
-                    offset = 0
-                    for quality in quality_list:
-                        # average_size = []
-                        # std_size = []
-                        average_time = []
-                        std_time = []
+                for tile in range(1, m * n + 1):
+                    size = []
+                    time = []
 
-                        width = 0.8 / len(quality_list)
-                        start_position = (0.8 - width) / 2
+                    for chunk in range(1, config.duration + 1):
+                        if name in 'ninja_turtles' and chunk > 58:
+                            continue
+                        s = dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['size']
+                        t = dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['times']
+                        size.append(float(s) * 8)
+                        time.append(float(t))
 
-                        for tile in range(1, m * n + 1):
-                            # size = []
-                            time = []
+                    average_size.append(np.average(size))
+                    average_time.append(np.average(time))
+                    std_size.append(np.std(size))
+                    std_time.append(np.std(time))
 
-                            for chunk in range(1, config.duration + 1):
-                                # size.append(dectime['ffmpeg'][name][fmt][factor][str(quality)][str(tile)][str(chunk)][thread]['size'])
-                                time.append(dectime['ffmpeg'][name][fmt][factor][str(quality)][str(tile)][str(chunk)][thread]['times'][0])
+                x = np.array(range(1, len(average_time) + 1)) - start_position + offset
+                ax[0].bar(x, average_time, width=width, yerr=std_time, label=f'quality={quality}_corr={np.corrcoef(x=(average_time, average_size))[1][0]:.3f}')
+                ax[1].bar(x, average_size, width=width, yerr=std_size, label=f'quality={quality}')
+                offset += width
 
-                            # average_size.append(np.average(size))
-                            # std_size.append(np.std(size))
-                            average_time.append(np.average(time))
-                            std_time.append(np.std(time))
+            ax[0].set_xlabel('Tile')
+            ax[1].set_xlabel('Tile')
+            ax[0].set_ylabel('Average Time/Tile (s)')
+            ax[1].set_ylabel('Average Rate/Tile (bps)')
+            ax[0].set_title(f'{name} - Times by tiles, tile={fmt}')
+            ax[1].set_title(f'{name} - Rates by tiles, tile={fmt}')
+            ax[0].set_ylim(bottom=0)
+            ax[1].set_ylim(bottom=0)
+            ax[0].legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
+            ax[1].legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
+            plt.tight_layout()
 
-                        x = np.array(range(1, len(average_time) + 1)) - start_position + offset
-                        offset += width
+            print(f'Salvando {dirname}{sl}{name}_{fmt}.')
+            fig.savefig(f'{dirname}{sl}{name}_{fmt}')
+            # plt.show()
+            print('')
 
-                        if factor in 'rate':
-                            quality = int(quality / (m * n))
 
-                        # ax[0].bar(x, average_time, width=width, yerr=std_time, label=f'quality={quality}_corr={np.corrcoef(x=(average_time, average_size))[1][0]}')
-                        ax[0].bar(x, average_time, width=width, yerr=std_time, label=f'quality={quality}_corr=0')
-                        # ax[1].bar(x, average_size, width=width, yerr=std_size, label=f'quality={quality}_ffmpeg')
-
-                    ax[0].set_xlabel('Tile')
-                    ax[1].set_xlabel('Tile')
-                    ax[0].set_ylabel('Average Time')
-                    ax[1].set_ylabel('Average Rate')
-                    ax[0].set_title(f'{name} - Times by tiles, tile={fmt}, {factor}')
-                    ax[1].set_title(f'{name} - Rates by tiles, tile={fmt}, {factor}')
-                    ax[0].set_ylim(bottom=0)
-                    ax[1].set_ylim(bottom=0)
-                    ax[0].legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
-                    ax[1].legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
-                    plt.tight_layout()
-                    os.makedirs(dirname, exist_ok=True)
-                    print(f'Salvando {dirname}{sl}{name}_{fmt}_{factor}.')
-                    fig.savefig(f'{dirname}{sl}{name}_{fmt}_{factor}')
-                    # plt.show()
-                    # print('1')
 def graph2a() -> None:
     """
     bar
