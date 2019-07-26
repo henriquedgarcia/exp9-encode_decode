@@ -383,6 +383,59 @@ def graph1() -> None:
     # graph_chunk_X_time_X_tile_rate()
     # graph2()
     # graph3()
+def graph1_a() -> None:
+    """
+    chunks X dec_time (seconds) and chunks X file_size (Bytes)
+    :return:
+    """
+    dirname = f'results{sl}graph1-2a'
+    os.makedirs(dirname, exist_ok=True)
+
+    config = util.Config('config.json')
+    dectime = util.load_json('times2.json')
+
+    for name in config.single_videos_list:
+        for fmt in config.tile_list:
+            m, n = list(map(int, fmt.split('x')))
+            for tile in range(1, m * n + 1):
+                plt.close()
+                fig, ax = plt.subplots(1, 2, figsize=(19, 6))
+
+                # Para cada quadro, plotar time de todos os tiles daquele video ao longo do tempo
+                for quality in config.crf_list:
+                    print(f'Processing {name}-{fmt}-{quality}-tile{tile}')
+                    size = []
+                    time_ffmpeg = []
+
+                    for chunk in range(1, config.duration + 1):
+                        if name in 'ninja_turtles' and chunk > 58:
+                            continue
+                        s = dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['size']
+                        t = dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['times']
+                        size.append(float(s) * 8)
+                        time_ffmpeg.append(float(t))
+
+                    ax[0].plot(time_ffmpeg)
+                    ax[1].plot(size, label=f'crf={quality}, corr={np.corrcoef((time_ffmpeg, size))[1][0]:.3f}')
+
+                ax[0].set_xlabel('Chunks')
+                ax[1].set_xlabel('Chunks')
+                ax[0].set_ylabel('Time/Tile (s)')
+                ax[1].set_ylabel('Rate/Tile (bps)')
+                ax[0].set_title(f'{name}-{fmt}-tile{tile} - Times by chunks')
+                ax[1].set_title(f'{name}-{fmt}-tile{tile} - Rates by chunks')
+                ax[0].set_ylim(bottom=0)
+                ax[1].set_ylim(bottom=0)
+                ax[1].legend(loc='upper left', ncol=2, bbox_to_anchor=(1.01, 1.0))
+                plt.tight_layout()
+
+                savename = f'{dirname}/{name}_{fmt}_tile{tile}'
+                print(f'Salvando {savename}.png')
+                fig.savefig(f'{savename}')
+                # fig.show()
+                print('')
+
+
 def stats():
     # Configura os objetos
     config = util.Config('config.json')
