@@ -596,7 +596,7 @@ def collect_data(video_seg: Video):
     return dict(video_seg.dectime)
 
 
-def _get_times(dectime: VideoSegment) -> list:
+def _get_times(dectime: Video) -> list:
     # with open(f'{dectime.log_path}.txt', 'r') as f:
     try:
         f = open(f'{dectime.log_path}.txt', 'r')
