@@ -22,8 +22,10 @@ class Config:
         self.duration = 0
         self.qp_list = []
         self.rate_list = []
+        self.crf_list = []
         self.tile_list = []
         self.videos_list = {}
+        self.single_videos_list = {}
         if filename:
             self._load_config(filename)
 
