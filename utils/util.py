@@ -578,27 +578,21 @@ def _run_bench(command, log_path, ext, overwrite=True, log_mode='a'):
 
 
 # Funções para estatística
-def collect_data(video_seg: VideoSegment):
-    video_seg.dectime_base = f'dectime_{video_seg.decoder}'
-
+def collect_data(video_seg: Video):
     if video_seg.decoder in 'ffmpeg':
         video_seg.bench_stamp = 'bench: utime'
     elif video_seg.decoder in 'mp4client':
         video_seg.bench_stamp = 'frames FPS'
 
-    tiles = range(1, video_seg.num_tiles + 1)
-    chunks = range(1, video_seg.duration * video_seg.fps + 1)
     print(f'Processing {video_seg.basename}.txt')
 
-    for segments in itertools.product(tiles, chunks):
-        video_seg.tile = segments[0]
-        video_seg.chunk = segments[1]
+    for video_seg.tile in range(1, video_seg.num_tiles + 1):
+        for video_seg.chunk in range(1, video_seg.duration * video_seg.fps + 1):
+            if os.path.isfile(f'{video_seg.segment_path}.mp4'):
+                video_seg.size = os.path.getsize(f'{video_seg.segment_path}.mp4')
 
-        if os.path.isfile(f'{video_seg.segment_path}.mp4'):
-            video_seg.size = os.path.getsize(f'{video_seg.segment_path}.mp4')
-
-        if os.path.isfile(f'{video_seg.log_path}.txt'):
-            video_seg.times = _get_times(video_seg)
+            if os.path.isfile(f'{video_seg.log_path}.txt'):
+                video_seg.times = _get_times(video_seg)
 
     return dict(video_seg.dectime)
 
