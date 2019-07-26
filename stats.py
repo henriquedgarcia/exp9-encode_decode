@@ -362,22 +362,8 @@ def graph1() -> None:
                         print('')
 
 
-def stats():
-    # Configura os objetos
-    config = util.Config('config.json')
 
-    # Base object
-    video_seg = util.VideoSegment(config=config)
-    video_seg.project = 'ffmpeg'
-    video_seg.segment_base = 'segment'
 
-    # To iterate
-    decoders = ['ffmpeg']
-    videos_list = config.videos_list
-    tile_list = config.tile_list
-    q_factors = ['crf']
-    multithreads = ['single']
-    times = {}
 
     for factors in product(decoders, videos_list, tile_list, q_factors, multithreads):
         video_seg.decoder = factors[0]
@@ -397,7 +383,47 @@ def stats():
     # graph_chunk_X_time_X_tile_rate()
     # graph2()
     # graph3()
+def stats():
+    # Configura os objetos
+    config = util.Config('config.json')
 
+    # Base object
+    video_seg = util.Video(config=config)
+    video_seg.project = 'results/ffmpeg_crf_18videos_60s'
+    video_seg.factor = 'crf'
+    video_seg.segment_base = 'segment'
+    video_seg.dectime_base = f'dectime_ffmpeg'
+    video_seg.bench_stamp = 'bench: utime'
+    video_seg.multithread = 'single'
+
+    video_seg.quality_list = config.crf_list
+
+    for (video_seg.name, video_seg.fmt, video_seg.quality) in product(config.videos_list, config.tile_list, video_seg.quality_list):
+        print(f'Processing {video_seg.basename}.txt')
+
+        for video_seg.tile in range(1, video_seg.num_tiles + 1):
+            for video_seg.chunk in range(1, video_seg.duration * video_seg.fps + 1):
+
+                # Processing segment size (bytes)
+                if os.path.isfile(f'{video_seg.segment_path}.mp4'):
+                    video_seg.size = os.path.getsize(f'{video_seg.segment_path}.mp4')
+
+                # Processing decoding time
+                if os.path.isfile(f'{video_seg.log_path}.txt'):
+                    times = []
+                    with open(f'{video_seg.log_path}.txt', 'r') as f:
+                        for line in f:
+                            if line.find(video_seg.bench_stamp) >= 0:
+                                line = line.replace('bench: ', ' ')  # Troca "bench" por " "
+                                line = line.replace('s ', ' ')  # Troca "s " por " "
+                                line = line.strip()[:-1]  # Remove o último char
+                                line = line.split(' ')  # Faz o split com " "
+                                for i in range(0, len(line), 3):
+                                    times.append(float(line[i][6:]))
+
+                    video_seg.times = np.average(times)
+
+    util.save_json(dict(video_seg.dectime), 'times2.json')
 
 
 if __name__ == "__main__":
