@@ -21,17 +21,78 @@ def main():
     pass
 
 
-def hist():
+def hist2samefig():
     """
-    Fazer um histograma para cada fator que estamos avaliando
-    qualidade: 2000 kbps, 24000 kbps
-    fmt: 1x1, 3x2, 6x4
-    video: om_nom e rollercoaster
-    Total: 2 x 3 x 2 = 12 histogramas
-
+    Compara os histogramas. Para cada video-quality plota todas os fmts (agrega tiles e chunks)
     :return:
     """
-    pass
+    config = util.Config('Config.json')
+    dectime = util.load_json('times2.json')
+
+    dirname = f'results{sl}{"hist2samefig"}'
+    os.makedirs(f'{dirname}', exist_ok=True)
+
+    for quality in config.crf_list:
+        for name in config.single_videos_list:
+            times = {}  # Lim superior
+            sizes = {}
+
+            for fmt in config.tile_list:
+                m, n = list(map(int, fmt.split('x')))
+                times[fmt] = []
+                sizes[fmt] = []
+                for tile in range(1, m * n + 1):
+                    for chunk in range(1, config.duration + 1):
+                        if name in 'ninja_turtles' and chunk > 58:
+                            continue
+                        times[fmt].append(dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['times'])
+                        sizes[fmt].append(dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['size'])
+                        # plt.hist
+
+            plt.close()
+            fig = plt.figure(figsize=(12, 6), dpi=100)
+
+            it = enumerate(times, 1)
+            color = iter(['blue', 'orange', 'green', 'red'])
+
+            idx, fmt = next(it)
+            ax = fig.add_subplot(3, 2, idx)
+            ax.hist(times[fmt], color=next(color), bins=50, histtype='step', label=(f'Avg={np.average(times[fmt]):.03f}\n'
+                                                                                    f'std={np.std(times[fmt]):.03f}'))
+            ax.set_title(f'{name}, crf {quality}, {fmt}')
+            ax.legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
+
+            for idx, fmt in it:
+                ax = fig.add_subplot(3, 2, idx, sharex=ax)
+                ax.set_title(f'{name}, crf {quality}, {fmt}')
+                ax.hist(times[fmt], color=next(color), bins=50, histtype='step', label=(f'Avg={np.average(times[fmt]):.03f}\n'
+                                                                                        f'std={np.std(times[fmt]):.03f}'))
+                if idx in [1, 2]:
+                    ax.set_ylabel("PDF")
+                if idx in [3, 4]:
+                    ax.set_xlabel('Times')
+                # if n in [2, 4]:
+                ax.legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
+
+            color = iter(['blue', 'orange', 'green', 'red'])
+            ax = fig.add_subplot(3, 1, 3)
+            for fmt in times:
+                ax.hist(times[fmt], color=next(color), bins=50, density=True, cumulative=True, histtype='step', label=f'{name}_{fmt}_crf{quality}')
+                ax.set_ylabel("CDF")
+                ax.set_xlabel("Decoder Times")
+                ax.legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
+
+            ''' histtype:
+            ‘bar’ is a traditional bar-type histogram. If multiple data are given the bars are aranged side by side.
+            ‘barstacked’ is a bar-type histogram where multiple data are stacked on top of each other.
+            ‘step’ generates a lineplot that is by default unfilled.
+            ‘stepfilled’ generates a lineplot that is by default filled.'''
+
+            plt.tight_layout()
+
+            # plt.savefig(f'{dirname}{sl}hist_{name}_{quality}')
+            plt.show()
+            print(f'hist_{name}_{quality}')
 
 
 def hist1sameplt():
