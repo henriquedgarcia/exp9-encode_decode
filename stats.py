@@ -288,6 +288,97 @@ def graph2() -> None:
                     fig.savefig(f'{dirname}{sl}{name}_{fmt}_{factor}')
                     # plt.show()
                     # print('1')
+def graph2a() -> None:
+    """
+    bar
+    tile X average_dec_time (seconds) and tile X average_rate (Bytes)
+    :return: None
+    """
+    dirname = f'results{sl}graph2-2a'
+    os.makedirs(dirname, exist_ok=True)
+
+    config = util.Config('config.json')
+    dectime = util.load_json('times2.json')
+
+    for name in config.single_videos_list:
+        for fmt in config.tile_list:
+            plt.close()
+            fig = plt.figure(figsize=(10, 6))
+            ax = [None] * 6
+            ax[0] = fig.add_subplot(3, 1, 1)
+            ax[1] = fig.add_subplot(3, 1, 2)
+            ax[2] = fig.add_subplot(3, 4, 9)
+            ax[3] = fig.add_subplot(3, 4, 10)
+            ax[4] = fig.add_subplot(3, 4, 11)
+            ax[5] = fig.add_subplot(3, 4, 12)
+
+            # fig, ax = plt.subplots(2, 1, figsize=(10, 5))
+            offset = 0
+            width = 0.8 / len(config.crf_list)
+            start_position = (0.8 - width) / 2
+            for count, quality in enumerate(config.crf_list):
+
+                average_time = []
+                std_time = []
+                average_size = []
+                std_size = []
+
+                m_, n_ = list(map(int, fmt.split('x')))
+                frame1 = np.zeros((n_, m_))
+
+                for m, n in itertools.product(range(1, m_ + 1), range(1, n_ + 1)):
+                    tile = m * n
+                    # Inicializa
+                    size = []
+                    time = []
+
+                    # Opera
+                    for chunk in range(1, config.duration + 1):
+                        if name in 'ninja_turtles' and chunk > 58:
+                            continue
+                        s = dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['size']
+                        t = dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['times']
+                        size.append(float(s) * 8)
+                        time.append(float(t))
+
+                    # Anexa
+                    average_size.append(np.average(size))
+                    average_time.append(np.average(time))
+                    std_size.append(np.std(size))
+                    std_time.append(np.std(time))
+                    frame1[n - 1, m - 1] = np.average(size)
+
+                # Plota
+                x = np.array(range(1, len(average_time) + 1)) - start_position + offset
+                ax[0].bar(x, average_time, width=width, yerr=std_time, label=f'crf={quality}_corr={np.corrcoef(x=(average_time, average_size))[1][0]:.3f}')
+                ax[1].bar(x, average_size, width=width, yerr=std_size, label=f'crf={quality}')
+                ax[count + 2].pcolor(frame1, cmap='inferno')
+                ax[count + 2].set_xlabel(f'crf={quality}')
+                ax[count + 2].set_title('Heatmap')
+                offset += width
+                # a=count
+
+            # plt.colorbar(ax=ax[a + 2])
+
+            # Encerra Plot
+            ax[0].set_xlabel('Tile')
+            ax[1].set_xlabel('Tile')
+            ax[0].set_ylabel('Average Time (s)')
+            ax[1].set_ylabel('Average Rate (bps)')
+            ax[0].set_title(f'{name} - Times by tiles, tile={fmt}')
+            ax[1].set_title(f'{name} - Rates by tiles, tile={fmt}')
+            ax[0].set_ylim(bottom=0)
+            ax[1].set_ylim(bottom=0)
+            # ax[0].ticklabel_format(style='sci', axis='Y', scilimits=(-1, -1))
+            ax[1].ticklabel_format(style='sci', axis='Y', scilimits=(6, 6))
+            ax[0].legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
+            ax[1].legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
+            plt.tight_layout()
+
+            print(f'Salvando {dirname}{sl}{name}_{fmt}.')
+            fig.savefig(f'{dirname}{sl}{name}_{fmt}')
+            # plt.show()
+            print('')
 
 
 def graph1() -> None:
