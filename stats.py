@@ -295,94 +295,54 @@ def graph1() -> None:
     chunks X dec_time (seconds) and chunks X file_size (Bytes)
     :return:
     """
-    dirname = f'results{sl}graph1'
+    dirname = f'results{sl}graph1-2'
     os.makedirs(dirname, exist_ok=True)
 
     config = util.Config('config.json')
-    dectime = util.load_json('times.json')
+    dectime = util.load_json('times2.json')
 
-    # decoders = ['ffmpeg', 'mp4client']
-    factors = ['crf']
-    threads = ['single']
+    for name in config.single_videos_list:
+        for fmt in config.tile_list:
+            for quality in config.crf_list:
+                plt.close()
+                fig, ax = plt.subplots(1, 2, figsize=(19, 6))
 
-    # for decoder in decoders:
-    for name in config.videos_list:
-        for factor in factors:
-            for quality in getattr(config, f'{factor}_list'):
-                quality = np.array(quality)
-                for thread in threads:
-                    for fmt in config.tile_list:
-                        m, n = list(map(int, fmt.split('x')))
-                        plt.close()
-                        fig, ax = plt.subplots(1, 2, figsize=(18, 6))
+                # Para cada quadro, plotar time de todos os tiles daquele video ao longo do tempo
+                m, n = list(map(int, fmt.split('x')))
+                for tile in range(1, m * n + 1):
+                    print(f'Processing {name}-{fmt}-{quality}-tile{tile}')
+                    size = []
+                    time_ffmpeg = []
 
-                        for tile in range(1, m * n + 1):
-                            size = []
-                            time_ffmpeg = []
-                            # time_mp4client = []
+                    for chunk in range(1, config.duration + 1):
+                        if name in 'ninja_turtles' and chunk > 58:
+                            continue
+                        s = dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['size']
+                        t = dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['times']
+                        size.append(float(s) * 8)
+                        time_ffmpeg.append(float(t))
 
-                            for chunk in range(1, config.duration + 1):
-                                # size.append(dectime['ffmpeg'][name][fmt][factor][str(quality)][str(tile)][str(chunk)][thread]['size'])
-                                time_ffmpeg.append(dectime['ffmpeg'][name][fmt][factor][str(quality)][str(tile)][str(chunk)][thread]['times'][0])
-                                # time_mp4client.append(dectime['mp4client'][name][fmt][factor][str(quality)][str(tile)][str(chunk)][thread]['times'])
+                    ax[0].plot(time_ffmpeg)
+                    ax[1].plot(size, label=f'tile={tile}, corr={np.corrcoef((time_ffmpeg, size))[1][0]:.3f}')
 
-                            ax[0].plot(time_ffmpeg, label=f'ffmpeg_tile={tile}_ffmpeg')
-                            # ax[0][1].plot(time_mp4client, label=f'tile={tile}')
-                            ax[1].plot(size, label=f'tile={tile}')
-                            # ax[1][1].plot(time_ffmpeg, label=f'ffmpeg_tile={tile}_ffmpeg')
-                            # ax[1][1].plot(time_mp4client, label=f'mp4client_tile={tile}_mp4client')
+                ax[0].set_xlabel('Chunks')
+                ax[1].set_xlabel('Chunks')
+                ax[0].set_ylabel('Time (s)')
+                ax[1].set_ylabel('Rate (bps)')
+                ax[0].set_title(f'{name}-{fmt}-crf{quality} - Times by chunks')
+                ax[1].set_title(f'{name}-{fmt}-crf{quality} - Rates by chunks')
+                ax[0].set_ylim(bottom=0)
+                ax[1].set_ylim(bottom=0)
+                ax[1].legend(loc='upper left', ncol=2, bbox_to_anchor=(1.01, 1.0))
+                plt.tight_layout()
 
-                        quality_ind = quality
-                        if factor in 'rate':
-                            quality_ind = int(quality / (m * n))
-
-                        ax[0].set_xlabel('Chunks')
-                        # ax[0][1].set_xlabel('Chunks')
-                        ax[1].set_xlabel('Chunks')
-                        # ax[1][1].set_xlabel('Chunks')
-                        ax[0].set_ylabel('Time')
-                        # ax[0][1].set_ylabel('Time')
-                        # ax[1][1].set_ylabel('Time')
-                        ax[1].set_ylabel('Rate')
-                        ax[0].set_title(f'ffmpeg - {name} - Times by chunks, tile={fmt}, {factor}={quality_ind}')
-                        # ax[0][1].set_title(f'mp4client {name} - Times by chunks, tile={fmt}, {factor}={quality_ind}')
-                        ax[1].set_title(f'{name} - Rates by chunks, tile={fmt}, {factor}={quality_ind}')
-                        # ax[1][1].set_title(f'mp4client x ffmpeg - {name} - Times by chunks, tile={fmt}, {factor}={quality_ind}')
-                        # ax[0].set_ylim(bottom=0)
-                        # ax[1].set_ylim(bottom=0)
-                        ax[1].set_ylim(bottom=0)
-                        # ax[1][1].set_ylim(bottom=0)
-                        # ax[0][1].legend(loc='upper left', ncol=2, bbox_to_anchor=(1.01, 1.0))
-                        ax[1].legend(loc='upper left', ncol=2, bbox_to_anchor=(1.01, 1.0))
-                        plt.tight_layout()
-                        # plt.()
-                        print(f'Salvando {dirname}{sl}{name}_{fmt}_{factor}={quality_ind}.')
-                        # fig.savefig(f'{dirname}{sl}{name}_{fmt}_{factor}={quality_ind}')
-                        fig.show()
-                        print('')
+                savename = f'{dirname}/{name}_{fmt}_crf{quality}'
+                print(f'Salvando {savename}.png')
+                fig.savefig(f'{savename}')
+                # fig.show()
+                print('')
 
 
-
-
-
-    for factors in product(decoders, videos_list, tile_list, q_factors, multithreads):
-        video_seg.decoder = factors[0]
-        video_seg.name = factors[1]
-        video_seg.fmt = factors[2]
-        video_seg.factor = factors[3]
-        video_seg.multithread = factors[4]
-        video_seg.dectime_base = f'dectime_{video_seg.decoder}'
-
-        video_seg.quality_list = getattr(config, f'{video_seg.factor}_list')
-
-        for video_seg.quality in video_seg.quality_list:
-            times = util.collect_data(video_seg=video_seg)
-
-    util.save_json(times, 'times.json')
-
-    # graph_chunk_X_time_X_tile_rate()
-    # graph2()
-    # graph3()
 def graph1_a() -> None:
     """
     chunks X dec_time (seconds) and chunks X file_size (Bytes)
