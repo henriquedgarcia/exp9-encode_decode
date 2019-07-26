@@ -23,13 +23,27 @@
     "6x4",
     "12x8"
   ],
-  "backup_videos_list": {
-    "angels_fall": {
-      "filename": "angels_fall_4320x2160_30.yuv",
-      "time": "0:25"
-    }
+  "single_videos_list": {
+    "angels_fall": {},
+    "surf": {},
+    "om_nom": {},
+    "lions": {},
+    "rollercoaster": {},
+    "pac_man": {},
+    "clans": {},
+    "super_mario": {},
+    "ski": {},
+    "jaws": {},
+    "maldives": {},
+    "elephants": {},
+    "ninja_turtles": {},
+    "lion_king": {},
+    "pluto": {},
+    "ball": {},
+    "manhattan": {},
+    "venice": {}
   },
-  "videos_list": {
+  "backup_videos_list": {
     "angels_fall": {
       "filename": "angels_fall_4320x2160_30.yuv",
       "time": "0:25"
@@ -102,5 +116,5 @@
       "filename": "venice_4320x2160_30.yuv",
       "time": "0:05"
     }
-  }  
+  }
 }
