@@ -602,7 +602,7 @@ def _get_times(dectime: Video) -> list:
         f = open(f'{dectime.log_path}.txt', 'r')
     except FileNotFoundError:
         print(f'O arquivo {dectime.log_path}.txt não existe')
-        return [0]*5
+        return [0] * 5
 
     times = []
     for line in f:
