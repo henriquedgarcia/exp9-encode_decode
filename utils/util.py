@@ -35,6 +35,7 @@ class Config:
             setattr(self, key, config_data[key])
 
 
+class Video:
 class VideoSegment:
     class AutoDict(dict):
         def __missing__(self, key):
@@ -43,11 +44,14 @@ class VideoSegment:
 
     def __init__(self, config: Config, dectime: dict = None):
         if dectime is None:
-            dectime = {}
-        self.sl = check_system()['sl']
+            self.dectime = self.AutoDict()
+        else:
+            self.dectime = self.AutoDict(dectime)
+
+        self.sl = '/'
         self.config = config
-        self.m = self.n = self.num_tiles = 0
-        self.bench_stamp = ''
+        self.m = self.n = self.num_tiles = None
+        self.bench_stamp = None
 
         self.scale = config.scale
         self.fps = config.fps
@@ -55,33 +59,28 @@ class VideoSegment:
         self.duration = config.duration
 
         # saída: dicionário com todos os dados de saída
-        self.dectime = self.AutoDict(dectime)
 
         # pastas
-        self._basename = ''
-        self.project = ''
-        self.dectime_base = ''
-        self.segment_base = ''
-        self._log_path = ''
-        self._segment_path = ''
+        self._basename = None
+        self.project = None
+        self.dectime_base = None
+        self.segment_base = None
+        self._log_path = None
+        self._segment_path = None
 
-        self.decoder = ''
-        self.name = ''
-        self._fmt = ''
-        self.factor = ''
-        self.quality = 0
-        self.tile = 0
-        self.chunk = 0
-        self._multithread = ''
+        self.decoder = None
+        self.name = None
+        self._fmt = None
+        self.factor = None
+        self.quality = None
+        self.tile = None
+        self.chunk = None
+        self.multithread = None
 
     @property
     def basename(self):
-        if self.factor in '':
-            exit('[basename] É preciso definir o atributo factor antes.')
-        if self.quality == 0:
-            exit('[basename] É preciso definir o atributo quality antes.')
-        if self.name == '':
-            exit('[basename] É preciso definir o atributo name antes.')
+        if self.factor is None or self.quality is None or self.name is None:
+            exit('[basename] Esta faltando algum atributo (factor, quality or name).')
 
         self._basename = (f'{self.name}_'
                           f'{self.scale}_'
@@ -92,6 +91,9 @@ class VideoSegment:
 
     @property
     def segment_path(self):
+        if self.project is None or self.segment_base is None or self.tile is None or self.chunk is None:
+            exit('[segment_path] Esta faltando algum atributo.')
+
         self._segment_path = (f'{self.project}{self.sl}'
                               f'{self.segment_base}{self.sl}'
                               f'{self.basename}{self.sl}'
@@ -100,6 +102,7 @@ class VideoSegment:
 
     @property
     def log_path(self):
+
         self._log_path = (f'{self.project}{self.sl}'
                           f'{self.dectime_base}{self.sl}'
                           f'{self.basename}{self.sl}'
@@ -109,39 +112,45 @@ class VideoSegment:
         return self._log_path
 
     @property
-    def size(self):
-        size = self.dectime[self.decoder][self.name][self.fmt][self.factor][self.quality][self.tile][self.chunk][
-            self.multithread]['size']
-        return size
+    def size(self):  # name, fmt, quality, tile, chunk
+        if self.name is None or \
+                self.fmt is None or \
+                self.quality is None or \
+                self.tile is None or \
+                self.chunk is None:
+            exit('[size] Esta faltando algum atributo.')
+
+        return self.dectime[self.name][self.fmt][self.quality][self.tile][self.chunk]['size']
 
     @size.setter
     def size(self, value):
-        self.dectime[self.decoder][self.name][self.fmt][self.factor][self.quality][self.tile][self.chunk][
-            self.multithread]['size'] = value
+        if self.name is None or \
+                self.fmt is None or \
+                self.quality is None or \
+                self.tile is None or \
+                self.chunk is None:
+            exit('[size] Esta faltando algum atributo.')
+        self.dectime[self.name][self.fmt][self.quality][self.tile][self.chunk]['size'] = value
 
     @property
     def times(self):
-        return self.dectime[self.decoder][self.name][self.fmt][self.factor][self.quality][self.tile][self.chunk][
-            self.multithread]['times']
+        if self.name is None or \
+                self.fmt is None or \
+                self.quality is None or \
+                self.tile is None or \
+                self.chunk is None:
+            exit('[size] Esta faltando algum atributo.')
+        return self.dectime[self.name][self.fmt][self.quality][self.tile][self.chunk]['times']
 
     @times.setter
     def times(self, value):
-        times = self.dectime[self.decoder][self.name][self.fmt][self.factor][self.quality][self.tile][self.chunk][
-            self.multithread]['times']
-        if not times:
-            self.dectime[self.decoder][self.name][self.fmt][self.factor][self.quality][self.tile][self.chunk][
-                self.multithread]['times'] = [value]
-        else:
-            self.dectime[self.decoder][self.name][self.fmt][self.factor][self.quality][self.tile][self.chunk][
-                self.multithread]['times'].extend(value)
-
-    @property
-    def multithread(self):
-        return self._multithread
-
-    @multithread.setter
-    def multithread(self, value):
-        self._multithread = value
+        if self.name is None or \
+                self.fmt is None or \
+                self.quality is None or \
+                self.tile is None or \
+                self.chunk is None:
+            exit('[size] Esta faltando algum atributo.')
+        self.dectime[self.name][self.fmt][self.quality][self.tile][self.chunk]['times'] = value
 
     @property
     def fmt(self):
