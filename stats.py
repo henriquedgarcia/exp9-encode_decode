@@ -1,4 +1,5 @@
 #!/bin/python3
+import itertools
 import os
 from itertools import product
 
@@ -13,12 +14,16 @@ sl = util.check_system()['sl']
 
 def main():
     # stats()
-    graph1()
+    # graph1()
+    # graph1_a()
     # graph2()
+    # graph2a()
     # graph3()
-    # graph4()
-    # hist()
-    pass
+    # hist1()
+    hist1samefig()
+    hist1sameplt()
+    # hist2samefig()
+    # hist2sameplt()
 
 
 def hist2samefig():
