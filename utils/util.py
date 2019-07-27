@@ -6,6 +6,7 @@ import subprocess
 import time
 import numpy as np
 
+
 # Minhas classes
 class AutoDict(dict):
     def __missing__(self, key):
