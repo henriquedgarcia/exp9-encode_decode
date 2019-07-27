@@ -21,20 +21,20 @@ def main():
     # graph3()
     # hist1()
     hist1samefig()
-    hist1sameplt()
+    # hist1sameplt()
     # hist2samefig()
     # hist2sameplt()
 
 
-def hist2samefig():
+def hist2sameplt(a="hist2sameplt"):
     """
-    Compara os histogramas. Para cada video-quality plota todas os fmts (agrega tiles e chunks)
+    Compara os histogramas. Para cada video-fmt plota todas as qualidades (agrega tiles e chunks)
     :return:
     """
     config = util.Config('Config.json')
     dectime = util.load_json('times2.json')
-
-    dirname = f'results{sl}{"hist2samefig"}'
+    color_list = ['blue', 'orange', 'green', 'red']
+    dirname = f'results{sl}{a}'
     os.makedirs(f'{dirname}', exist_ok=True)
 
     for quality in config.crf_list:
@@ -55,48 +55,133 @@ def hist2samefig():
                         # plt.hist
 
             plt.close()
+            fig = plt.figure(figsize=(12, 8), dpi=100)
+
+            # O plot da PDF
+            color = iter(color_list)
+            ax = fig.add_subplot(2, 1, 1)
+            ax.set_title(f'{name}, crf{quality}')
+            for idx, fmt in enumerate(times, 1):
+                label = (f'fmt={fmt}\n'
+                         f'avg={np.average(times[fmt]):.03f}\n'
+                         f'std={np.std(times[fmt]):.03f}')
+                ax.hist(times[fmt],
+                        color=next(color),
+                        bins=50,
+                        histtype='step',
+                        label=label)
+                ax.set_ylabel("Frequency")
+                ax.set_xlabel('Decode Time')
+                ax.legend(loc='upper left',
+                          ncol=1,
+                          bbox_to_anchor=(1.01, 1.0))
+
+            # O plot da CDF
+            color = iter(color_list)
+            ax = fig.add_subplot(2, 1, 2)
+            ax.set_ylabel("CDF")
+            ax.set_xlabel("Decode Time")
+            for fmt in times:
+                ax.hist(times[fmt],
+                        color=next(color),
+                        bins=50,
+                        density=True,
+                        cumulative=True,
+                        histtype='step',
+                        label=f'fmt={fmt}')
+            ax.legend(loc='upper left',
+                      ncol=1,
+                      bbox_to_anchor=(1.01, 1.0))
+
+            plt.tight_layout()
+
+            plt.savefig(f'{dirname}{sl}hist_{name}_crf{quality}')
+            # plt.show()
+            print(f'hist_{name}_crf{quality}')
+
+
+def hist2samefig(a="hist2samefig"):
+    """
+    Compara os histogramas. Para cada video-quality plota todas os fmts (agrega tiles e chunks)
+    :return:
+    """
+    config = util.Config('Config.json')
+    dectime = util.load_json('times2.json')
+    color_list = ['blue', 'orange', 'green', 'red']
+    dirname = f'results{sl}{a}'
+
+    os.makedirs(f'{dirname}', exist_ok=True)
+
+    for quality in config.crf_list:
+        for name in config.single_videos_list:
+            times = {}  # Lim superior
+            sizes = {}
+
+            for fmt in config.tile_list:
+                m, n = list(map(int, fmt.split('x')))
+                times[fmt] = []
+                sizes[fmt] = []
+                for tile in range(1, m * n + 1):
+                    for chunk in range(1, config.duration + 1):
+                        if name in 'ninja_turtles' and chunk > 58:
+                            continue
+                        times[fmt].append(dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['times'])
+                        sizes[fmt].append(dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['size'])
+                        # plt.hist
+
+            plt.close()
+            # Plotando PDFs
             fig = plt.figure(figsize=(12, 6), dpi=100)
+            color = iter(color_list)
+            ax = None
 
-            it = enumerate(times, 1)
-            color = iter(['blue', 'orange', 'green', 'red'])
+            for idx, fmt in enumerate(times, 1):
+                m, n = list(map(int, fmt.split('x')))
+                label = (f'dectime_avg={np.average(times[fmt]):.03f}\n'
+                         f'dectime_std={np.std(times[fmt]):.03f}\n'
+                         f'rate_avg={np.average(sizes[fmt]) * 8 / 1000:,.0f} Kbps\n'
+                         f'rate_std={np.std(sizes[fmt]) * 8 / 1000:,.0f} Kbps\n'
+                         f'time/chunk={np.average(times[fmt]) * (m * n):.03f}')
+                if idx == 1:
+                    ax = fig.add_subplot(3, 2, idx)
+                else:
+                    ax = fig.add_subplot(3, 2, idx, sharex=ax)
 
-            idx, fmt = next(it)
-            ax = fig.add_subplot(3, 2, idx)
-            ax.hist(times[fmt], color=next(color), bins=50, histtype='step', label=(f'Avg={np.average(times[fmt]):.03f}\n'
-                                                                                    f'std={np.std(times[fmt]):.03f}'))
-            ax.set_title(f'{name}, crf {quality}, {fmt}')
-            ax.legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
+                ax.hist(times[fmt],
+                        color=next(color),
+                        bins=50,
+                        histtype='step',
+                        label=label)
 
-            for idx, fmt in it:
-                ax = fig.add_subplot(3, 2, idx, sharex=ax)
-                ax.set_title(f'{name}, crf {quality}, {fmt}')
-                ax.hist(times[fmt], color=next(color), bins=50, histtype='step', label=(f'Avg={np.average(times[fmt]):.03f}\n'
-                                                                                        f'std={np.std(times[fmt]):.03f}'))
+                ax.set_title(f'{name}, {fmt}, crf {quality}')
+                ax.legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
+
                 if idx in [1, 2]:
                     ax.set_ylabel("PDF")
                 if idx in [3, 4]:
                     ax.set_xlabel('Times')
-                # if n in [2, 4]:
-                ax.legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
 
-            color = iter(['blue', 'orange', 'green', 'red'])
+            # Plotando CDFs
+            color = iter(color_list)
             ax = fig.add_subplot(3, 1, 3)
+            ax.set_ylabel("CDF")
+            ax.set_xlabel("Decoder Times")
             for fmt in times:
-                ax.hist(times[fmt], color=next(color), bins=50, density=True, cumulative=True, histtype='step', label=f'{name}_{fmt}_crf{quality}')
-                ax.set_ylabel("CDF")
-                ax.set_xlabel("Decoder Times")
-                ax.legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
-
-            ''' histtype:
-            ‘bar’ is a traditional bar-type histogram. If multiple data are given the bars are aranged side by side.
-            ‘barstacked’ is a bar-type histogram where multiple data are stacked on top of each other.
-            ‘step’ generates a lineplot that is by default unfilled.
-            ‘stepfilled’ generates a lineplot that is by default filled.'''
+                ax.hist(times[fmt],
+                        color=next(color),
+                        bins=50,
+                        density=True,
+                        cumulative=True,
+                        histtype='step',
+                        label=f'{name}_{fmt}_crf{quality}')
+                ax.legend(loc='upper left',
+                          ncol=1,
+                          bbox_to_anchor=(1.01, 1.0))
 
             plt.tight_layout()
 
-            # plt.savefig(f'{dirname}{sl}hist_{name}_{quality}')
-            plt.show()
+            plt.savefig(f'{dirname}{sl}hist_{name}_{quality}')
+            # plt.show()
             print(f'hist_{name}_{quality}')
 
 
@@ -137,9 +222,9 @@ def hist1sameplt():
             ax = fig.add_subplot(2, 1, 1)
             ax.set_title(f'{name}, {fmt}')
             for idx, quality in enumerate(times, 1):
-                label = (f'crf{quality},\n'
+                label = (f'crf{quality}\n'
                          f'Avg={np.average(times[quality]):.03f}\n'
-                         f''f'std={np.std(times[quality]):.03f}')
+                         f'std={np.std(times[quality]):.03f}')
                 ax.hist(times[quality], color=next(color), bins=50, histtype='step', label=label)
                 ax.set_ylabel("PDF")
                 ax.set_xlabel('Times')
@@ -167,7 +252,7 @@ def hist1sameplt():
             print(f'hist_{name}_{fmt}')
 
 
-def hist1samefig():
+def hist1samefig(a="hist1samefig"):
     """
     Compara os histogramas. Para cada video-fmt plota todas as qualidades (agrega tiles e chunks)
     :return:
@@ -175,7 +260,7 @@ def hist1samefig():
     config = util.Config('Config.json')
     dectime = util.load_json('times2.json')
     color_list = ['blue', 'orange', 'green', 'red']
-    dirname = f'results{sl}{"hist1samefig"}'
+    dirname = f'results{sl}{a}'
 
     os.makedirs(f'{dirname}', exist_ok=True)
 
@@ -186,6 +271,7 @@ def hist1samefig():
             times = {}  # Lim superior
             sizes = {}
 
+            # Coleta dados
             for quality in config.crf_list:
                 times[quality] = []
                 sizes[quality] = []
@@ -198,9 +284,19 @@ def hist1samefig():
                         # plt.hist
 
             plt.close()
-            fig = plt.figure(figsize=(12, 6), dpi=100)
+            fig = plt.figure(figsize=(12, 6), dpi=150)
             color = iter(color_list)
-            ax = None
+
+            ax_cdf = fig.add_subplot(3, 2, 6)
+            ax_cdf.set_title('CDF')
+            ax_cdf.set_ylabel("CDF")
+            ax_cdf.set_xlabel("Decoder Times")
+
+            ax_rate = fig.add_subplot(3, 2, 5)
+            ax_rate.set_title('Rate')
+            ax_rate.set_ylabel("Rate (kbps)")
+            ax_rate.set_xlabel("Time (s)")
+            ax_rate.ticklabel_format(axis='y', style='scientific', scilimits=(3, 3))
 
             for idx, quality in enumerate(times, 1):
                 label = (f'dectime_avg={np.average(times[quality]):.03f}\n'
@@ -208,33 +304,44 @@ def hist1samefig():
                          f'rate_avg={np.average(sizes[quality]) * 8 / 1000:,.0f} Kbps\n'
                          f'rate_std={np.std(sizes[quality]) * 8 / 1000:,.0f} Kbps\n'
                          f'time/chunk={np.average(times[quality]) * (m * n):.03f}')
-                if idx == 1:
-                    ax = fig.add_subplot(3, 2, idx)
-                else:
-                    ax = fig.add_subplot(3, 2, idx, sharex=ax)
+                c = next(color)
 
-                ax.hist(times[quality],
-                        color=next(color),
-                        bins=50,
-                        histtype='step',
-                        label=label)
-
-                ax.set_title(f'{name}, {fmt}, crf {quality}')
-                ax.legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
-
+                # Plot dos tempos de decodificação
+                ax = fig.add_subplot(3, 2, idx, sharex=ax_cdf)
                 if idx in [1, 3]:
                     ax.set_ylabel("PDF")
                 if idx in [3, 4]:
-                    ax.set_xlabel('Times')
+                    ax.set_xlabel('Decoder')
+                ax.set_title(f'{name}, {fmt}, crf {quality}')
+                ax.hist(times[quality],
+                        color=c,
+                        bins=50,
+                        histtype='step',
+                        label=label)
+                ax.legend(loc='upper left',
+                          ncol=1,
+                          bbox_to_anchor=(1.01, 1.0))
 
-            color = iter(color_list)
-            ax = fig.add_subplot(3, 1, 3)
-            for quality in times:
-                ax.hist(times[quality], color=next(color), bins=50, density=True, cumulative=True, histtype='step', label=f'{name}_{fmt}_crf{quality}')
-                ax.set_ylabel("CDF")
-                ax.set_xlabel("Decoder Times")
-                ax.legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
+                # Plot da taxa
+                ax_rate.plot(sizes[quality],
+                             color=c,
+                             label=f'{name}_{fmt}_crf{quality}')
 
+                # Plot da CDF
+                ax_cdf.hist(times[quality],
+                            color=c,
+                            bins=50,
+                            density=True,
+                            cumulative=True,
+                            histtype='step',
+                            label=f'{name}_{fmt}_crf{quality}')
+
+            ax_rate.legend(loc='upper left',
+                           ncol=1,
+                           bbox_to_anchor=(1.01, 1.0))
+            ax_cdf.legend(loc='upper left',
+                          ncol=1,
+                          bbox_to_anchor=(1.01, 1.0))
             ''' histtype:
             ‘bar’ is a traditional bar-type histogram. If multiple data are given the bars are aranged side by side.
             ‘barstacked’ is a bar-type histogram where multiple data are stacked on top of each other.
