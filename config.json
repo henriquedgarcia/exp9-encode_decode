@@ -2,10 +2,16 @@
   "scale": "4320x2160",
   "fps": 30,
   "gop": 30,
-  "duration": 10,
+  "duration": 60,
   "qp_list": [
     20,
     40
+  ],
+  "scale_list": [
+    "4320x2160",
+    "2880x1440",
+    "2160x1080",
+    "1440x720"
   ],
   "rate_list": [
     2000000,
@@ -19,16 +25,17 @@
   ],
   "tile_list": [
     "1x1",
-    "3x2",
-    "6x4"
+    "3x3",
+    "4x4",
+    "5x5"
   ],
-  "videos_list": {
+  "back_videos_list": {
     "angels_fall": {
       "filename": "angels_fall_4320x2160_30.yuv",
       "time": "0:25"
     }
   },
-  "backup_videos_list": {
+  "videos_list": {
     "angels_fall": {
       "filename": "angels_fall_4320x2160_30.yuv",
       "time": "0:25"
