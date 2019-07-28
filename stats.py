@@ -61,6 +61,7 @@ def stats():
     tile_list = config.tile_list
     q_factors = ['rate', 'qp']
     multithreads = [False, True]
+    times = {}
 
     for factors in it(decoders, videos_list, tile_list, q_factors, multithreads):
         video_seg.decoder = factors[0]
