@@ -377,6 +377,8 @@ def _encode_ffmpeg(video):
         param_out = f'-b:v {rate} {param_out}"'
     elif video.factor in 'crf':
         param_out = f'-crf {video.quality} -tune psnr {param_out}"'
+    elif video.factor in 'scale':
+        param_out = f'-vf "scale={video.quality}" {param_out}"'
     else:
         exit('Fator de qualidade só pode ser "qp" ou "rate" ou crf.')
 
