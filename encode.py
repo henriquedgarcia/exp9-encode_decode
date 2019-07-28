@@ -13,7 +13,7 @@ def encode():
 
     # Create video object and your main folders
     video = util.VideoParams(config=config,
-                             yuv=f'../yuv-full',
+                             yuv=f'..{sl}yuv-full',
                              hevc_base='hevc',
                              mp4_base='mp4',
                              segment_base='segment',
@@ -21,7 +21,7 @@ def encode():
 
     # Set basic configuration
     video.encoder = 'ffmpeg'
-    video.project = 'results/ffmpeg_scale_12videos_60s'
+    video.project = f'results{sl}ffmpeg_scale_12videos_60s'
     video.factor = 'scale'
 
     # iterate over 3 factors: video (complexity), tiles format, quality
