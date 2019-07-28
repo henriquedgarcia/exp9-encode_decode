@@ -29,13 +29,53 @@
     "4x4",
     "5x5"
   ],
-  "back_videos_list": {
-    "angels_fall": {
-      "filename": "angels_fall_4320x2160_30.yuv",
-      "time": "0:25"
+  "videos_list": {
+    "om_nom": {
+      "filename": "om_nom_4320x2160_30.yuv",
+      "time": "0:10"
+    },
+    "pluto": {
+      "filename": "pluto_4320x2160_30.yuv",
+      "time": "0:00"
+    },
+    "super_mario": {
+      "filename": "super_mario_4320x2160_30.yuv",
+      "time": "0:05"
+    },
+    "lions": {
+      "filename": "lions_4320x2160_30.yuv",
+      "time": "0:07"
+    },
+    "elephants": {
+      "filename": "elephants_4320x2160_30.yuv",
+      "time": "1:00"
+    },
+    "ski": {
+      "filename": "ski_4320x2160_30.yuv",
+      "time": "0:40"
+    },
+    "clans": {
+      "filename": "clans_4320x2160_30.yuv",
+      "time": "0:00"
+    },
+    "surf": {
+      "filename": "surf_4320x2160_30.yuv",
+      "time": "1:04"
+    },
+    "manhattan": {
+      "filename": "manhattan_4320x2160_30.yuv",
+      "time": "1:31"
+    },
+    "rollercoaster": {
+      "filename": "rollercoaster_4320x2160_30.yuv",
+      "time": "1:30"
+    },
+    "venice": {
+      "filename": "venice_4320x2160_30.yuv",
+      "time": "0:05"
     }
   },
-  "videos_list": {
+  "back_videos_list": {
     "angels_fall": {
       "filename": "angels_fall_4320x2160_30.yuv",
       "time": "0:25"
@@ -108,5 +148,5 @@
       "filename": "venice_4320x2160_30.yuv",
       "time": "0:05"
     }
-  }  
+  }
 }
