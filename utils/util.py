@@ -407,6 +407,7 @@ def _encode_ffmpeg(video):
             elif video.factor in 'crf':
                 command = f'{video.program} {global_params} {param_in} {param_out} {filter_params} {video.mp4_video}.mp4'
                 run(command, f'{video.mp4_video}', 'mp4', overwrite=True)
+
             elif video.factor in 'scale':
                 command = f'{video.program} {global_params} {param_in} {param_out} {filter_params} {video.mp4_video}.mp4'
                 run(command, f'{video.mp4_video}', 'mp4', overwrite=True)
