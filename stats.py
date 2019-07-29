@@ -9,16 +9,18 @@ import pandas as pd
 
 from utils import util
 
+sl = '\\'
+
 
 def main():
     # stats()
     # graph1()
     # graph1_a()
-    # graph2()
+    graph2()
     # graph2a()
     # graph3()
     # hist1()
-    hist1samefig()
+    # hist1samefig()
     # hist1sameplt()
     # hist2samefig()
     # hist2sameplt()
@@ -499,19 +501,19 @@ def graph3() -> None:
         print('')
 
 
-def graph2() -> None:
+def graph2(g_folder='graph2-bar') -> None:
     """
     bar
     tile X average_dec_time (seconds) and tile X average_rate (Bytes)
     :return: None
     """
-    dirname = f'results{sl}graph2-2'
+    dirname = f'results{sl}{g_folder}'
     os.makedirs(dirname, exist_ok=True)
 
     config = util.Config('config.json')
     dectime = util.load_json('times2.json')
 
-    for name in config.single_videos_list:
+    for name in config.videos_list:
         for fmt in config.tile_list:
             m, n = list(map(int, fmt.split('x')))
 
@@ -567,19 +569,20 @@ def graph2() -> None:
             print('')
 
 
-def graph2a() -> None:
+def graph2a(g_folder='graph2-heatmap') -> None:
     """
     bar
     tile X average_dec_time (seconds) and tile X average_rate (Bytes)
     :return: None
     """
-    dirname = f'results{sl}graph2-2a'
+    dirname = f'results{sl}{g_folder}'
     os.makedirs(dirname, exist_ok=True)
 
 
 def graph():
     config = util.Config('config.json')
     dectime = util.load_json('times2.json')
+    dirname = ''
 
     for name in config.single_videos_list:
         for fmt in config.tile_list:
@@ -662,18 +665,18 @@ def graph():
             print('')
 
 
-def graph1() -> None:
+def graph1(g_folder='graph1') -> None:
     """
     chunks X dec_time (seconds) and chunks X file_size (Bytes)
     :return:
     """
-    dirname = f'results{sl}graph1-2'
+    dirname = f'results{sl}{g_folder}'
     os.makedirs(dirname, exist_ok=True)
 
     config = util.Config('config.json')
     dectime = util.load_json('times2.json')
 
-    for name in config.single_videos_list:
+    for name in config.videos_list:
         for fmt in config.tile_list:
             for quality in config.crf_list:
                 plt.close()
@@ -715,52 +718,60 @@ def graph1() -> None:
                 print('')
 
 
-def graph1_a() -> None:
+def graph1_a(g_name="graph1a") -> None:
     """
     chunks X dec_time (seconds) and chunks X file_size (Bytes)
     :return:
     """
-    dirname = f'results{sl}graph1-2a'
+    dirname = f'results{sl}{g_name}'
     os.makedirs(dirname, exist_ok=True)
 
     config = util.Config('config.json')
     dectime = util.load_json('times2.json')
 
-    for name in config.single_videos_list:
+    for name in config.videos_list:
         for fmt in config.tile_list:
             m, n = list(map(int, fmt.split('x')))
             for tile in range(1, m * n + 1):
-                plt.close()
-                fig, ax = plt.subplots(1, 2, figsize=(19, 6))
+                size = {}
+                time = {}
 
-                # Para cada quadro, plotar time de todos os tiles daquele video ao longo do tempo
+                print(f'Processing {name}-{fmt}-tile{tile}')
                 for quality in config.crf_list:
-                    print(f'Processing {name}-{fmt}-{quality}-tile{tile}')
-                    size = []
-                    time_ffmpeg = []
-
+                    time[str(quality)] = []
+                    size[str(quality)] = []
                     for chunk in range(1, config.duration + 1):
                         if name in 'ninja_turtles' and chunk > 58:
                             continue
                         s = dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['size']
                         t = dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['times']
-                        size.append(float(s) * 8)
-                        time_ffmpeg.append(float(t))
+                        size[str(quality)].append(float(s) * 8)
+                        time[str(quality)].append(float(t))
 
-                    ax[0].plot(time_ffmpeg)
-                    ax[1].plot(size, label=f'crf={quality}, corr={np.corrcoef((time_ffmpeg, size))[1][0]:.3f}')
+                plt.close()
+                fig = plt.figure(figsize=(9, 8), dpi=200)
+                ax1 = fig.add_subplot(2, 1, 1)
+                ax2 = fig.add_subplot(2, 1, 2, sharex=ax1)
 
-                ax[0].set_xlabel('Chunks')
-                ax[1].set_xlabel('Chunks')
-                ax[0].set_ylabel('Time/Tile (s)')
-                ax[1].set_ylabel('Rate/Tile (bps)')
-                ax[0].set_title(f'{name}-{fmt}-tile{tile} - Times by chunks')
-                ax[1].set_title(f'{name}-{fmt}-tile{tile} - Rates by chunks')
-                ax[0].set_ylim(bottom=0)
-                ax[1].set_ylim(bottom=0)
-                ax[1].legend(loc='upper left', ncol=2, bbox_to_anchor=(1.01, 1.0))
+                for quality in config.crf_list:
+                    corr = np.corrcoef((time[str(quality)], size[str(quality)]))[1][0]
+                    label = f'crf={quality}, \ncorr={corr:.3f}'
+                    ax1.plot(time[str(quality)], label=label)
+                    ax2.plot(size[str(quality)], label=label)
+
+                ax1.set_xlabel('Chunks')
+                ax1.set_ylabel('Time/Tile (s)')
+                ax1.set_title(f'{name}-{fmt}-tile{tile} - Times by chunks')
+                ax1.set_ylim(bottom=0)
+                ax1.legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
+
+                ax2.set_xlabel('Chunks')
+                ax2.set_ylabel('Rate/Tile (bps)')
+                ax2.set_title(f'{name}-{fmt}-tile{tile} - Rates by chunks')
+                ax2.set_ylim(bottom=0)
+                ax2.legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
+
                 plt.tight_layout()
-
                 savename = f'{dirname}/{name}_{fmt}_tile{tile}'
                 print(f'Salvando {savename}.png')
                 fig.savefig(f'{savename}')
