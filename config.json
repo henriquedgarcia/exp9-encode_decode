@@ -7,6 +7,12 @@
     20,
     40
   ],
+  "scale_list": [
+    "4320x2160",
+    "2880x1440",
+    "2160x1080",
+    "1440x720"
+  ],
   "rate_list": [
     2000000,
     24000000
@@ -19,31 +25,73 @@
   ],
   "tile_list": [
     "1x1",
-    "3x2",
-    "6x4",
-    "12x8"
+    "3x3",
+    "4x4",
+    "5x5"
   ],
-  "single_videos_list": {
-    "angels_fall": {},
-    "surf": {},
-    "om_nom": {},
-    "lions": {},
-    "rollercoaster": {},
-    "pac_man": {},
-    "clans": {},
-    "super_mario": {},
-    "ski": {},
-    "jaws": {},
-    "maldives": {},
-    "elephants": {},
-    "ninja_turtles": {},
-    "lion_king": {},
-    "pluto": {},
-    "ball": {},
-    "manhattan": {},
-    "venice": {}
+  "videos_list": {
+    "om_nom": {
+      "filename": "om_nom_4320x2160_30.yuv",
+      "time": "0:10",
+      "grupo": "0"
+    },
+    "pluto": {
+      "filename": "pluto_4320x2160_30.yuv",
+      "time": "0:00",
+      "grupo": "0"
+    },
+    "ball": {
+      "filename": "ball_4320x2160_30.yuv",
+      "time": "0:18",
+      "grupo": "0"
+    },
+    "super_mario": {
+      "filename": "super_mario_4320x2160_30.yuv",
+      "time": "0:05",
+      "grupo": "1"
+    },
+    "lions": {
+      "filename": "lions_4320x2160_30.yuv",
+      "time": "0:07",
+      "grupo": "1"
+    },
+    "elephants": {
+      "filename": "elephants_4320x2160_30.yuv",
+      "time": "1:00",
+      "grupo": "1"
+    },
+    "ski": {
+      "filename": "ski_4320x2160_30.yuv",
+      "time": "0:40",
+      "grupo": "2"
+    },
+    "clans": {
+      "filename": "clans_4320x2160_30.yuv",
+      "time": "0:00",
+      "grupo": "2"
+    },
+    "surf": {
+      "filename": "surf_4320x2160_30.yuv",
+      "time": "1:04",
+      "grupo": "2"
+    },
+    "manhattan": {
+      "filename": "manhattan_4320x2160_30.yuv",
+      "time": "1:31",
+      "grupo": "3"
+    },
+    "rollercoaster": {
+      "filename": "rollercoaster_4320x2160_30.yuv",
+      "time": "1:30",
+      "grupo": "3"
+    },
+    "venice": {
+      "filename": "venice_4320x2160_30.yuv",
+      "time": "0:05",
+      "grupo": "3"
+    }
   },
-  "backup_videos_list": {
+  "back_videos_list": {
     "angels_fall": {
       "filename": "angels_fall_4320x2160_30.yuv",
       "time": "0:25"

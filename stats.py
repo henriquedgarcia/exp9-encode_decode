@@ -9,8 +9,6 @@ import pandas as pd
 
 from utils import util
 
-sl = util.check_system()['sl']
-
 
 def main():
     # stats()
@@ -578,6 +576,8 @@ def graph2a() -> None:
     dirname = f'results{sl}graph2-2a'
     os.makedirs(dirname, exist_ok=True)
 
+
+def graph():
     config = util.Config('config.json')
     dectime = util.load_json('times2.json')
 

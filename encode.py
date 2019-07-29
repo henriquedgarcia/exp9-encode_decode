@@ -21,8 +21,8 @@ def encode():
 
     # Set basic configuration
     video.encoder = 'ffmpeg'
-    video.project = 'ffmpeg_crf_18videos_60s'
-    video.factor = 'crf'
+    video.project = f'{sl}mnt{sl}ssd{sl}henrique{sl}ffmpeg_scale_12videos_60s'
+    video.factor = 'scale'
 
     # iterate over 3 factors: video (complexity), tiles format, quality
     for video.name in config.videos_list:
