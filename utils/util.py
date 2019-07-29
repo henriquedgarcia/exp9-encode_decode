@@ -4,6 +4,7 @@ import os
 import platform
 import subprocess
 import time
+import numpy as np
 
 
 # Minhas classes
@@ -22,8 +23,10 @@ class Config:
         self.duration = 0
         self.qp_list = []
         self.rate_list = []
+        self.crf_list = []
         self.tile_list = []
         self.videos_list = {}
+        self.single_videos_list = {}
         if filename:
             self._load_config(filename)
 
@@ -35,7 +38,7 @@ class Config:
             setattr(self, key, config_data[key])
 
 
-class VideoSegment:
+class Video:
     class AutoDict(dict):
         def __missing__(self, key):
             value = self[key] = type(self)()
@@ -43,11 +46,14 @@ class VideoSegment:
 
     def __init__(self, config: Config, dectime: dict = None):
         if dectime is None:
-            dectime = {}
-        self.sl = check_system()['sl']
+            self.dectime = self.AutoDict()
+        else:
+            self.dectime = self.AutoDict(dectime)
+
+        self.sl = '/'
         self.config = config
-        self.m = self.n = self.num_tiles = 0
-        self.bench_stamp = ''
+        self.m = self.n = self.num_tiles = None
+        self.bench_stamp = None
 
         self.scale = config.scale
         self.fps = config.fps
@@ -55,33 +61,28 @@ class VideoSegment:
         self.duration = config.duration
 
         # saída: dicionário com todos os dados de saída
-        self.dectime = self.AutoDict(dectime)
 
         # pastas
-        self._basename = ''
-        self.project = ''
-        self.dectime_base = ''
-        self.segment_base = ''
-        self._log_path = ''
-        self._segment_path = ''
+        self._basename = None
+        self.project = None
+        self.dectime_base = None
+        self.segment_base = None
+        self._log_path = None
+        self._segment_path = None
 
-        self.decoder = ''
-        self.name = ''
-        self._fmt = ''
-        self.factor = ''
-        self.quality = 0
-        self.tile = 0
-        self.chunk = 0
-        self._multithread = ''
+        self.decoder = None
+        self.name = None
+        self._fmt = None
+        self.factor = None
+        self.quality = None
+        self.tile = None
+        self.chunk = None
+        self.multithread = None
 
     @property
     def basename(self):
-        if self.factor in '':
-            exit('[basename] É preciso definir o atributo factor antes.')
-        if self.quality == 0:
-            exit('[basename] É preciso definir o atributo quality antes.')
-        if self.name == '':
-            exit('[basename] É preciso definir o atributo name antes.')
+        if self.factor is None or self.quality is None or self.name is None:
+            exit('[basename] Esta faltando algum atributo (factor, quality or name).')
 
         self._basename = (f'{self.name}_'
                           f'{self.scale}_'
@@ -92,6 +93,9 @@ class VideoSegment:
 
     @property
     def segment_path(self):
+        if self.project is None or self.segment_base is None or self.tile is None or self.chunk is None:
+            exit('[segment_path] Esta faltando algum atributo.')
+
         self._segment_path = (f'{self.project}{self.sl}'
                               f'{self.segment_base}{self.sl}'
                               f'{self.basename}{self.sl}'
@@ -100,6 +104,7 @@ class VideoSegment:
 
     @property
     def log_path(self):
+
         self._log_path = (f'{self.project}{self.sl}'
                           f'{self.dectime_base}{self.sl}'
                           f'{self.basename}{self.sl}'
@@ -109,39 +114,45 @@ class VideoSegment:
         return self._log_path
 
     @property
-    def size(self):
-        size = self.dectime[self.decoder][self.name][self.fmt][self.factor][self.quality][self.tile][self.chunk][
-            self.multithread]['size']
-        return size
+    def size(self):  # name, fmt, quality, tile, chunk
+        if self.name is None or \
+                self.fmt is None or \
+                self.quality is None or \
+                self.tile is None or \
+                self.chunk is None:
+            exit('[size] Esta faltando algum atributo.')
+
+        return self.dectime[self.name][self.fmt][self.quality][self.tile][self.chunk]['size']
 
     @size.setter
     def size(self, value):
-        self.dectime[self.decoder][self.name][self.fmt][self.factor][self.quality][self.tile][self.chunk][
-            self.multithread]['size'] = value
+        if self.name is None or \
+                self.fmt is None or \
+                self.quality is None or \
+                self.tile is None or \
+                self.chunk is None:
+            exit('[size] Esta faltando algum atributo.')
+        self.dectime[self.name][self.fmt][self.quality][self.tile][self.chunk]['size'] = value
 
     @property
     def times(self):
-        return self.dectime[self.decoder][self.name][self.fmt][self.factor][self.quality][self.tile][self.chunk][
-            self.multithread]['times']
+        if self.name is None or \
+                self.fmt is None or \
+                self.quality is None or \
+                self.tile is None or \
+                self.chunk is None:
+            exit('[size] Esta faltando algum atributo.')
+        return self.dectime[self.name][self.fmt][self.quality][self.tile][self.chunk]['times']
 
     @times.setter
     def times(self, value):
-        times = self.dectime[self.decoder][self.name][self.fmt][self.factor][self.quality][self.tile][self.chunk][
-            self.multithread]['times']
-        if not times:
-            self.dectime[self.decoder][self.name][self.fmt][self.factor][self.quality][self.tile][self.chunk][
-                self.multithread]['times'] = [value]
-        else:
-            self.dectime[self.decoder][self.name][self.fmt][self.factor][self.quality][self.tile][self.chunk][
-                self.multithread]['times'].extend(value)
-
-    @property
-    def multithread(self):
-        return self._multithread
-
-    @multithread.setter
-    def multithread(self, value):
-        self._multithread = value
+        if self.name is None or \
+                self.fmt is None or \
+                self.quality is None or \
+                self.tile is None or \
+                self.chunk is None:
+            exit('[size] Esta faltando algum atributo.')
+        self.dectime[self.name][self.fmt][self.quality][self.tile][self.chunk]['times'] = value
 
     @property
     def fmt(self):
@@ -590,55 +601,49 @@ def _run(command, log_path, ext, overwrite=False, log_mode='w', bench_stamp='ben
 
 
 # Funções para estatística
-def collect_data(video_seg: VideoSegment):
-    video_seg.dectime_base = f'{video_seg.decoder}_dectime'
-
+def collect_data(video_seg: Video):
     if video_seg.decoder in 'ffmpeg':
         video_seg.bench_stamp = 'bench: utime'
     elif video_seg.decoder in 'mp4client':
         video_seg.bench_stamp = 'frames FPS'
 
-    tiles = range(1, video_seg.num_tiles + 1)
-    chunks = range(1, video_seg.duration * video_seg.fps + 1)
+    print(f'Processing {video_seg.basename}.txt')
 
-    for segments in itertools.product(tiles, chunks):
-        video_seg.tile = segments[0]
-        video_seg.chunk = segments[1]
+    for video_seg.tile in range(1, video_seg.num_tiles + 1):
+        for video_seg.chunk in range(1, video_seg.duration * video_seg.fps + 1):
+            if os.path.isfile(f'{video_seg.segment_path}.mp4'):
+                video_seg.size = os.path.getsize(f'{video_seg.segment_path}.mp4')
 
-        if os.path.isfile(f'{video_seg.segment_path}.mp4'):
-            video_seg.size = os.path.getsize(f'{video_seg.segment_path}.mp4')
-            print(f'Processing {video_seg.segment_path}.mp4')
-
-        if os.path.isfile(f'{video_seg.log_path}.txt'):
-            video_seg.times = _get_times(video_seg)
-            print(f'Processing {video_seg.log_path}.txt')
+            if os.path.isfile(f'{video_seg.log_path}.txt'):
+                video_seg.times = _get_times(video_seg)
 
     return dict(video_seg.dectime)
 
 
-def _get_times(dectime: VideoSegment) -> list:
-    times = []
-    with open(f'{dectime.log_path}.txt', 'r') as f:
-        for line_ in f:
-            idx = line_.find(dectime.bench_stamp)
-            if idx >= 0:
-                if dectime.decoder in 'ffmpeg':
-                    line = line_.strip().split(' ')
-                    ut = line[1]
-                    st = line[2]
-                    rt = line[3]
-                    # bench_time = dict(ut=float(ut[6:-1]),
-                    #                   st=float(st[6:-1]),
-                    #                   rt=float(rt[6:-1]))
-                    bench_time = dict(ut=float(ut[6:-1]))
-                    times.append(bench_time)
-                elif dectime.decoder in 'mp4client':
-                    bench_time = float(dectime.fps) / float(line_.split(' ')[4])
-                else:
-                    exit('[_get_times] Decoder errado')
+def _get_times(dectime: Video) -> list:
+    # with open(f'{dectime.log_path}.txt', 'r') as f:
+    try:
+        f = open(f'{dectime.log_path}.txt', 'r')
+    except FileNotFoundError:
+        print(f'O arquivo {dectime.log_path}.txt não existe')
+        return [0] * 5
 
-                times.append(bench_time)
-    return times
+    times = []
+    for line in f:
+        idx = line.find(dectime.bench_stamp)
+        if idx >= 0:
+            if dectime.decoder in 'ffmpeg':
+                line1 = line.replace('bench: ', ' ')
+                line2 = line1.replace('s ', ' ')
+                line3 = line2.strip()[:-1]
+                line4 = line3.split(' ')
+                for i in range(0, 15, 3):
+                    try:
+                        times.append(float(line4[i][6:]))
+                    except IndexError:
+                        print(f'O video {dectime.basename} deu faltou o índice {i}.')
+    f.close()
+    return np.average(times)
 
 
 # Utilitários e funções gerais
