@@ -534,11 +534,11 @@ def decode(video: VideoParams):
         for video.chunk in range(1, video.duration + 1):
             if video.decoder in 'ffmpeg':
                 if video.threads in 'multi':
-                    command = (f'/snap/bin/ffmpeg '
+                    command = (f'{video.program} '
                                f'-hide_banner -benchmark -codec hevc -threads 0 -i {video.segment_video}.mp4 '
                                f'-f null -')
                 else:
-                    command = (f'/snap/bin/ffmpeg '
+                    command = (f'{video.program} '
                                f'-hide_banner -benchmark -codec hevc -threads 1 -i {video.segment_video}.mp4 '
                                f'-f null -')
 
@@ -561,13 +561,15 @@ def _run(command, log_path, ext, overwrite=False, log_mode='w', bench_stamp='ben
     if os.path.isfile(f'{log_path}.{ext}') and not overwrite and not log_mode in 'a':
         print(f'arquivo {log_path}.{ext} existe. Pulando.')
     else:
-        with subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE,
-                              stderr=subprocess.STDOUT, encoding='utf-8') as proc, \
+        with subprocess.Popen(shlex.split(command),
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.STDOUT,
+                              encoding='utf-8') as proc, \
                 open('temp.txt', 'w', encoding='utf-8') as f:
 
             for line in proc.stdout:
                 if line.find(bench_stamp) >= 0:
-                    f.write(line.strip())
+                    f.write(line)
 
         with open('temp.txt', 'r', encoding='utf-8') as f1, \
                 open(f'{log_path}.{ext}', log_mode, encoding='utf-8') as f2:
