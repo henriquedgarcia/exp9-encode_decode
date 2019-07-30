@@ -534,11 +534,11 @@ def decode(video: VideoParams):
         for video.chunk in range(1, video.duration + 1):
             if video.decoder in 'ffmpeg':
                 if video.threads in 'multi':
-                    command = (f'/snap/bin/ffmpeg '
+                    command = (f'{video.program} '
                                f'-hide_banner -benchmark -codec hevc -threads 0 -i {video.segment_video}.mp4 '
                                f'-f null -')
                 else:
-                    command = (f'/snap/bin/ffmpeg '
+                    command = (f'{video.program} '
                                f'-hide_banner -benchmark -codec hevc -threads 1 -i {video.segment_video}.mp4 '
                                f'-f null -')
 
