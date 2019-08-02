@@ -23,98 +23,148 @@
     "6x4",
     "12x8"
   ],
+  "tile_list2": [
+    "1x1",
+    "3x3",
+    "4x4",
+    "5x5"
+  ],
   "single_videos_list": {
-    "angels_fall": {},
     "surf": {},
     "om_nom": {},
     "lions": {},
     "rollercoaster": {},
-    "pac_man": {},
     "clans": {},
     "super_mario": {},
     "ski": {},
-    "jaws": {},
-    "maldives": {},
     "elephants": {},
-    "ninja_turtles": {},
-    "lion_king": {},
     "pluto": {},
     "ball": {},
     "manhattan": {},
     "venice": {}
   },
-  "backup_videos_list": {
-    "angels_fall": {
-      "filename": "angels_fall_4320x2160_30.yuv",
-      "time": "0:25"
-    },
-    "surf": {
-      "filename": "surf_4320x2160_30.yuv",
-      "time": "1:04"
-    },
+  "videos_list": {
     "om_nom": {
       "filename": "om_nom_4320x2160_30.yuv",
-      "time": "0:10"
-    },
-    "lions": {
-      "filename": "lions_4320x2160_30.yuv",
-      "time": "0:07"
-    },
-    "rollercoaster": {
-      "filename": "rollercoaster_4320x2160_30.yuv",
-      "time": "1:30"
-    },
-    "pac_man": {
-      "filename": "pac_man_4320x2160_30.yuv",
-      "time": "0:20"
-    },
-    "clans": {
-      "filename": "clans_4320x2160_30.yuv",
-      "time": "0:00"
-    },
-    "super_mario": {
-      "filename": "super_mario_4320x2160_30.yuv",
-      "time": "0:05"
-    },
-    "ski": {
-      "filename": "ski_4320x2160_30.yuv",
-      "time": "0:40"
-    },
-    "jaws": {
-      "filename": "jaws_4320x2160_30.yuv",
-      "time": "1:49"
-    },
-    "maldives": {
-      "filename": "maldives_4320x2160_30.yuv",
-      "time": "0:07"
-    },
-    "elephants": {
-      "filename": "elephants_4320x2160_30.yuv",
-      "time": "1:00"
-    },
-    "ninja_turtles": {
-      "filename": "ninja_turtles_4320x2160_30.yuv",
-      "time": "0:00"
-    },
-    "lion_king": {
-      "filename": "Lion_king_4320x2160_30.yuv",
-      "time": "2:08"
+      "time": "0:10",
+      "grupo": "0"
     },
     "pluto": {
       "filename": "pluto_4320x2160_30.yuv",
-      "time": "0:00"
+      "time": "0:00",
+      "grupo": "0"
     },
     "ball": {
       "filename": "ball_4320x2160_30.yuv",
-      "time": "0:18"
+      "time": "0:18",
+      "grupo": "0"
+    },
+    "super_mario": {
+      "filename": "super_mario_4320x2160_30.yuv",
+      "time": "0:05",
+      "grupo": "1"
+    },
+    "lions": {
+      "filename": "lions_4320x2160_30.yuv",
+      "time": "0:07",
+      "grupo": "1"
+    },
+    "elephants": {
+      "filename": "elephants_4320x2160_30.yuv",
+      "time": "1:00",
+      "grupo": "1"
+    },
+    "ski": {
+      "filename": "ski_4320x2160_30.yuv",
+      "time": "0:40",
+      "grupo": "2"
+    },
+    "clans": {
+      "filename": "clans_4320x2160_30.yuv",
+      "time": "0:00",
+      "grupo": "2"
+    },
+    "surf": {
+      "filename": "surf_4320x2160_30.yuv",
+      "time": "1:04",
+      "grupo": "2"
     },
     "manhattan": {
       "filename": "manhattan_4320x2160_30.yuv",
-      "time": "1:31"
+      "time": "1:31",
+      "grupo": "3"
+    },
+    "rollercoaster": {
+      "filename": "rollercoaster_4320x2160_30.yuv",
+      "time": "1:30",
+      "grupo": "3"
     },
     "venice": {
       "filename": "venice_4320x2160_30.yuv",
-      "time": "0:05"
+      "time": "0:05",
+      "grupo": "3"
+    }
+  },
+  "backup_videos_list": {
+    "om_nom": {
+      "filename": "om_nom_4320x2160_30.yuv",
+      "time": "0:10",
+      "grupo": "0"
+    },
+    "pluto": {
+      "filename": "pluto_4320x2160_30.yuv",
+      "time": "0:00",
+      "grupo": "0"
+    },
+    "ball": {
+      "filename": "ball_4320x2160_30.yuv",
+      "time": "0:18",
+      "grupo": "0"
+    },
+    "super_mario": {
+      "filename": "super_mario_4320x2160_30.yuv",
+      "time": "0:05",
+      "grupo": "1"
+    },
+    "lions": {
+      "filename": "lions_4320x2160_30.yuv",
+      "time": "0:07",
+      "grupo": "1"
+    },
+    "elephants": {
+      "filename": "elephants_4320x2160_30.yuv",
+      "time": "1:00",
+      "grupo": "1"
+    },
+    "ski": {
+      "filename": "ski_4320x2160_30.yuv",
+      "time": "0:40",
+      "grupo": "2"
+    },
+    "clans": {
+      "filename": "clans_4320x2160_30.yuv",
+      "time": "0:00",
+      "grupo": "2"
+    },
+    "surf": {
+      "filename": "surf_4320x2160_30.yuv",
+      "time": "1:04",
+      "grupo": "2"
+    },
+    "manhattan": {
+      "filename": "manhattan_4320x2160_30.yuv",
+      "time": "1:31",
+      "grupo": "3"
+    },
+    "rollercoaster": {
+      "filename": "rollercoaster_4320x2160_30.yuv",
+      "time": "1:30",
+      "grupo": "3"
+    },
+    "venice": {
+      "filename": "venice_4320x2160_30.yuv",
+      "time": "0:05",
+      "grupo": "3"
     }
   }
 }

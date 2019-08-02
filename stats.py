@@ -1,13 +1,15 @@
 #!/bin/python3
 import itertools
+import matplotlib
 import os
 from itertools import product
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-
+import fitter
 from utils import util
+from matplotlib import colors
 
 sl = util.check_system()['sl']
 
@@ -263,30 +265,35 @@ def hist1samefig(a="hist1samefig"):
     dirname = f'results{sl}{a}'
 
     os.makedirs(f'{dirname}', exist_ok=True)
+    times = util.AutoDict()
+    sizes = util.AutoDict()
+    best_dist_df = util.AutoDict()
+    dist_list = util.AutoDict()
+    factor = 'crf'
+    quality_list = getattr(config, f'{factor}_list')
 
-    for fmt in config.tile_list:
-        m, n = list(map(int, fmt.split('x')))
-
-        for name in config.single_videos_list:
-            times = {}  # Lim superior
-            sizes = {}
+    # for fmt in ['12x8']:
+    for name in config.videos_list:
+        for fmt in config.tile_list:
+            m, n = list(map(int, fmt.split('x')))
 
             # Coleta dados
-            for quality in config.crf_list:
-                times[quality] = []
-                sizes[quality] = []
+            for quality in quality_list:
+                times[name][quality] = []
+                sizes[name][quality] = []
                 for tile in range(1, m * n + 1):
                     for chunk in range(1, config.duration + 1):
                         if name in 'ninja_turtles' and chunk > 58:
                             continue
-                        times[quality].append(dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['times'])
-                        sizes[quality].append(dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['size'])
-                        # plt.hist
+                        times[name][quality].append(dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['times'])
+                        sizes[name][quality].append(dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['size'])
 
+            # Cria figura
             plt.close()
-            fig = plt.figure(figsize=(12, 6), dpi=150)
+            fig = plt.figure(figsize=(13, 9), dpi=150)
             color = iter(color_list)
 
+            # Configura os dois ultimos plots, a taxa e a cdf
             ax_cdf = fig.add_subplot(3, 2, 6)
             ax_cdf.set_title('CDF')
             ax_cdf.set_ylabel("CDF")
@@ -298,44 +305,58 @@ def hist1samefig(a="hist1samefig"):
             ax_rate.set_xlabel("Time (s)")
             ax_rate.ticklabel_format(axis='y', style='scientific', scilimits=(3, 3))
 
-            for idx, quality in enumerate(times, 1):
-                label = (f'dectime_avg={np.average(times[quality]):.03f}\n'
-                         f'dectime_std={np.std(times[quality]):.03f}\n'
-                         f'rate_avg={np.average(sizes[quality]) * 8 / 1000:,.0f} Kbps\n'
-                         f'rate_std={np.std(sizes[quality]) * 8 / 1000:,.0f} Kbps\n'
-                         f'time/chunk={np.average(times[quality]) * (m * n):.03f}')
+            # Faz um histograma por qualidade
+            for idx, quality in enumerate(times[name], 1):
+                dists = ['alpha', 'beta', 'cauchy', 'chi', 'chi2', 'expon', 'gamma',
+                         'gilbrat', 'laplace', 'levy', 'norm', 'pareto', 'rice', 't',
+                         'uniform']
+                f = fitter.Fitter(times[name][quality],
+                                  bins=100,
+                                  distributions=dists)
+                f.fit()
+
                 c = next(color)
+                for dist_name in f.df_errors.sort_values(by="sumsquare_error").index[0:1]:
+                    if dist_name in f.fitted_pdf.keys():
+                        best_dist_df[name][f'{fmt}-{quality}'] = f'{dist_name}, SSE={f.df_errors["sumsquare_error"][dist_name]:.1f}'
+                        dist_list[f'{name}-{fmt}-{quality}']['dist_name'] = dist_name
+                        dist_list[f'{name}-{fmt}-{quality}']['params'] = str(f.fitted_param[dist_name])
+                    else:
+                        print(f"{dist_name} was not fitted. no parameters available")
 
                 # Plot dos tempos de decodificação
                 ax = fig.add_subplot(3, 2, idx, sharex=ax_cdf)
-                if idx in [1, 3]:
-                    ax.set_ylabel("PDF")
-                if idx in [3, 4]:
-                    ax.set_xlabel('Decoder')
                 ax.set_title(f'{name}, {fmt}, crf {quality}')
-                ax.hist(times[quality],
-                        color=c,
-                        bins=50,
-                        histtype='step',
-                        label=label)
-                ax.legend(loc='upper left',
-                          ncol=1,
-                          bbox_to_anchor=(1.01, 1.0))
+                label = (f'dectime_avg={np.average(times[name][quality]):.03f} s\n'
+                         f'dectime_std={np.std(times[name][quality]):.03f} s\n'
+                         f'time/chunk/tile={np.average(times[name][quality]) * (m * n):.03f} s')
+                if idx in [1, 3]: ax.set_ylabel("PDF")
+                if idx in [3, 4]: ax.set_xlabel('Decoder Times')
+
+                ax.hist(times[name][quality], color=c, bins=50, histtype='bar', label=label, density=True)
+
+                # Plota os 3 menores SSE
+                for dist_name in f.df_errors.sort_values(by="sumsquare_error").index[0:3]:
+                    if dist_name in f.fitted_pdf.keys():
+                        label = f'{dist_name},\nSSE = {f.df_errors["sumsquare_error"][dist_name]:.3f}'
+                        ax.plot(f.x, f.fitted_pdf[dist_name], label=label)
+                    else:
+                        print(f"{dist_name} was not fitted. no parameters available")
+
+                ax.legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
 
                 # Plot da taxa
-                ax_rate.plot(sizes[quality],
-                             color=c,
-                             label=f'{name}_{fmt}_crf{quality}')
+                label = (f'rate_avg={np.average(sizes[name][quality]) * 8 / 1000:,.0f} Kbps\n'
+                         f'rate_std={np.std(sizes[name][quality]) * 8 / 1000:,.0f} Kbps\n'
+                         f'rate/tile={np.average(sizes[name][quality]) * 8 / (1000 * m * n):.03f} kbps')
+                ax_rate.bar(idx, np.average(sizes[name][quality]), color=c, label=label)
 
                 # Plot da CDF
-                ax_cdf.hist(times[quality],
-                            color=c,
-                            bins=50,
-                            density=True,
-                            cumulative=True,
-                            histtype='step',
-                            label=f'{name}_{fmt}_crf{quality}')
+                ax_cdf.hist(times[name][quality], color=c, bins=50, density=True,
+                            cumulative=True, histtype='step', label=f'{name}_{fmt}_crf{quality}')
 
+            # Configura legenda dos dois ultimos graficos
+            ax_rate.set_xticklabels(quality_list)
             ax_rate.legend(loc='upper left',
                            ncol=1,
                            bbox_to_anchor=(1.01, 1.0))
@@ -350,9 +371,12 @@ def hist1samefig(a="hist1samefig"):
 
             plt.tight_layout()
 
-            plt.savefig(f'{dirname}{sl}hist_{name}_{fmt}')
+            plt.savefig(f'{dirname}{sl}{config.videos_list[name]["grupo"]}-hist_{name}_{fmt}')
             # plt.show()
             print(f'hist_{name}_{fmt}')
+
+    dist_df = pd.DataFrame(best_dist_df)
+    dist_df.to_csv(f'{dirname}{sl}best_fits.csv')
 
 
 def hist1():
@@ -427,24 +451,26 @@ def hist1():
             # print(f'graph_{fmt}_tile{tile}')
 
 
-def graph3() -> None:
+def graph3(g_folder='graph3') -> None:
     """
     bar
     fmt X average_dec_time (seconds) and fmt X average_rate (Bytes)
     :return: None
     """
-    dirname = f'results{sl}graph3'
+    dirname = f'results{sl}{g_folder}'
     os.makedirs(dirname, exist_ok=True)
 
     config = util.Config('config.json')
     dectime = util.load_json('times2.json')
     factor = 'crf'
 
-    for name in config.single_videos_list:
+    for name in config.videos_list:
         plt.close()
         fig, ax = plt.subplots(2, 1, figsize=(8, 5))
         quality_list = getattr(config, f'{factor}_list')
         offset = 0
+
+        # fazer um bar para cada qualidade
         for quality in config.crf_list:
             average_size = []
             std_size = []
@@ -453,12 +479,13 @@ def graph3() -> None:
             width = 0.8 / len(quality_list)
             start_position = (0.8 - width) / 2
 
+            # Cada barrinha é um fmt (1x1, 3x2,...)
             for fmt in config.tile_list:
                 m, n = list(map(int, fmt.split('x')))
                 size = []
                 time = []
 
-                # for tile, m, n in enumerate(itertools.product(range(1, m_ + 1), range(1, n_ + 1))):
+                # A média para cada tile
                 for tile in range(1, m * n + 1):
                     for chunk in range(1, config.duration + 1):
                         if name in 'ninja_turtles' and chunk > 58:
@@ -471,33 +498,36 @@ def graph3() -> None:
                 average_time.append(np.average(time))
                 std_time.append(np.std(time))
 
+            # Plota o bar do tempo e da taxa
             x = np.array(range(1, len(average_time) + 1)) - start_position + offset
             offset += width
-            ax[0].bar(x, average_time, width=width, yerr=std_time, label=f'rate_total={quality}')
-            ax[1].bar(x, average_size, width=width, yerr=std_size, label=f'rate_total={quality}')
+            ax[0].bar(x, average_time, width=width, yerr=std_time, label=f'CRF={quality}')
+            ax[1].bar(x, average_size, width=width, yerr=std_size, label=f'CRF={quality}')
 
-            # df[f'times_{name}_{quality}'] = average_time
-
-        ax[0].set_xticklabels(config.tile_list)
+        # Configura eixos do tempo e da taxa
+        ax[0].set_title(f'{name} - Times by tiles format, {factor.upper()}')
+        # ax[0].set_xlabel('')
         ax[0].set_xticks(np.array(range(1, len(config.tile_list) + 1)))
-        ax[1].set_xticklabels(config.tile_list)
-        ax[1].set_xticks(np.array(range(1, len(config.tile_list) + 1)))
-
-        ax[0].set_xlabel('Tile')
-        ax[1].set_xlabel('Tile')
+        ax[0].set_xticklabels(config.tile_list)
         ax[0].set_ylabel('Average Time/Tile')
-        ax[1].set_ylabel('Average Rate/Tile')
-        ax[0].set_title(f'{name} - Times by tiles, {factor}')
-        ax[1].set_title(f'{name} - Rates by tiles, {factor}')
         ax[0].set_ylim(bottom=0)
+        ax[0].legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
+
+        # ax[1].set_title(f'{name} - Rates by tiles format, {factor.upper()}')
+        ax[1].set_xlabel('Tiles Format')
+        ax[1].set_xticks(np.array(range(1, len(config.tile_list) + 1)))
+        ax[1].set_xticklabels(config.tile_list)
+        ax[1].set_ylabel('Average Rate/Tile')
         ax[1].set_ylim(bottom=0)
         ax[1].ticklabel_format(style='sci', axis='Y', scilimits=(6, 6))
-        ax[0].legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
         ax[1].legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
+
+        # Finaliza o gráfico
         plt.tight_layout()
         print(f'Salvando {dirname}{sl}{name}_{factor}.')
-        fig.savefig(f'{dirname}{sl}{name}_{factor}')
+        fig.savefig(f'{dirname}{sl}{config.videos_list[name]["grupo"]}-{name}_{factor}')
         # plt.show()
+
         print('')
 
 
@@ -564,7 +594,7 @@ def graph2() -> None:
             plt.tight_layout()
 
             print(f'Salvando {dirname}{sl}{name}_{fmt}.')
-            fig.savefig(f'{dirname}{sl}{name}_{fmt}')
+            fig.savefig(f'{dirname}{sl}{config.videos_list[name]["grupo"]}-{name}_{fmt}')
             # plt.show()
             print('')
 
@@ -578,6 +608,130 @@ def graph2a() -> None:
     dirname = f'results{sl}graph2-2a'
     os.makedirs(dirname, exist_ok=True)
 
+    config = util.Config('config.json')
+    dectime = util.load_json('times2.json')
+
+    for name in config.videos_list:
+        for fmt in config.tile_list:
+            m_, n_ = list(map(int, fmt.split('x')))
+
+            # Figure
+            plt.close()
+            fig = plt.figure(figsize=(10, 8), dpi=150)
+
+            # Axes
+            ax = [fig.add_subplot(4, 1, 1),
+                  fig.add_subplot(4, 1, 2)]
+            ax_hmt = []
+            ax_hms = []
+            for x in range(9, 13):
+                ax_hmt.append(fig.add_subplot(4, 4, x))
+
+            for x in range(13, 17):
+                ax_hms.append(fig.add_subplot(4, 4, x))
+
+            # Bar config
+            offset = 0
+            width = 0.8 / len(config.crf_list)
+            start_position = (0.8 - width) / 2
+
+            average_time = {}
+            std_time = {}
+            average_size = {}
+            std_size = {}  # estão serão os valores plotados
+            c1 = []  # colection of heatmap
+            c2 = []
+
+            for count, quality in enumerate(config.crf_list):  # Para cada qualidade
+                average_time[quality] = []
+                average_size[quality] = []
+                std_time[quality] = []
+                std_size[quality] = []
+                frame1 = np.zeros((n_, m_))
+                frame2 = np.zeros((n_, m_))  # é a base do heatmap
+
+                # Calcula a média dos chunks para cada tile
+                for tile, (m, n) in enumerate(itertools.product(range(1, m_ + 1), range(1, n_ + 1)), 1):
+                    time = []
+                    size = []  # temporário (guarda os chunks de um tile)
+
+                    # Coleta dados de todos os chunks
+                    for chunk in range(1, config.duration + 1):
+                        if name in 'ninja_turtles' and chunk > 58:  # Esse video tem menor duração (removido em versões futuras
+                            continue
+                        time.append(float(dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['times']))
+                        size.append(float(dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['size']))
+
+                    # Calcula as médias e desvios padrões
+                    average_time[quality].append(np.average(time))
+                    average_size[quality].append(np.average(size))
+                    std_time[quality].append(np.std(time))
+                    std_size[quality].append(np.std(size))
+
+                    # Preenche a matriz do heatmap
+                    frame1[n - 1, m - 1] = average_time[quality][-1]
+                    frame2[n - 1, m - 1] = average_size[quality][-1]
+
+                # Plota dois bar
+                x = np.array(range(1, len(average_time[quality]) + 1)) - start_position + offset  # O eixo X, o numero de chunks
+                ax[0].bar(x, average_time[quality], width=width, yerr=std_time[quality], label=f'crf={quality}_corr={np.corrcoef(x=(average_time[quality], average_size[quality]))[1][0]:.3f}')
+                ax[1].bar(x, average_size[quality], width=width, yerr=std_size[quality], label=f'crf={quality}')
+                offset += width
+
+                # Plota um Pcolor
+                c1.append(ax_hmt[count].pcolor(frame1, cmap='jet'))
+                c2.append(ax_hms[count].pcolor(frame2, cmap='jet'))
+
+                # Configura os eixos do heatmap da qualidade atual
+                ax_hms[count].set_title('Rate Heatmap')
+                ax_hms[count].set_xticklabels([])
+                ax_hms[count].set_yticklabels([])
+
+                ax_hmt[count].set_title('time Heatmap')
+                ax_hmt[count].set_xlabel(f'crf={quality}')
+                ax_hmt[count].set_xticklabels([])
+                ax_hmt[count].set_yticklabels([])
+
+            # Configura Bar
+            ax[0].set_title(f'{name} - Times by tiles, tile={fmt}')
+            ax[0].set_xlabel('Tile')
+            ax[0].set_ylabel('Average Time (s)')
+            ax[0].set_ylim(bottom=0)
+            ax[0].legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
+            # ax[0].ticklabel_format(style='sci', axis='Y', scilimits=(-1, -1))
+
+            ax[1].set_title(f'{name} - Rates by tiles, tile={fmt}')
+            ax[1].set_xlabel('Tile')
+            ax[1].set_ylabel('Average Rate (bps)')
+            ax[1].set_ylim(bottom=0)
+            ax[1].ticklabel_format(style='sci', axis='Y', scilimits=(6, 6))
+            ax[1].legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
+
+            # Normaliza heatmap
+            vmin1 = min(collection.get_array().min() for collection in c1)
+            vmax1 = max(collection.get_array().max() for collection in c1)
+            vmin2 = min(collection.get_array().min() for collection in c2)
+            vmax2 = max(collection.get_array().max() for collection in c2)
+
+            norm1 = colors.Normalize(vmin=vmin1, vmax=vmax1)
+            norm2 = colors.Normalize(vmin=vmin2, vmax=vmax2)
+            for collection1, collection2 in zip(c1, c2):
+                collection1.set_norm(norm1)
+                collection2.set_norm(norm2)
+
+            # Colorbar
+            fig.colorbar(c1[-1], ax=ax_hmt, orientation='vertical', fraction=.04)
+            fig.colorbar(c2[-1], ax=ax_hms, orientation='vertical', fraction=.04)
+            plt.tight_layout()
+
+            # Finaliza
+            print(f'Salvando {dirname}{sl}{name}_{fmt}.')
+            fig.savefig(f'{dirname}{sl}{config.videos_list[name]["grupo"]}-{name}_{fmt}')
+            # plt.show()
+            print('')
+
+
+def graph():
     config = util.Config('config.json')
     dectime = util.load_json('times2.json')
 
@@ -708,7 +862,7 @@ def graph1() -> None:
                 ax[1].legend(loc='upper left', ncol=2, bbox_to_anchor=(1.01, 1.0))
                 plt.tight_layout()
 
-                savename = f'{dirname}/{name}_{fmt}_crf{quality}'
+                savename = f'{dirname}/{config.videos_list[name]["grupo"]}-{name}_{fmt}_crf{quality}'
                 print(f'Salvando {savename}.png')
                 fig.savefig(f'{savename}')
                 # fig.show()
@@ -761,7 +915,7 @@ def graph1_a() -> None:
                 ax[1].legend(loc='upper left', ncol=2, bbox_to_anchor=(1.01, 1.0))
                 plt.tight_layout()
 
-                savename = f'{dirname}/{name}_{fmt}_tile{tile}'
+                savename = f'{dirname}/{config.videos_list[name]["grupo"]}-{name}_{fmt}_tile{tile}'
                 print(f'Salvando {savename}.png')
                 fig.savefig(f'{savename}')
                 # fig.show()

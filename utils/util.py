@@ -663,7 +663,7 @@ def load_json(filename: str = 'times.json') -> dict:
     return data
 
 
-def show_json(obj: dict, show=True, ret=True):
+def show_json(obj: dict, show=True, ret=False):
     output = json.dumps(obj, indent=2)
     if show:
         print(output)
