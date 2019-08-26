@@ -19,7 +19,6 @@ dectime = util.load_json('times_12videos_scale.json')
 color_list = ['blue', 'orange', 'green', 'red']
 
 
-
 def main():
     # stats()
     # graph1()
