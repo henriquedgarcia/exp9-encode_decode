@@ -9,14 +9,11 @@
 import itertools
 from utils import util
 
-
 sl = util.check_system()['sl']
 
 
 def main():
-    for n in range(5):
-        print(f'Rodada {n}')
-        decode()
+    decode()
 
 
 def decode():
@@ -24,29 +21,21 @@ def decode():
     config = util.Config('config.json')
 
     # Cria objeto "video" com suas principais pastas
-    video = util.VideoParams(config=config,
-                             yuv=f'..{sl}yuv-10s')
-    
-    video.project = 'results\\ffmpeg_crf_18videos_60s'
-    decoders = ['ffmpeg']
-    threads = ['single']  # 'single' or 'multi'
-    factor = ['crf']
-    
-    for (video.decoder, 
-         video.name, 
-         video.tile_format, 
-         video.factor, 
-         video.threads) in itertools.product(decoders,
-                                             config.videos_list,
-                                             config.tile_list,
-                                             factor,
-                                             threads):
+    video = util.VideoParams(config=config, yuv=f'..{sl}yuv-10s')
 
-        video.dectime_base = f'dectime_{video.decoder}'
-        video.quality_list = getattr(config, f'{video.factor}_list')
-        
-        for video.quality in video.quality_list:
-            util.decode(video=video)
+    # Set basic configuration
+    video.decoder = 'ffmpeg'
+    video.project = f'results{sl}ffmpeg_scale_12videos_60s'
+    video.factor = 'scale'
+    video.threads = 'single'  # 'single' or 'multi'
+    video.dectime_base = f'dectime_{video.decoder}'
+    video.quality_list = getattr(config, f'{video.factor}_list')
+
+    for video.name in config.videos_list:
+        for video.tile_format in config.tile_list:
+            for video.quality in video.quality_list:
+                for video.rodada in range(3):
+                    util.decode(video=video)
 
 
 if __name__ == '__main__':
