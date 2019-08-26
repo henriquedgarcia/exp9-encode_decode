@@ -8,6 +8,10 @@ import numpy as np
 
 
 # Minhas classes
+class Container:
+    pass
+
+
 class AutoDict(dict):
     def __missing__(self, key):
         value = self[key] = type(self)()
@@ -15,27 +19,33 @@ class AutoDict(dict):
 
 
 class Config:
-    def __init__(self, filename: str = ''):
+    def __init__(self, filename: str):
         self.filename = filename
         self.scale = ''
         self.fps = 0
         self.gop = 0
         self.duration = 0
-        self.qp_list = []
-        self.rate_list = []
-        self.crf_list = []
+        self.qp_list = []       # Quality
+        self.rate_list = []     # Quality
+        self.crf_list = []      # Quality
+        self.quality_list = []  # Quality
         self.tile_list = []
         self.videos_list = {}
         self.single_videos_list = {}
+        self.factor = ''
+        self.config_data = {}
+        self.sl = check_system()['sl']
         if filename:
             self._load_config(filename)
 
     def _load_config(self, filename: str):
         with open(filename, 'r') as f:
-            config_data = json.load(f)
+            self.config_data = json.load(f)
 
-        for key in config_data:
-            setattr(self, key, config_data[key])
+        for key in self.config_data:
+            setattr(self, key, self.config_data[key])
+
+        self.quality_list = self.config_data[f'{self.factor}_list']
 
 
 class Video:
@@ -561,13 +571,15 @@ def _run(command, log_path, ext, overwrite=False, log_mode='w', bench_stamp='ben
     if os.path.isfile(f'{log_path}.{ext}') and not overwrite and not log_mode in 'a':
         print(f'arquivo {log_path}.{ext} existe. Pulando.')
     else:
-        with subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE,
-                              stderr=subprocess.STDOUT, encoding='utf-8') as proc, \
+        with subprocess.Popen(shlex.split(command),
+                              stdout=subprocess.PIPE,
+                              stderr=subprocess.STDOUT,
+                              encoding='utf-8') as proc, \
                 open('temp.txt', 'w', encoding='utf-8') as f:
 
             for line in proc.stdout:
                 if line.find(bench_stamp) >= 0:
-                    f.write(line.strip())
+                    f.write(line)
 
         with open('temp.txt', 'r', encoding='utf-8') as f1, \
                 open(f'{log_path}.{ext}', log_mode, encoding='utf-8') as f2:
@@ -686,7 +698,7 @@ def load_json(filename: str = 'times.json') -> dict:
     return data
 
 
-def show_json(obj: dict, show=True, ret=True):
+def show_json(obj: dict, show=True, ret=False):
     output = json.dumps(obj, indent=2)
     if show:
         print(output)
