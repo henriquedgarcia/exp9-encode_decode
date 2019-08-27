@@ -19,20 +19,22 @@ class AutoDict(dict):
 
 
 class Config:
-    def __init__(self, filename: str):
+    def __init__(self, filename: str, factor: str):
         self.filename = filename
         self.scale = ''
         self.fps = 0
         self.gop = 0
         self.duration = 0
-        self.qp_list = []       # Quality
-        self.rate_list = []     # Quality
-        self.crf_list = []      # Quality
+        self.qp_list = []  # Quality
+        self.rate_list = []  # Quality
+        self.crf_list = []  # Quality
         self.quality_list = []  # Quality
         self.tile_list = []
+        self.tile_list1 = []
+        self.tile_list2 = []
         self.videos_list = {}
         self.single_videos_list = {}
-        self.factor = ''
+        self.factor = factor  # Obrigatório na inicialização
         self.config_data = {}
         self.sl = check_system()['sl']
         if filename:
@@ -46,6 +48,12 @@ class Config:
             setattr(self, key, self.config_data[key])
 
         self.quality_list = self.config_data[f'{self.factor}_list']
+
+        # Seleciona o tile_list de acordo com o factor
+        if self.factor not in 'scale':
+            self.tile_list = self.tile_list1
+        else:
+            self.tile_list = self.tile_list2
 
 
 class Video:
