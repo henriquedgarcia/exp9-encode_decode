@@ -8,7 +8,7 @@ def main():
 
 def encode():
     # Configure objetcts
-    config = util.Config('config.json')
+    config = util.Config('config.json', factor='qp')
     sl = util.check_system()['sl']
 
     # Create video object and your main folders
@@ -21,14 +21,13 @@ def encode():
 
     # Set basic configuration
     video.encoder = 'ffmpeg'
-    video.project = f'results{sl}ffmpeg_scale_12videos_60s'
-    video.factor = 'scale'
+    video.project = f'results{sl}ffmpeg_qp_12videos_60s'
 
     # iterate over 3 factors: video (complexity), tiles format, quality
     for video.name in config.videos_list:
         for video.tile_format in config.tile_list:
             for video.quality in getattr(config, f'{video.factor}_list'):
-                # util.encode(video)
+                util.encode(video)
                 # util.encapsule(video)
                 # util.extract_tile(video)
                 util.make_segments(video)
