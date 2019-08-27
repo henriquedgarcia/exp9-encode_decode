@@ -493,7 +493,8 @@ def encapsule(video: VideoParams):
 
         mp4box = check_system()['mp4box']
         video.mp4_video = f'{video.mp4_folder}{video.sl}{video.basename}'
-        command = f'{mp4box} -add {video.hevc_video}.hevc:split_tiles -new {video.mp4_video}.mp4'
+        command = (f'{mp4box} -add {video.hevc_video}.hevc:split_tiles '
+                   f'-new {video.mp4_video}.mp4')
         run(command, video.mp4_video, 'mp4')
     else:
         print('[encapsule] Opção de encoder inválida.')
