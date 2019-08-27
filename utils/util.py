@@ -427,11 +427,11 @@ def _encode_ffmpeg(video):
                 # 2-pass
                 command = (f'{video.program} {global_params} {param_in} {param_out}:pass=2" {filter_params} -f mp4 '
                            f'{video.mp4_video}.mp4')
-                run(command, f'{video.mp4_video}', 'mp4')
+                run(command, f'{video.mp4_video}', 'mp4', overwrite=True)
 
             elif video.factor in 'qp':
                 command = f'{video.program} {global_params} {param_in} {param_out} {filter_params} {video.mp4_video}.mp4'
-                run(command, f'{video.mp4_video}', 'mp4')
+                run(command, f'{video.mp4_video}', 'mp4', overwrite=True)
 
             elif video.factor in 'crf':
                 command = f'{video.program} {global_params} {param_in} {param_out} {filter_params} {video.mp4_video}.mp4'
