@@ -366,6 +366,7 @@ class VideoParams(Atribs):
         self.mp4_base = mp4_base
         self.segment_base = segment_base
         self.dectime_base = dectime_base
+        self.factor = config.factor
 
 
 # Funções para codificação
