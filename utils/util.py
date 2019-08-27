@@ -475,7 +475,7 @@ def run(command, video_name, ext, overwrite=False, log_mode='w'):
 
     else:
         print(command)
-        if log_mode in 'none':
+        if log_mode in None:
             subprocess.run(command, shell=True, stderr=subprocess.STDOUT)
         else:
             with open(video_name + '.log', log_mode, encoding='utf-8') as f:
