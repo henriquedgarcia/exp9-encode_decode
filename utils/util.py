@@ -479,7 +479,8 @@ def run(command, video_name, ext, overwrite=False, log_mode='w'):
             subprocess.run(command, shell=True, stderr=subprocess.STDOUT)
         else:
             with open(video_name + '.log', log_mode, encoding='utf-8') as f:
-                subprocess.run(command, shell=True, stdout=f, stderr=subprocess.STDOUT)
+                subprocess.run(command, shell=True, stdout=f,
+                               stderr=subprocess.STDOUT)
 
 
 def encapsule(video: VideoParams):
