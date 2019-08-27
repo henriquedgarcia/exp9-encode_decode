@@ -116,36 +116,6 @@
     }
   },
   "backup_videos_list": {
-    "angels_fall": {
-      "filename": "angels_fall_4320x2160_30.yuv",
-      "time": "0:25",
-      "grupo": "5"
-    },
-    "pac_man": {
-      "filename": "pac_man_4320x2160_30.yuv",
-      "time": "0:20",
-      "grupo": "5"
-    },
-    "jaws": {
-      "filename": "jaws_4320x2160_30.yuv",
-      "time": "1:49",
-      "grupo": "5"
-    },
-    "maldives": {
-      "filename": "maldives_4320x2160_30.yuv",
-      "time": "0:07",
-      "grupo": "5"
-    },
-    "ninja_turtles": {
-      "filename": "ninja_turtles_4320x2160_30.yuv",
-      "time": "0:07",
-      "grupo": "5"
-    },
-    "lion_king": {
-      "filename": "Lion_king_4320x2160_30.yuv",
-      "time": "2:08",
-      "grupo": "5"
-    },
     "om_nom": {
       "filename": "om_nom_4320x2160_30.yuv",
       "time": "0:10",
