@@ -27,7 +27,7 @@ def main():
     # graph2a()
     # graph3()
     # hist1()
-    # hist1samefig()
+    hist1samefig()
     # hist1sameplt()
     # hist2samefig()
     # hist2sameplt()
