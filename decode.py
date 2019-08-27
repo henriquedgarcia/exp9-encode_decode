@@ -11,30 +11,34 @@ from utils import util
 
 sl = util.check_system()['sl']
 
+rodada = None
+
 
 def main():
     decode()
 
 
 def decode():
-    # Configura os objetos
+    # Abre configurações
     config = util.Config('config.json')
 
     # Cria objeto "video" com suas principais pastas
-    video = util.VideoParams(config=config, yuv=f'..{sl}yuv-10s')
+    video = util.VideoParams(config=config,
+                             yuv=f'..{sl}yuv-10s')
 
-    # Set basic configuration
-    video.decoder = 'ffmpeg'
+    # Configura objeto VideoParams
     video.project = f'results{sl}ffmpeg_scale_12videos_60s'
+    video.decoder = 'ffmpeg'
     video.factor = 'scale'
-    video.threads = 'single'  # 'single' or 'multi'
-    video.dectime_base = f'dectime_{video.decoder}'
+    video.threads = 'single'
     video.quality_list = getattr(config, f'{video.factor}_list')
+    video.dectime_base = f'dectime_{video.decoder}'
 
+    # para vada video, para cada fmt, para cada qualidadae... decodificar 3 vezes
     for video.name in config.videos_list:
         for video.tile_format in config.tile_list:
-            for video.quality in video.quality_list:
-                for video.rodada in range(3):
+            for video.rodada in range(3):
+                for video.quality in video.quality_list:
                     util.decode(video=video)
 
 
