@@ -14,10 +14,11 @@ from utils import util
 
 sl = util.check_system()['sl']
 
-project = 'times_12videos_scale'
-config = util.Config('Config.json')
-dectime = util.load_json('times_12videos_scale.json')
+project = 'times_12videos_crf'
+config = util.Config('Config.json', factor='crf')
+dectime = util.load_json('times_12videos_crf.json')
 color_list = ['blue', 'orange', 'green', 'red']
+# bins = 100
 
 
 def main():
