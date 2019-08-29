@@ -24,9 +24,13 @@ def main():
     # stats()
     # graph1()
     # graph2()
-    # graph3()
     # graph2a()
     # graph3()
+    # graph4()  # Por grupo
+    # graph5b()  # Geralzão por tile
+    # graph5c()  # Geralzão por qualidade
+    # graph5d()  # Geralzão por fmt
+    # graph5e()  # Geralzão por name
     # hist1()
     # hist1samefig()
     # hist1sameplt()
@@ -34,6 +38,7 @@ def main():
     # hist2sameplt()
     # hist3samefig()
     # hist3sameplt()
+    hist0('histogram_geralzao')  # Geralzão por chunks
     pass
 
 
