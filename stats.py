@@ -1,6 +1,7 @@
 #!/bin/python3
 # coding=utf-8
 import os
+import pickle
 from itertools import product as it
 
 import fitter
@@ -347,6 +348,100 @@ def graph3(graph_folder='3_graph3_heatmap'):
             fig.savefig(f'{dirname}{sl}{group}-{name}_{fmt}')
             # plt.show()
             print('')
+
+
+def hist0(graph_folder):
+    dirname = f'results{sl}{project}{sl}{graph_folder}'
+    os.makedirs(dirname, exist_ok=True)
+
+    # Coleta dados
+    time, size, corr = get_data_name()
+
+    # calcular fit
+    dists = ['beta', 'fatiguelife', 'burr', 'expon', 'gamma', 'genextreme',
+             'genpareto', 'halfnorm', 'invgauss', 'logistic', 'norm',
+             'rayleigh', 'rice', 't', ]
+    for bins in [25, 50, 75, 100, 125, 150, 200]:
+        print('Calculando o fit.')
+        f_t = fitter.fitter.Fitter(time, bins=bins, distributions=dists,
+                                   verbose=False)
+        f_s = fitter.fitter.Fitter(size, bins=bins, distributions=dists,
+                                   verbose=False)
+        f_t.fit()
+        f_s.fit()
+
+        # Persistência
+        f_t_name = f'{dirname}{sl}fitter_time_{bins}bins.pickle'
+        f_s_name = f'{dirname}{sl}fitter_rate_{bins}bins.pickle'
+        print(f'Salvando {f_t_name} e {f_s_name}.')
+        with open(f_t_name, 'rb') as f1, \
+                open(f_s_name, 'rb') as f2:
+            pickle.dump(f_t, f1, pickle.HIGHEST_PROTOCOL)
+            pickle.dump(f_s, f2, pickle.HIGHEST_PROTOCOL)
+        print(f'Carregando {f_t_name} e {f_s_name}.')
+        with open(f_t_name, 'rb') as f1, \
+                open(f_s_name, 'rb') as f2:
+            f_t = pickle.load(f1)
+            f_s = pickle.load(f2)
+
+        # Faz histograma
+        fig, [ax1, ax2, ax3, ax4] = plt.subplots(4, 1, figsize=(14, 11),
+                                                 dpi=150)
+
+        t_avg = np.average(time)
+        s_avg = np.average(size)
+        t_std = np.std(time)
+        s_std = np.std(size)
+
+        label_t = (f'dectime_avg={t_avg:.03f} s\n'
+                   f'dectime_std={t_std:.03f} s\n'
+                   f'corr={corr:.03f}')
+        label_s = (f'rate_avg={s_avg:.03f} s\n'
+                   f'rate_std={s_std:.03f} s\n'
+                   f'corr={corr:.03f}')
+        ax1.hist(time, bins=bins, histtype='bar', density=True, label=label_t)
+        ax2.hist(size, bins=bins, histtype='bar', density=True, label=label_s)
+        ax1.set_title(f'Times')
+        ax2.set_title(f'Sizes')
+        ax1.set_ylabel("PDF")
+        ax2.set_ylabel("PDF")
+        ax1.set_xlabel('Decoder Time')
+        ax2.set_xlabel('Bitrate')
+
+        # Procura os menores SSE e plota
+        short_sse_t = f_t.df_errors.sort_values(by="sumsquare_error").index[0:3]
+        short_sse_s = f_s.df_errors.sort_values(by="sumsquare_error").index[0:3]
+        for dist_name_t, dist_name_s in zip(short_sse_t, short_sse_s):
+            sse_t = f_t.df_errors["sumsquare_error"][dist_name_t]
+            label_t = f'{dist_name_t},\nSSE = {sse_t: .3f}'
+            ax1.plot(f_t.x, f_t.fitted_pdf[dist_name_t], label=label_t)
+            ax1.legend(loc='upper left', bbox_to_anchor=(1.01, 1.0))
+
+            sse_s = f_s.df_errors["sumsquare_error"][dist_name_s]
+            label_s = f'{dist_name_s},\nSSE = {sse_s: .3f}'
+            ax2.plot(f_s.x, f_s.fitted_pdf[dist_name_s], label=label_s)
+            ax2.legend(loc='upper left', bbox_to_anchor=(1.01, 1.0))
+
+        # # plota a CDF para esta qualidade
+        ax3.hist(time, bins=bins, density=True, cumulative=True,
+                 histtype='step',
+                 label=label_t)
+        ax4.hist(time, bins=bins, density=True, cumulative=True,
+                 histtype='step',
+                 label=label_s)
+        ax3.set_title('CDF')
+        ax4.set_title('CDF')
+        ax3.set_ylabel("CDF")
+        ax4.set_ylabel("CDF")
+        ax3.set_xlabel("Decoder Time (s)")
+        ax4.set_xlabel("rate (bps)")
+        ax3.legend(loc='upper left', bbox_to_anchor=(1.01, 1.0))
+        ax4.legend(loc='upper left', bbox_to_anchor=(1.01, 1.0))
+
+        plt.tight_layout()
+        fig.savefig(f'{dirname}{sl}hist_geralzão_bins{bins}')
+        # plt.show()
+        print(f'hist_geraldão_{bins}')
 
 
 def hist1samefig(graph_folder="hist1samefig"):
