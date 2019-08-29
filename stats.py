@@ -38,9 +38,6 @@ def main():
 
 
 def stats():
-    # Configura os objetos
-    config = util.Config('config.json')
-
     # Base object
     video_seg = util.Video(config=config)
     video_seg.project = f'results{sl}ffmpeg_scale_12videos_60s'
