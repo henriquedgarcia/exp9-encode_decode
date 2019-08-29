@@ -96,7 +96,7 @@ def graph1(graph_folder='1_graph1-tiles-chunks_x_dec_time'):
     tiles-chunksXdec_time (seconds) and chunks X file_size (Bytes)
     :return:
     """
-    dirname = f'{sl}results{sl}{project}{sl}{graph_folder}'
+    dirname = f'results{sl}{project}{sl}{graph_folder}'
     os.makedirs(dirname, exist_ok=True)
 
     for name in config.videos_list:
@@ -156,7 +156,7 @@ def graph2(graph_folder='2_graph2-quality-chunks_x_dec_time'):
     quality-chunksXdec_time (seconds) and chunks X file_size (Bytes)
     :return:
     """
-    dirname = f'{sl}results{sl}{project}{sl}{graph_folder}'
+    dirname = f'results{sl}{project}{sl}{graph_folder}'
     os.makedirs(dirname, exist_ok=True)
 
     for name in config.videos_list:
@@ -217,7 +217,7 @@ def graph3(graph_folder='3_graph3_heatmap'):
     tile X average_dec_time (seconds) and tile X average_rate (Bytes)
     :return: None
     """
-    dirname = f'{sl}results{sl}{project}{sl}{graph_folder}'
+    dirname = f'results{sl}{project}{sl}{graph_folder}'
     os.makedirs(dirname, exist_ok=True)
 
     for name in config.videos_list:
