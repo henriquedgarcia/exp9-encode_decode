@@ -879,6 +879,19 @@ def hist2sameplt(graph_folder="hist2sameplt"):
     # best_dist_df.to_csv(f'{dirname}{config.sl}best_dist.csv')
 
 
+def get_data_name():
+    size = []
+    time = []
+
+    for name in config.videos_list:
+        t, s, _ = get_data_fmt(name)
+        time.extend(t)
+        size.extend(s)
+
+    corr = np.corrcoef((time, size))[1][0]
+    return time, size, corr
+
+
 def get_data_fmt(name):
     size = []
     time = []
