@@ -544,8 +544,9 @@ def make_segments(video):
 
 
 # Funções para decodificação
-def decode(video: VideoParams):
+def decode(video: VideoParams, command=''):
     """
+    :param command:
     :param video:
     :return:
     """
@@ -557,8 +558,9 @@ def decode(video: VideoParams):
                                f'-hide_banner -benchmark -codec hevc -threads 0 -i {video.segment_video}.mp4 '
                                f'-f null -')
                 else:
-                    command = (f'{video.program} '
-                               f'-hide_banner -benchmark -codec hevc -threads 1 -i {video.segment_video}.mp4 '
+                    command = (f'{video.program} -hide_banner -benchmark '
+                               f'-codec hevc -threads 1 '
+                               f'-i {video.segment_video}.mp4 '
                                f'-f null -')
 
             elif video.decoder in 'mp4client':
@@ -569,15 +571,18 @@ def decode(video: VideoParams):
                     command = (f'start /b /wait /affinity 0x800 '
                                f'{video.program} -bench {video.segment_video}.mp4')
             else:
-                command = ''
                 exit('Decoders disponíveis são mp4client e ffmpeg.')
-            print(f'Rodada {video.rodada} - {video.basename}_tile{video.tile}_chunk{video.chunk}')
+            print(f'Rodada {video.rodada} - '
+                  f'{video.basename}_tile{video.tile}_chunk{video.chunk}')
             _run(command, video.dectime_log, 'txt', log_mode='a')
 
 
-def _run(command, log_path, ext, overwrite=False, log_mode='w', bench_stamp='bench: utime'):
+def _run(command, log_path, ext, overwrite=False, log_mode='w',
+         bench_stamp='bench: utime'):
     import shlex
-    if os.path.isfile(f'{log_path}.{ext}') and not overwrite and not log_mode in 'a':
+    if os.path.isfile(f'{log_path}.{ext}') \
+            and not overwrite \
+            and log_mode in 'w':
         print(f'arquivo {log_path}.{ext} existe. Pulando.')
     else:
         with subprocess.Popen(shlex.split(command),
@@ -585,7 +590,6 @@ def _run(command, log_path, ext, overwrite=False, log_mode='w', bench_stamp='ben
                               stderr=subprocess.STDOUT,
                               encoding='utf-8') as proc, \
                 open('temp.txt', 'w', encoding='utf-8') as f:
-
             for line in proc.stdout:
                 if line.find(bench_stamp) >= 0:
                     f.write(line)
