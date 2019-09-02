@@ -475,11 +475,12 @@ def run(command, video_name, ext, overwrite=False, log_mode='w'):
 
     else:
         print(command)
-        if log_mode in 'none':
+        if log_mode in None:
             subprocess.run(command, shell=True, stderr=subprocess.STDOUT)
         else:
             with open(video_name + '.log', log_mode, encoding='utf-8') as f:
-                subprocess.run(command, shell=True, stdout=f, stderr=subprocess.STDOUT)
+                subprocess.run(command, shell=True, stdout=f,
+                               stderr=subprocess.STDOUT)
 
 
 def encapsule(video: VideoParams):
@@ -493,7 +494,8 @@ def encapsule(video: VideoParams):
 
         mp4box = check_system()['mp4box']
         video.mp4_video = f'{video.mp4_folder}{video.sl}{video.basename}'
-        command = f'{mp4box} -add {video.hevc_video}.hevc:split_tiles -new {video.mp4_video}.mp4'
+        command = (f'{mp4box} -add {video.hevc_video}.hevc:split_tiles '
+                   f'-new {video.mp4_video}.mp4')
         run(command, video.mp4_video, 'mp4')
     else:
         print('[encapsule] Opção de encoder inválida.')
