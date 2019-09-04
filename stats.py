@@ -372,10 +372,101 @@ def histogram_name_fmt(graph_folder):
                 print(f'hist {bins} bins, {name}_{fmt}')
 
 
+# hist1
+def histogram_group_fmt(graph_folder):
+    dirname = f'results{sl}{project}{sl}{graph_folder}'
+    os.makedirs(dirname + f'{sl}data', exist_ok=True)
+
+    for bins in ['auto', 25, 50, 75, 100, 125, 150, 200]:
+        for group in ['0', '1', '2', '3']:
+            for fmt in config.tile_list:
+                # Coleta dados
+                tridata = get_data_group_fmt(group, fmt)
+
+                # Faz o plot
+                fig = make_hist(tridata, dirname, bins=bins, group=group,
+                                name=None, fmt=fmt, quality=None, tile=None,
+                                chunk=None)
+
+                # Salva
+                fig.savefig(f'{dirname}{sl}'
+                            f'hist_groups_bins{bins}_group{group}_{fmt}')
+                # fig.show()
+                print(f'hist bins {bins}, group{group}_{fmt}')
+
+
+def heatmap_fmt_quality(graph_folder):
+    dirname = f'results{sl}{project}{sl}{graph_folder}'
+    os.makedirs(f'{dirname}{sl}data', exist_ok=True)
+    bins = 'auto'
+
+    for fmt in config.tile_list:
+        m, n = list(map(int, fmt.split('x')))
+
+        fig, ax = plt.subplots(2, 4, figsize=(12, 5), dpi=150)
+
+        c1, c2 = [], []
+        for count, quality in enumerate(config.quality_list):
+            # Cria e preenche o heatmap
+            heatmap = Heatmap(m, n)
+            for tile, (x, y) in zip(range(1, m * n + 1),
+                                    it(range(1, m + 1), range(1, n + 1))):
+                time, size, corr = get_data_name_chunk(fmt, tile, quality)
+
+                time = np.average(time)
+                size = np.average(size)
+
+                heatmap.average_time.append(time)
+                heatmap.average_size.append(size)
+                heatmap.std_time.append(np.std(time))
+                heatmap.std_size.append(np.std(size))
+
+                heatmap.frame_time[y - 1, x - 1] = time
+                heatmap.frame_size[y - 1, x - 1] = size
+
+            # Plota um Pcolor (Heatmap) e pega sua collection
+            c1.append(ax[0][count].pcolor(heatmap.frame_time,
+                                          cmap='jet'))
+            c2.append(ax[1][count].pcolor(heatmap.frame_size,
+                                          cmap='jet'))
+
+            # Configura os eixos do heatmap da qualidade atual
+            ax[0][count].set_title(f'Dectime Heatmap {fmt}')
+            ax[1][count].set_xlabel(f'crf={quality}')
+            ax[0][count].set_xticklabels([])
+            ax[0][count].set_yticklabels([])
+
+            ax[1][count].set_title(f'Bitrate Heatmap {fmt}')
+            ax[1][count].set_xlabel(f'crf={quality}')
+            ax[1][count].set_xticklabels([])
+            ax[1][count].set_yticklabels([])
+
+        # Normaliza heatmap
+        vmin1 = min(collection.get_array().min() for collection in c1)
+        vmax1 = max(collection.get_array().max() for collection in c1)
+        vmin2 = min(collection.get_array().min() for collection in c2)
+        vmax2 = max(collection.get_array().max() for collection in c2)
+
+        norm1 = colors.Normalize(vmin=vmin1, vmax=vmax1)
+        norm2 = colors.Normalize(vmin=vmin2, vmax=vmax2)
+        for collection1, collection2 in zip(c1, c2):
+            collection1.set_norm(norm1)
+            collection2.set_norm(norm2)
+
+        # Colorbar
+        # fig.colorbar(c1[-1], ax=ax[0],
+        #              orientation='horizontal')
+        # fig.colorbar(c2[-1], ax=ax[1],
+        #              orientation='horizontal')
+        # plt.legend()
+        # fig.suptitle(f'Heatmap dectime and bitrate {fmt}.', y=1.05, fontsize=16)
         plt.tight_layout()
-        fig.savefig(f'{dirname}{sl}hist_geralzão_bins{bins}')
+
+        # Finaliza
+        print(f'Salvando {dirname}{sl}{fmt}_{config.factor}.')
+        fig.savefig(f'{dirname}{sl}{fmt}_{config.factor}')
         # plt.show()
-        print(f'hist_geraldão_{bins}')
+        print('')
 
 
 def hist1samefig(graph_folder="hist1samefig"):
@@ -945,6 +1036,20 @@ def plota_hist(f, ax: matplotlib.axes.Axes, bins, data_stats, metric, func,
 
     ax.legend(loc='upper left', bbox_to_anchor=(1.01, 1.0))
     return ax
+
+
+def get_data_group_fmt(group, fmt):
+    size = []
+    time = []
+    for name in config.videos_list:
+        if config.videos_list[name]['group'] in group:
+            t, s, _ = get_data_quality(name, fmt)
+            time.extend(t)
+            size.extend(s)
+    corr = np.corrcoef((time, size))[1][0]
+
+    return time, size, corr
+
 
 def get_data_name():
     size = []
