@@ -607,12 +607,12 @@ def hist1samefig(graph_folder):
     best_dist_df.to_csv(f'{dirname}{config.sl}best_dist.csv')
 
 
-def hist1sameplt(graph_folder="hist1sameplt"):
+def hist1sameplt(graph_folder):
     """ Compara os histogramas. Para cada video-fmt plota todas as qualidades
     (agrega tiles e chunks)
     :return:
     """
-    dirname = f'{project}{sl}results{sl}{graph_folder}'
+    dirname = f'results{sl}{project}{sl}{graph_folder}'
     times = util.AutoDict()
     sizes = util.AutoDict()
 
@@ -676,7 +676,7 @@ def hist1sameplt(graph_folder="hist1sameplt"):
             ax_cdf.legend(loc='upper left', bbox_to_anchor=(1.01, 1.0))
 
         plt.tight_layout()
-        grupo = config.videos_list[name]["grupo"]
+        grupo = config.videos_list[name]["group"]
         fig.savefig(f'{dirname}{sl}{grupo}-hist_{name}_{fmt}')
         # plt.show()
         print(f'hist_{name}_{fmt}')
