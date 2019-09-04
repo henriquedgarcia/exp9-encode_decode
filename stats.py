@@ -350,93 +350,27 @@ def graph3(graph_folder='3_graph3_heatmap'):
             print('')
 
 
-def hist0(graph_folder):
+# hist0
+def histogram_name_fmt(graph_folder):
     dirname = f'results{sl}{project}{sl}{graph_folder}'
-    os.makedirs(dirname, exist_ok=True)
+    os.makedirs(dirname + f'{sl}data', exist_ok=True)
 
-    # Coleta dados
-    time, size, corr = get_data_name()
+    for bins in ['auto', 25, 50, 75, 100, 125, 150, 200]:
+        for name in config.videos_list:
+            for fmt in config.tile_list:
+                # Coleta dados
+                tridata = get_data_quality(name, fmt)
 
-    # calcular fit
-    dists = ['beta', 'fatiguelife', 'burr', 'expon', 'gamma', 'genextreme',
-             'genpareto', 'halfnorm', 'invgauss', 'logistic', 'norm',
-             'rayleigh', 'rice', 't', ]
-    for bins in [25, 50, 75, 100, 125, 150, 200]:
-        print('Calculando o fit.')
-        f_t = fitter.fitter.Fitter(time, bins=bins, distributions=dists,
-                                   verbose=False)
-        f_s = fitter.fitter.Fitter(size, bins=bins, distributions=dists,
-                                   verbose=False)
-        f_t.fit()
-        f_s.fit()
+                # Faz o plot
+                fig = make_hist(tridata, dirname, bins, group=None, name=name,
+                                fmt=fmt, quality=None, tile=None, chunk=None)
 
-        # Persistência
-        f_t_name = f'{dirname}{sl}fitter_time_{bins}bins.pickle'
-        f_s_name = f'{dirname}{sl}fitter_rate_{bins}bins.pickle'
-        print(f'Salvando {f_t_name} e {f_s_name}.')
-        with open(f_t_name, 'rb') as f1, \
-                open(f_s_name, 'rb') as f2:
-            pickle.dump(f_t, f1, pickle.HIGHEST_PROTOCOL)
-            pickle.dump(f_s, f2, pickle.HIGHEST_PROTOCOL)
-        print(f'Carregando {f_t_name} e {f_s_name}.')
-        with open(f_t_name, 'rb') as f1, \
-                open(f_s_name, 'rb') as f2:
-            f_t = pickle.load(f1)
-            f_s = pickle.load(f2)
+                # Salva
+                fig.savefig(f'{dirname}{sl}'
+                            f'hist_groups_bins{bins}_{name}_{fmt}')
+                # fig.show()
+                print(f'hist {bins} bins, {name}_{fmt}')
 
-        # Faz histograma
-        fig, [ax1, ax2, ax3, ax4] = plt.subplots(4, 1, figsize=(14, 11),
-                                                 dpi=150)
-
-        t_avg = np.average(time)
-        s_avg = np.average(size)
-        t_std = np.std(time)
-        s_std = np.std(size)
-
-        label_t = (f'dectime_avg={t_avg:.03f} s\n'
-                   f'dectime_std={t_std:.03f} s\n'
-                   f'corr={corr:.03f}')
-        label_s = (f'rate_avg={s_avg:.03f} s\n'
-                   f'rate_std={s_std:.03f} s\n'
-                   f'corr={corr:.03f}')
-        ax1.hist(time, bins=bins, histtype='bar', density=True, label=label_t)
-        ax2.hist(size, bins=bins, histtype='bar', density=True, label=label_s)
-        ax1.set_title(f'Times')
-        ax2.set_title(f'Sizes')
-        ax1.set_ylabel("PDF")
-        ax2.set_ylabel("PDF")
-        ax1.set_xlabel('Decoder Time')
-        ax2.set_xlabel('Bitrate')
-
-        # Procura os menores SSE e plota
-        short_sse_t = f_t.df_errors.sort_values(by="sumsquare_error").index[0:3]
-        short_sse_s = f_s.df_errors.sort_values(by="sumsquare_error").index[0:3]
-        for dist_name_t, dist_name_s in zip(short_sse_t, short_sse_s):
-            sse_t = f_t.df_errors["sumsquare_error"][dist_name_t]
-            label_t = f'{dist_name_t},\nSSE = {sse_t: .3f}'
-            ax1.plot(f_t.x, f_t.fitted_pdf[dist_name_t], label=label_t)
-            ax1.legend(loc='upper left', bbox_to_anchor=(1.01, 1.0))
-
-            sse_s = f_s.df_errors["sumsquare_error"][dist_name_s]
-            label_s = f'{dist_name_s},\nSSE = {sse_s: .3f}'
-            ax2.plot(f_s.x, f_s.fitted_pdf[dist_name_s], label=label_s)
-            ax2.legend(loc='upper left', bbox_to_anchor=(1.01, 1.0))
-
-        # # plota a CDF para esta qualidade
-        ax3.hist(time, bins=bins, density=True, cumulative=True,
-                 histtype='step',
-                 label=label_t)
-        ax4.hist(time, bins=bins, density=True, cumulative=True,
-                 histtype='step',
-                 label=label_s)
-        ax3.set_title('CDF')
-        ax4.set_title('CDF')
-        ax3.set_ylabel("CDF")
-        ax4.set_ylabel("CDF")
-        ax3.set_xlabel("Decoder Time (s)")
-        ax4.set_xlabel("rate (bps)")
-        ax3.legend(loc='upper left', bbox_to_anchor=(1.01, 1.0))
-        ax4.legend(loc='upper left', bbox_to_anchor=(1.01, 1.0))
 
         plt.tight_layout()
         fig.savefig(f'{dirname}{sl}hist_geralzão_bins{bins}')
@@ -879,6 +813,139 @@ def hist2sameplt(graph_folder="hist2sameplt"):
     # best_dist_df.to_csv(f'{dirname}{config.sl}best_dist.csv')
 
 
+def make_hist(tridata, dirname, bins, group=None, name=None, fmt=None,
+              quality=None, tile=None, chunk=None):
+    m_, n_ = list(map(int, fmt.split('x')))
+    time, size, corr = tridata
+    data_stats_t = [np.average(time), np.std(time), corr]
+    data_stats_s = [np.average(size), np.std(size), corr]
+
+    # Persistência
+    print('Calculando o fit.')
+    f_t_name = ''
+    f_s_name = ''
+    if group is not None \
+            and fmt is not None:
+        f_t_name = (f'{dirname}{sl}data{sl}'
+                    f'fitter_time_{bins}bins_group{group}_{fmt}.pickle')
+        f_s_name = (f'{dirname}{sl}data{sl}'
+                    f'fitter_rate_{bins}bins_group{group}_{fmt}.pickle')
+        tile = f'{bins}bins_group{group}_{fmt}'
+    if name is not None \
+            and fmt is not None:
+        f_t_name = (f'{dirname}{sl}data{sl}'
+                    f'fitter_time_{bins}bins_{name}_{fmt}.pickle')
+        f_s_name = (f'{dirname}{sl}data{sl}'
+                    f'fitter_rate_{bins}bins_{name}_{fmt}.pickle')
+        tile = f'{bins}bins_{name}_{fmt}'
+    if fmt is not None \
+            and quality is not None \
+            and tile is not None:
+        f_t_name = (f'{dirname}{sl}data{sl}'
+                    f'fitter_time_{bins}bins_{fmt}_{config.factor}{quality}_'
+                    f'tile{tile}.pickle')
+        f_s_name = (f'{dirname}{sl}data{sl}'
+                    f'fitter_rate_{bins}bins_{fmt}_{config.factor}{quality}_'
+                    f'tile{tile}.pickle')
+        tile = f'{bins}bins_{name}_{fmt}'
+
+    f_t = make_fit(data=time, bins=bins, out_file=f_t_name)
+    f_s = make_fit(data=size, bins=bins, out_file=f_s_name)
+
+    # Faz histograma
+    plt.close()
+    fig, axes = plt.subplots(4, 1, figsize=(14, 11), dpi=150)
+    for ax, k in zip(axes, ['pdf_dectime', 'pdf_rate',
+                            'cdf_dectime', 'cdf_rate']):
+        if k in 'pdf_dectime':
+            ax = plota_hist(f_t, ax, bins, data_stats_t, 'time', 'pdf')
+            ax.set_title(f'PDF Dectime - {tile}')
+            ax.set_xlabel('Decoder Time')
+        elif k in 'pdf_rate':
+            ax = plota_hist(f_s, ax, bins, data_stats_s, 'rate', 'pdf')
+            ax.set_title(f'PDF Bitrate - {tile}')
+            ax.set_xlabel('Bitrate')
+        elif k in 'cdf_dectime':
+            ax = plota_hist(f_t, ax, bins, data_stats_t, 'time', 'cdf')
+            ax.set_title(f'CDF Dectime - {tile}')
+            ax.set_xlabel('Decoder Time')
+        elif k in 'cdf_rate':
+            ax = plota_hist(f_s, ax, bins, data_stats_s, 'rate', 'cdf')
+            ax.set_title(f'CDF Bitrate - {tile}')
+            ax.set_xlabel('Bitrate')
+
+    plt.tight_layout()
+    return fig
+
+
+def make_fit(data, out_file, bins, overwrite=False):
+    if os.path.exists(out_file) and not overwrite:
+        print(f'Carregando {out_file}.')
+        with open(out_file, 'rb') as f1:
+            f = pickle.load(f1)
+    else:
+        print('Calculando o fit do tempo.')
+        f = fitter.fitter.Fitter(data, bins=bins,
+                                 distributions=dists,
+                                 verbose=False)
+        f.fit()
+
+        print(f'Salvando {out_file}.')
+        with open(out_file, 'wb') as f1:
+            pickle.dump(f, f1, pickle.HIGHEST_PROTOCOL)
+
+    return f
+
+
+def plota_hist(f, ax: matplotlib.axes.Axes, bins, data_stats, metric, func,
+               label='') -> plt.Axes:
+    [avg, std, corr] = data_stats
+    errors = f.df_errors
+    errors_sorted = errors.sort_values(by="sumsquare_error")
+    short_sse = errors_sorted.index[0:5]
+
+    if func in 'pdf':
+        ax.set_ylabel("Probability Density")
+        if metric is 'time':
+            label = (f'dectime_avg={avg:.03f} s\n'
+                     f'dectime_std={std:.03f} s\n'
+                     f'corr={corr:.03f}')
+            ax.ticklabel_format(axis='y', style='scientific')
+        elif metric is 'rate':
+            label = (f'rate_avg={avg:.03f} bps\n'
+                     f'rate_std={std:.03f} bps\n'
+                     f'corr={corr:.03f}')
+        ax.hist(f._data,
+                bins=bins,
+                histtype='bar',
+                density=True,
+                label=label)
+        # plota os 3 melhores fits
+        for dist_name in short_sse:
+            sse = f.df_errors["sumsquare_error"][dist_name]
+            label = f'{dist_name},\nSSE = {sse: .3E}'
+            ax.plot(f.x, f.fitted_pdf[dist_name], label=label)
+
+    if func in 'cdf':
+        ax.set_ylabel("Cumulative Distribution")
+        if metric is 'time':
+            label = (f'dectime_avg={avg:.03f} s\n'
+                     f'dectime_std={std:.03f} s\n'
+                     f'corr={corr:.03f}')
+        elif metric is 'rate':
+            label = (f'rate_avg={avg:.03f} bps\n'
+                     f'rate_std={std:.03f} bps\n'
+                     f'corr={corr:.03f}')
+        ax.hist(f._data,
+                bins=bins,
+                density=True,
+                cumulative=True,
+                histtype='step',
+                label=label)
+
+    ax.legend(loc='upper left', bbox_to_anchor=(1.01, 1.0))
+    return ax
+
 def get_data_name():
     size = []
     time = []
@@ -911,6 +978,19 @@ def get_data_quality(name, fmt):
 
     for quality in config.quality_list:
         t, s, corr = get_data_tiles(name, fmt, quality)
+        time.extend(t)
+        size.extend(s)
+
+    corr = np.corrcoef((time, size))[1][0]
+    return time, size, corr
+
+
+def get_data_name_chunk(fmt, tile, quality):
+    size = []
+    time = []
+
+    for name in config.videos_list:
+        t, s, corr = get_data_chunks(name, fmt, quality, tile)
         time.extend(t)
         size.extend(s)
 
