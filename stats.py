@@ -24,26 +24,23 @@ dists = ['burr12', 'expon', 'fatiguelife', 'gamma', 'genpareto', 'halfnorm',
 
 
 def main():
-    # psnr()  # Processar psnr também.
+    # psnr()  # Processar psnr também. à fazer
     # stats()
-    # graph1()
-    # graph2()
-    # graph2a()
-    # graph3()
+    # graph1(graph_folder='1_graph1-tiles-chunks_x_dec_time')
+    # graph2(graph_folder='2_graph2-quality-chunks_x_dec_time')
+    # graph3(graph_folder='3_graph3_heatmap')
+    # histogram_name_fmt('histogram_name-fmt')
+    # histogram_group_fmt('histogram_group-fmt')
+    # heatmap_fmt_quality('heatmap_fmt-quality')
+    hist1samefig(graph_folder="hist1samefig")
+    hist1sameplt(graph_folder="hist1sameplt")
+    # hist2samefig(graph_folder="hist2samefig")
+    # hist2sameplt(graph_folder="hist2sameplt")
     # graph4()  # Por grupo
     # graph5b()  # Geralzão por tile
     # graph5c()  # Geralzão por qualidade
     # graph5d()  # Geralzão por fmt
     # graph5e()  # Geralzão por name
-    # hist1()
-    # hist1samefig()
-    # hist1sameplt()
-    # hist2samefig()
-    # hist2sameplt()
-    # hist3samefig()
-    # hist3sameplt()
-    hist0('histogram_geralzao')  # Geralzão por chunks
-    pass
 
 
 def stats():
