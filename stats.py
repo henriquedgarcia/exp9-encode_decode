@@ -469,17 +469,17 @@ def heatmap_fmt_quality(graph_folder):
         print('')
 
 
-def hist1samefig(graph_folder="hist1samefig"):
+def hist1samefig(graph_folder):
     """ Compara os histogramas. Para cada video-fmt plota todas as qualidades
     (agrega tiles e chunks)
     :return:
     """
-    dirname = f'{project}{sl}results{sl}{graph_folder}'
+    dirname = f'results{sl}{project}{sl}{graph_folder}'
+    os.makedirs(f'{dirname}', exist_ok=True)
+
     best_dist_df = util.AutoDict()
     times = util.AutoDict()
     sizes = util.AutoDict()
-
-    os.makedirs(f'{dirname}', exist_ok=True)
 
     # Coleta dados
     iterator = it(config.videos_list, config.tile_list, config.quality_list)
@@ -499,9 +499,6 @@ def hist1samefig(graph_folder="hist1samefig"):
     # Calcular melhores fit e plota
     for name, fmt in list(it(config.videos_list, config.tile_list)):
         # Faz um fit por name-fmt-qualidade
-        dists = ['alpha', 'beta', 'cauchy', 'chi', 'chi2', 'expon', 'gamma',
-                 'gilbrat', 'laplace', 'levy', 'norm', 'pareto', 'rice', 't',
-                 'uniform']
 
         fitter_dict = {}
         for quality in config.quality_list:
@@ -509,7 +506,7 @@ def hist1samefig(graph_folder="hist1samefig"):
             col_label = f'{fmt}-{quality}'
 
             # Faz o fit
-            f = fitter.fitter.Fitter(data, bins=100, distributions=dists,
+            f = fitter.fitter.Fitter(data, bins='auto', distributions=dists,
                                      verbose=False)
             fitter_dict[quality] = f
             fitter_dict[quality].fit()
@@ -548,7 +545,7 @@ def hist1samefig(graph_folder="hist1samefig"):
                      f'time/chunk/tile={t_ct:.03f} s')
 
             ax = fig.add_subplot(3, 2, idx, sharex=ax_cdf)
-            ax.hist(times[name][fmt][quality], color=color, bins=100,
+            ax.hist(times[name][fmt][quality], color=color, bins='auto',
                     histtype='bar',
                     density=True, label=label)
             ax.set_title(f'{name}, {fmt}, crf {quality}')
@@ -559,7 +556,7 @@ def hist1samefig(graph_folder="hist1samefig"):
             # plota os 3 best fit para esta qualidade
             best_dists = fitter_dict[quality].df_errors
             best_dists = best_dists.sort_values(by="sumsquare_error")
-            best_dists = best_dists.index[0:3]
+            best_dists = best_dists.index[0:5]
 
             for dist_name in best_dists:
                 sse = fitter_dict[quality]
@@ -589,7 +586,7 @@ def hist1samefig(graph_folder="hist1samefig"):
             ###############################################################
             # plota a CDF para esta qualidade
             label = f'{name}_{fmt}_crf{quality}'
-            ax_cdf.hist(times[name][fmt][quality], color=color, bins=100,
+            ax_cdf.hist(times[name][fmt][quality], color=color, bins='auto',
                         density=True, cumulative=True, histtype='step',
                         label=label)
             ax_cdf.set_title('CDF')
@@ -599,8 +596,8 @@ def hist1samefig(graph_folder="hist1samefig"):
 
         ax_rate.set_xticklabels(['0'] + config.quality_list)
         plt.tight_layout()
-        grupo = config.videos_list[name]["grupo"]
-        fig.savefig(f'{dirname}{sl}{grupo}-hist_{name}_{fmt}')
+        group = config.videos_list[name]["group"]
+        fig.savefig(f'{dirname}{sl}{group}-hist_{name}_{fmt}')
         # plt.show()
         print(f'hist_{name}_{fmt}')
 
