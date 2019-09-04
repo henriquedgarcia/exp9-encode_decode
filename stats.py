@@ -19,6 +19,8 @@ config = util.Config('Config.json', factor='crf')
 dectime = util.load_json('times_12videos_crf.json')
 color_list = ['blue', 'orange', 'green', 'red']
 # bins = 100
+dists = ['burr12', 'expon', 'fatiguelife', 'gamma', 'genpareto', 'halfnorm',
+         'invgauss', 'rayleigh', 'rice', 't']
 
 
 def main():
