@@ -1150,9 +1150,9 @@ def make_heatmap(name, fmt, quality):
     m, n = list(map(int, fmt.split('x')))
     heatmap = Heatmap(m, n)
 
-    for tile, x, y in it(range(1, m * n + 1),
-                         range(1, m + 1),
-                         range(1, n + 1)):
+    for tile, (x, y) in zip(range(1, m * n + 1),
+                            it(range(1, m + 1),
+                               range(1, n + 1))):
         # Coleta dados de todos os chunks
         time, size, _ = get_data_chunks(name, fmt, quality, tile)
 
