@@ -47,11 +47,11 @@ def stats():
     # Base object
     video_seg = util.Video(config=config)
     video_seg.project = f'results{sl}ffmpeg_scale_12videos_60s'
-    video_seg.factor = 'scale'
-    video_seg.segment_base = 'segment'
+    video_seg.factor = f'scale'
+    video_seg.segment_base = f'segment'
     video_seg.dectime_base = f'dectime_ffmpeg'
-    video_seg.bench_stamp = 'bench: utime'
-    video_seg.multithread = 'single'
+    video_seg.bench_stamp = f'bench: utime'
+    video_seg.multithread = f'single'
 
     video_seg.quality_list = config.quality_list
 
