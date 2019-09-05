@@ -116,7 +116,7 @@ def stats():
     util.save_json(dict(video_seg.dectime), 'times_12videos_scale.json')
 
 
-def graph1(graph_folder='1_graph1-tiles-chunks_x_dec_time'):
+def graph1(graph_folder):
     """
     tiles-chunksXdec_time (seconds) and chunks X file_size (Bytes)
     :return:
@@ -176,7 +176,7 @@ def graph1(graph_folder='1_graph1-tiles-chunks_x_dec_time'):
                 print('')
 
 
-def graph2(graph_folder='2_graph2-quality-chunks_x_dec_time'):
+def graph2(graph_folder):
     """
     quality-chunksXdec_time (seconds) and chunks X file_size (Bytes)
     :return:
@@ -236,7 +236,7 @@ def graph2(graph_folder='2_graph2-quality-chunks_x_dec_time'):
                 print('')
 
 
-def graph3(graph_folder='3_graph3_heatmap'):
+def graph3(graph_folder):
     """
     bar
     tile X average_dec_time (seconds) and tile X average_rate (Bytes)
@@ -700,7 +700,7 @@ def hist1sameplt(graph_folder):
         print(f'hist_{name}_{fmt}')
 
 
-def hist2samefig(graph_folder="hist2samefig"):
+def hist2samefig(graph_folder):
     """ Compara os histogramas. Para cada video-fmt plota todas as qualidades
     (agrega tiles e chunks)
     :return:
@@ -840,7 +840,7 @@ def hist2samefig(graph_folder="hist2samefig"):
     # best_dist_df.to_csv(f'{dirname}{config.sl}best_dist.csv')
 
 
-def hist2sameplt(graph_folder="hist2sameplt"):
+def hist2sameplt(graph_folder):
     """ Compara os histogramas. Para cada video-fmt plota todas as qualidades
     (agrega tiles e chunks)
     :return:
