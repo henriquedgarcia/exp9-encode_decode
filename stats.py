@@ -105,7 +105,7 @@ def stats():
                                         for i in range(0, len(line), 3):
                                             times.append(float(line[i][6:]))
 
-                                    elif video_seg.factor in 'scale':
+                                    elif video_seg.factor in ['scale', 'qp']:
                                         line = line.split(' ')[1]
                                         line = line.split('=')[1]
                                         times.append(float(line[:-1]))
