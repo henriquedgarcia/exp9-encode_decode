@@ -730,10 +730,6 @@ def hist2samefig(graph_folder):
     # Calcular melhores fit e plota
     for name, quality in it(config.videos_list, config.quality_list):
         # Faz um fit por name-fmt-qualidade
-        dists = ['alpha', 'beta', 'cauchy', 'chi', 'chi2', 'expon', 'gamma',
-                 'gilbrat', 'laplace', 'levy', 'norm', 'pareto', 'rice', 't',
-                 'uniform']
-
         fitter_dict = {}
         for fmt in config.tile_list:
             data = times[name][fmt][quality]
