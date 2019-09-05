@@ -911,10 +911,6 @@ def hist2sameplt(graph_folder):
         # plt.show()
         print(f'hist_{name}_{quality}')
 
-    # Salva melhores fits em um csv
-    # best_dist_df = pd.DataFrame(best_dist_df)
-    # best_dist_df.to_csv(f'{dirname}{config.sl}best_dist.csv')
-
 
 def make_hist(tridata, dirname, bins, group=None, name=None, fmt=None,
               quality=None, tile=None, chunk=None):
