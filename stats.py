@@ -676,7 +676,7 @@ def hist1sameplt(graph_folder):
                      f'dectime_std={t_std:.03f} s\n'
                      f'time/chunk/tile={t_ct:.03f} s')
 
-            ax.hist(times[name][fmt][quality], color=color, bins=100,
+            ax.hist(times[name][fmt][quality], color=color, bins='auto',
                     histtype='bar', density=True, label=label)
             ax.set_title(f'{name}, {fmt}, crf {quality}')
             ax.set_ylabel("PDF")
@@ -685,7 +685,7 @@ def hist1sameplt(graph_folder):
             ###############################################################
             # plota a CDF para esta qualidade
             label = f'{name}_{fmt}_crf{quality}'
-            ax_cdf.hist(times[name][fmt][quality], color=color, bins=100,
+            ax_cdf.hist(times[name][fmt][quality], color=color, bins='auto',
                         density=True, cumulative=True, histtype='step',
                         label=label)
             ax_cdf.set_title('CDF')
@@ -736,7 +736,7 @@ def hist2samefig(graph_folder):
             col_label = f'{fmt}-{quality}'
 
             # Faz o fit
-            f = fitter.fitter.Fitter(data, bins=100, distributions=dists,
+            f = fitter.fitter.Fitter(data, bins='auto', distributions=dists,
                                      verbose=False)
             fitter_dict[fmt] = f
             fitter_dict[fmt].fit()
@@ -775,7 +775,7 @@ def hist2samefig(graph_folder):
                      f'time/chunk/tile={t_ct:.03f} s')
 
             ax = fig.add_subplot(3, 2, idx, sharex=ax_cdf)
-            ax.hist(times[name][fmt][quality], color=color, bins=100,
+            ax.hist(times[name][fmt][quality], color=color, bins='auto',
                     histtype='bar',
                     density=True, label=label)
             ax.set_title(f'{name}, crf {quality}, {fmt}')
@@ -786,7 +786,7 @@ def hist2samefig(graph_folder):
             # plota os 3 best fit para esta qualidade
             best_dists = fitter_dict[fmt].df_errors
             best_dists = best_dists.sort_values(by="sumsquare_error")
-            best_dists = best_dists.index[0:3]
+            best_dists = best_dists.index[0:5]
 
             for dist_name in best_dists:
                 sse = fitter_dict[fmt]
@@ -816,7 +816,7 @@ def hist2samefig(graph_folder):
             ###############################################################
             # plota a CDF para esta qualidade
             label = f'{name}_crf{quality}_{fmt}'
-            ax_cdf.hist(times[name][fmt][quality], color=color, bins=100,
+            ax_cdf.hist(times[name][fmt][quality], color=color, bins='auto',
                         density=True, cumulative=True, histtype='step',
                         label=label)
             ax_cdf.set_title('CDF')
@@ -887,7 +887,7 @@ def hist2sameplt(graph_folder):
                      f'dectime_std={t_std:.03f} s\n'
                      f'time/chunk/tile={t_ct:.03f} s')
 
-            ax.hist(times[name][fmt][quality], color=color, bins=100,
+            ax.hist(times[name][fmt][quality], color=color, bins='auto',
                     histtype='bar', density=True, label=label)
             ax.set_title(f'{name}, crf {quality}, {fmt}')
             ax.set_ylabel("PDF")
@@ -897,7 +897,7 @@ def hist2sameplt(graph_folder):
             ###############################################################
             # plota a CDF para esta qualidade
             label = f'{name}_crf{quality}_{fmt}'
-            ax_cdf.hist(times[name][fmt][quality], color=color, bins=100,
+            ax_cdf.hist(times[name][fmt][quality], color=color, bins='auto',
                         density=True, cumulative=True, histtype='step',
                         label=label)
             ax_cdf.set_title('CDF')
