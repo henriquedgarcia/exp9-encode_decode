@@ -705,12 +705,12 @@ def hist2samefig(graph_folder):
     (agrega tiles e chunks)
     :return:
     """
-    dirname = f'{project}{sl}{graph_folder}'
+    dirname = f'results{sl}{project}{sl}{graph_folder}'
+    os.makedirs(f'{dirname}', exist_ok=True)
+
     best_dist_df = util.AutoDict()
     times = util.AutoDict()
     sizes = util.AutoDict()
-
-    os.makedirs(f'{dirname}', exist_ok=True)
 
     # Coleta dados
     for name, fmt, quality in it(config.videos_list, config.tile_list,
