@@ -826,7 +826,7 @@ def hist2samefig(graph_folder):
 
         ax_rate.set_xticklabels(['0'] + config.tile_list)
         plt.tight_layout()
-        grupo = config.videos_list[name]["grupo"]
+        grupo = config.videos_list[name]["group"]
         fig.savefig(f'{dirname}{sl}{grupo}-hist_{name}_{quality}')
         # plt.show()
         print(f'hist_{name}_{quality}')
@@ -906,7 +906,7 @@ def hist2sameplt(graph_folder):
             ax_cdf.legend(loc='upper left', bbox_to_anchor=(1.01, 1.0))
 
         plt.tight_layout()
-        grupo = config.videos_list[name]["grupo"]
+        grupo = config.videos_list[name]["group"]
         fig.savefig(f'{dirname}{sl}{grupo}-hist_{name}_{quality}')
         # plt.show()
         print(f'hist_{name}_{quality}')
