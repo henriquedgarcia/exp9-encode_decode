@@ -1131,7 +1131,9 @@ def get_data_chunks(name, fmt, quality, tile):
 
     # Lista todos os chunks
     for chunk in range(1, config.duration + 1):
-        if name in 'ninja_turtles' and chunk > 58: continue
+        if name in 'ninja_turtles' and chunk > 58:
+            size.append(0)
+            time.append(0)
         dec = dectime[name]
         dec = dec[fmt]
         dec = dec[str(quality)]
