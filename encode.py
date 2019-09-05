@@ -21,7 +21,9 @@ def encode():
 
     # Set basic configuration
     video.encoder = 'ffmpeg'
-    video.project = f'{sl}mnt{sl}ssd{sl}henrique{sl}results{sl}ffmpeg_qp_12videos_60s'
+    video.project = (f'{sl}mnt{sl}ssd{sl}henrique{sl}results{sl}ffmpeg_'
+                     f'{config.factor}_{len(config.videos_list)}videos_'
+                     f'{config.duration}s')
 
     # iterate over 3 factors: video (complexity), tiles format, quality
     for video.name in config.videos_list:
