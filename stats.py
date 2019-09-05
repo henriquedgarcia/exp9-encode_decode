@@ -34,11 +34,11 @@ def main():
     # histogram_name_fmt('histogram_name-fmt')
     # histogram_group_fmt('histogram_group-fmt')
     # heatmap_fmt_quality('heatmap_fmt-quality')
-    hist1samefig(graph_folder="hist1samefig")
-    hist1sameplt(graph_folder="hist1sameplt")
+    # hist1samefig(graph_folder="hist1samefig")
+    # hist1sameplt(graph_folder="hist1sameplt")
     # hist2samefig(graph_folder="hist2samefig")
     # hist2sameplt(graph_folder="hist2sameplt")
-    # graph4()  # Por grupo
+    # graph4()   # Por grupo
     # graph5b()  # Geralzão por tile
     # graph5c()  # Geralzão por qualidade
     # graph5d()  # Geralzão por fmt
