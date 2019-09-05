@@ -841,7 +841,7 @@ def hist2sameplt(graph_folder):
     (agrega tiles e chunks)
     :return:
     """
-    dirname = f'results{sl}{graph_folder}'
+    dirname = f'results{sl}{project}{sl}{graph_folder}'
     times = util.AutoDict()
     sizes = util.AutoDict()
 
