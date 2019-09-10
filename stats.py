@@ -113,7 +113,9 @@ def stats():
 
                             video_seg.times = np.average(times)
 
-    util.save_json(dict(video_seg.dectime), 'times_12videos_scale.json')
+    util.save_json(dict(video_seg.dectime), f'dectime_'
+                                            f'{len(config.videos_list)}videos_'
+                                            f'{config.factor}_multikey.json')
 
 
 def graph1(graph_folder):
