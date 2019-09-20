@@ -4,6 +4,7 @@ import os
 import platform
 import subprocess
 import time
+import shlex
 import numpy as np
 
 
@@ -365,7 +366,8 @@ class Atribs:
 
 
 class VideoParams(Atribs):
-    def __init__(self, config, yuv='../yuv-full', hevc_base='hevc', mp4_base='mp4', segment_base='segment',
+    def __init__(self, config, yuv='../yuv-full', hevc_base='hevc',
+                 mp4_base='mp4', segment_base='segment',
                  dectime_base='dectime'):
         super().__init__()
         # Initial actions
@@ -412,6 +414,13 @@ def _encode_ffmpeg(video):
                  f':temporal-layers=0'
                  f':temporal-mvp=0'
                  f':log-level=3')
+    m, n = list(map(int, video.tile_format.split('x')))
+    scale = video.scale
+    if video.factor in 'scale':
+        scale = video.quality
+    width, height = list(map(int, scale.split('x')))
+    tile_w = int(width / m)
+    tile_h = int(height / n)
 
     if video.factor in 'qp':
         param_out += (f':qp={video.quality}'
@@ -419,17 +428,21 @@ def _encode_ffmpeg(video):
                       f':qpmax={video.quality}"')
     elif video.factor in 'rate':
         rate = int(video.quality / video.number_tiles)
-        param_out = f'-b:v {rate} {param_out}"'
+        param_out = (f'-b:v {rate} {param_out}')
     elif video.factor in 'crf':
         param_out = f'-crf {video.quality} -tune psnr {param_out}"'
     elif video.factor in 'scale':
-        param_out = f'-s {video.quality} {param_out}"'
+        param_out = (f'{param_out}'
+                     f':qp=25'
+                     f':qpmin=25'
+                     f':qpmax=25"')
     else:
         exit('Fator de qualidade só pode ser "qp" ou "rate" ou crf.')
 
     tile_count = 0
-    for x in range(0, video.width, video.tile_w):
-        for y in range(0, video.height, video.tile_h):
+
+    for x in range(0, width, tile_w):
+        for y in range(0, height, tile_h):
             tile_count += 1
             video.mp4_video = f'{video.mp4_folder}{video.sl}tile{tile_count}'
 
@@ -610,7 +623,6 @@ def decode(video: VideoParams, command=''):
 
 def _run(command, log_path, ext, overwrite=False, log_mode='w',
          bench_stamp='bench: utime'):
-    import shlex
     if os.path.isfile(f'{log_path}.{ext}') \
             and not overwrite \
             and log_mode in 'w':
