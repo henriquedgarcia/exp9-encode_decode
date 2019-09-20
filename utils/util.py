@@ -100,7 +100,8 @@ class Video:
     @property
     def basename(self):
         if self.factor is None or self.quality is None or self.name is None:
-            exit('[basename] Esta faltando algum atributo (factor, quality or name).')
+            exit('[basename] Esta faltando algum atributo (factor, quality or '
+                 'name).')
 
         self._basename = (f'{self.name}_'
                           f'{self.scale}_'
@@ -111,7 +112,10 @@ class Video:
 
     @property
     def segment_path(self):
-        if self.project is None or self.segment_base is None or self.tile is None or self.chunk is None:
+        if self.project is None or \
+                self.segment_base is None or \
+                self.tile is None or \
+                self.chunk is None:
             exit('[segment_path] Esta faltando algum atributo.')
 
         self._segment_path = (f'{self.project}{self.sl}'
@@ -122,7 +126,6 @@ class Video:
 
     @property
     def log_path(self):
-
         self._log_path = (f'{self.project}{self.sl}'
                           f'{self.dectime_base}{self.sl}'
                           f'{self.basename}{self.sl}'
@@ -139,8 +142,9 @@ class Video:
                 self.tile is None or \
                 self.chunk is None:
             exit('[size] Esta faltando algum atributo.')
-
-        return self.dectime[self.name][self.fmt][self.quality][self.tile][self.chunk]['size']
+        size = self.dectime[self.name][self.fmt][self.quality][self.tile]
+        size = size[self.chunk]['size']
+        return size
 
     @size.setter
     def size(self, value):
@@ -150,7 +154,8 @@ class Video:
                 self.tile is None or \
                 self.chunk is None:
             exit('[size] Esta faltando algum atributo.')
-        self.dectime[self.name][self.fmt][self.quality][self.tile][self.chunk]['size'] = value
+        size = self.dectime[self.name][self.fmt][self.quality][self.tile]
+        size[self.chunk]['size'] = value
 
     @property
     def times(self):
@@ -159,8 +164,10 @@ class Video:
                 self.quality is None or \
                 self.tile is None or \
                 self.chunk is None:
-            exit('[size] Esta faltando algum atributo.')
-        return self.dectime[self.name][self.fmt][self.quality][self.tile][self.chunk]['times']
+            exit('[times] Esta faltando algum atributo.')
+        times = self.dectime[self.name][self.fmt][self.quality][self.tile]
+        times = times[self.chunk]['times']
+        return times
 
     @times.setter
     def times(self, value):
@@ -170,7 +177,8 @@ class Video:
                 self.tile is None or \
                 self.chunk is None:
             exit('[size] Esta faltando algum atributo.')
-        self.dectime[self.name][self.fmt][self.quality][self.tile][self.chunk]['times'] = value
+        times = self.dectime[self.name][self.fmt][self.quality][self.tile]
+        times[self.chunk]['times'] = value
 
     @property
     def fmt(self):
@@ -254,7 +262,8 @@ class Atribs:
     def hevc_folder(self):
         if self.project in '':
             exit('[hevc] É preciso definir o atributo "project" antes.')
-        self._hevc_folder = f'{self.project}{self.sl}{self.hevc_base}{self.sl}{self.basename}'
+        self._hevc_folder = (f'{self.project}{self.sl}{self.hevc_base}'
+                             f'{self.sl}{self.basename}')
         makedir(self._hevc_folder)
         return self._hevc_folder
 
@@ -262,7 +271,8 @@ class Atribs:
     def mp4_folder(self):
         if self.project in '':
             exit('[mp4] É preciso definir o atributo "project" antes.')
-        self._mp4_folder = f'{self.project}{self.sl}{self.mp4_base}{self.sl}{self.basename}'
+        self._mp4_folder = (f'{self.project}{self.sl}{self.mp4_base}{self.sl}'
+                            f'{self.basename}')
         makedir(self._mp4_folder)
         return self._mp4_folder
 
@@ -270,7 +280,8 @@ class Atribs:
     def dectime_folder(self):
         if self.project in '':
             exit('[dectime] É preciso definir o atributo "project" antes.')
-        self._dectime_folder = f'{self.project}{self.sl}{self.dectime_base}{self.sl}{self.basename}'
+        self._dectime_folder = (f'{self.project}{self.sl}{self.dectime_base}'
+                                f'{self.sl}{self.basename}')
         makedir(self._dectime_folder)
         return self._dectime_folder
 
@@ -278,33 +289,38 @@ class Atribs:
     def segment_folder(self):
         if self.project in '':
             exit('[dectime] É preciso definir o atributo "project" antes.')
-        self._segment_folder = f'{self.project}{self.sl}{self.segment_base}{self.sl}{self.basename}'
+        self._segment_folder = (f'{self.project}{self.sl}{self.segment_base}'
+                                f'{self.sl}{self.basename}')
         makedir(self._segment_folder)
         return self._segment_folder
 
     @property
     def segment_video(self):
         if self.tile == 0 or self.chunk == 0:
-            exit('[dectime] É preciso definir o atributo "tile" ou "chunk" antes.')
-        self._segment_video = f'{self.segment_folder}{self.sl}tile{self.tile}_{self.chunk:03}'
+            exit('[dectime] É preciso definir o atributo "tile" ou "chunk" '
+                 'antes.')
+        self._segment_video = (f'{self.segment_folder}{self.sl}tile{self.tile}'
+                               f'_{self.chunk:03}')
         return self._segment_video
 
     @property
     def dectime_log(self):
         if self.tile == 0 or self.chunk == 0:
-            exit('[dectime] É preciso definir o atributo "tile" ou "chunk" antes.')
-        self._dectime_log = f'{self.dectime_folder}{self.sl}tile{self.tile}_{self.chunk:03}_{self.threads}'
+            exit('[dectime] É preciso definir o atributo "tile" ou "chunk" '
+                 'antes.')
+        self._dectime_log = (f'{self.dectime_folder}{self.sl}tile{self.tile}_'
+                             f'{self.chunk:03}_{self.threads}')
         return self._dectime_log
 
     @property
     def yuv_video(self):
         if self.name in '':
             exit('[yuv_video] É preciso definir o atributo "name" antes.')
-        self._yuv_video = f'{self.yuv}{self.sl}{self.config.videos_list[self.name]["filename"]}'
+        self._yuv_video = (f'{self.yuv}{self.sl}'
+                           f'{self.config.videos_list[self.name]["filename"]}')
         return self._yuv_video
 
     # -----------------------------
-
     # --- Propriedades do vídeo ---
     @property
     def scale(self):
@@ -328,7 +344,6 @@ class Atribs:
         self.number_tiles = m * n
 
     # -----------------------------
-
     # --- Codecs ---
     @property
     def encoder(self):
@@ -418,28 +433,34 @@ def _encode_ffmpeg(video):
             tile_count += 1
             video.mp4_video = f'{video.mp4_folder}{video.sl}tile{tile_count}'
 
-            filter_params = f'-vf "crop=w={video.tile_w}:h={video.tile_h}:x={x}:y={y}"'
+            filter = (f'-vf "scale={scale},'
+                      f'crop=w={tile_w}:h={tile_h}:x={x}:y={y}"')
 
             if video.factor in 'rate':
                 # 1-pass
-                command = f'{video.program} {global_params} {param_in} {param_out}:pass=1" {filter_params} -f mp4 nul'
+                command = (f'{video.program} {global_params} {param_in} '
+                           f'{param_out}:pass=1" {filter} -f mp4 nul')
                 run(command, f'{video.mp4_video}', 'mp4', log_mode='none')
 
                 # 2-pass
-                command = (f'{video.program} {global_params} {param_in} {param_out}:pass=2" {filter_params} -f mp4 '
+                command = (f'{video.program} {global_params} {param_in} '
+                           f'{param_out}:pass=2" {filter} -f mp4 '
                            f'{video.mp4_video}.mp4')
                 run(command, f'{video.mp4_video}', 'mp4', overwrite=True)
 
             elif video.factor in 'qp':
-                command = f'{video.program} {global_params} {param_in} {param_out} {filter_params} {video.mp4_video}.mp4'
+                command = (f'{video.program} {global_params} {param_in} '
+                           f'{param_out} {filter} {video.mp4_video}.mp4')
                 run(command, f'{video.mp4_video}', 'mp4', overwrite=True)
 
             elif video.factor in 'crf':
-                command = f'{video.program} {global_params} {param_in} {param_out} {filter_params} {video.mp4_video}.mp4'
+                command = (f'{video.program} {global_params} {param_in} '
+                           f'{param_out} {filter} {video.mp4_video}.mp4')
                 run(command, f'{video.mp4_video}', 'mp4', overwrite=True)
 
             elif video.factor in 'scale':
-                command = f'{video.program} {global_params} {param_in} {param_out} {filter_params} {video.mp4_video}.mp4'
+                command = (f'{video.program} {global_params} {param_in} '
+                           f'{param_out} {filter} {video.mp4_video}.mp4')
                 run(command, f'{video.mp4_video}', 'mp4', overwrite=True)
 
 
@@ -460,12 +481,14 @@ def _encode_kvazaar(video: VideoParams):
         exit('Fator de qualidade só pode ser "qp" ou "rate"')
 
     if video.tile_format not in '1x1':
-        tile_params = f' --tiles {video.tile_format} --slices tiles --mv-constraint frametilemargin'
+        tile_params = (f' --tiles {video.tile_format} --slices tiles '
+                       f'--mv-constraint frametilemargin')
         params_common += tile_params
 
     video.hevc_video = f'{video.hevc_folder}{video.sl}{video.basename}'
 
-    command = f'{video.program} {params_common} --output {video.hevc_video}.hevc'
+    command = (f'{video.program} {params_common} --output {video.hevc_video}'
+               f'.hevc')
     run(command, video.hevc_video, 'hevc')
 
 
@@ -491,7 +514,6 @@ def encapsule(video: VideoParams):
     if video.encoder in 'ffmpeg':
         pass
     elif video.encoder in 'kvazaar':
-
         mp4box = check_system()['mp4box']
         video.mp4_video = f'{video.mp4_folder}{video.sl}{video.basename}'
         command = (f'{mp4box} -add {video.hevc_video}.hevc:split_tiles '
@@ -519,11 +541,13 @@ def extract_tile(video):
             if video.tile_format in '1x1':
                 track = 1
 
-            command = f'{mp4box} -raw {track} {video.mp4_video}.mp4 -out {video.tiled_video}.hevc'
+            command = (f'{mp4box} -raw {track} {video.mp4_video}.mp4 '
+                       f'-out {video.tiled_video}.hevc')
             run(command, video.tiled_video, 'hevc')
 
             # Add resulting track in new mp4
-            command = f'{mp4box} -add {video.tiled_video}.hevc -new {video.tiled_video}.mp4'
+            command = (f'{mp4box} -add {video.tiled_video}.hevc '
+                       f'-new {video.tiled_video}.mp4')
             run(command, video.tiled_video, 'mp4', log_mode='a')
 
 
@@ -537,11 +561,13 @@ def make_segments(video):
     mp4box = check_system()['mp4box']
 
     for tile_count in range(1, video.number_tiles + 1):
-        segment_log = f'{video.segment_folder}{video.sl}{video.basename}_tile{tile_count}'
+        segment_log = (f'{video.segment_folder}{video.sl}{video.basename}_'
+                       f'tile{tile_count}')
         video.tiled_video = f'{video.mp4_folder}{video.sl}tile{tile_count}'
 
         # Segment tiles in chunks
-        command = f'{mp4box} -split 1 {video.tiled_video}.mp4 -out {video.segment_folder}{video.sl}'
+        command = (f'{mp4box} -split 1 {video.tiled_video}.mp4 '
+                   f'-out {video.segment_folder}{video.sl}')
         run(command, segment_log, 'log')
 
 
@@ -557,7 +583,8 @@ def decode(video: VideoParams, command=''):
             if video.decoder in 'ffmpeg':
                 if video.threads in 'multi':
                     command = (f'{video.program} '
-                               f'-hide_banner -benchmark -codec hevc -threads 0 -i {video.segment_video}.mp4 '
+                               f'-hide_banner -benchmark -codec hevc '
+                               f'-threads 0 -i {video.segment_video}.mp4 '
                                f'-f null -')
                 else:
                     command = (f'{video.program} -hide_banner -benchmark '
@@ -568,10 +595,12 @@ def decode(video: VideoParams, command=''):
             elif video.decoder in 'mp4client':
                 if video.threads in 'multi':
                     command = (f'start /b /wait '
-                               f'{video.program} -bench {video.segment_video}.mp4')
+                               f'{video.program} -bench '
+                               f'{video.segment_video}.mp4')
                 else:
                     command = (f'start /b /wait /affinity 0x800 '
-                               f'{video.program} -bench {video.segment_video}.mp4')
+                               f'{video.program} -bench '
+                               f'{video.segment_video}.mp4')
             else:
                 exit('Decoders disponíveis são mp4client e ffmpeg.')
             print(f'Rodada {video.rodada} - '
@@ -639,7 +668,8 @@ def collect_data(video_seg: Video):
     for video_seg.tile in range(1, video_seg.num_tiles + 1):
         for video_seg.chunk in range(1, video_seg.duration * video_seg.fps + 1):
             if os.path.isfile(f'{video_seg.segment_path}.mp4'):
-                video_seg.size = os.path.getsize(f'{video_seg.segment_path}.mp4')
+                video_seg.size = os.path.getsize(
+                    f'{video_seg.segment_path}.mp4')
 
             if os.path.isfile(f'{video_seg.log_path}.txt'):
                 video_seg.times = _get_times(video_seg)
@@ -668,7 +698,8 @@ def _get_times(dectime: Video) -> list:
                     try:
                         times.append(float(line4[i][6:]))
                     except IndexError:
-                        print(f'O video {dectime.basename} deu faltou o índice {i}.')
+                        print(f'O video {dectime.basename} deu faltou o '
+                              f'índice {i}.')
     f.close()
     return np.average(times)
 
