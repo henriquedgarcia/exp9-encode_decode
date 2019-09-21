@@ -29,7 +29,7 @@ def encode():
 
     # iterate over 3 factors: video (complexity), tiles format, quality
     for video.name in config.videos_list:
-        for video.tile_format in ['2x2']:
+        for video.tile_format in config.tile_list:
             for video.quality in getattr(config, f'{video.factor}_list'):
                 util.encode(video)
                 # util.encapsule(video)
