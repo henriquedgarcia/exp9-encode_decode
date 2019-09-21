@@ -64,58 +64,63 @@ def json2pandas():
 
 def stats():
     # Base object
-    video_seg = util.Video(config=config)
-    video_seg.project = f'results{sl}ffmpeg_scale_12videos_60s'
-    video_seg.factor = f'scale'
-    video_seg.segment_base = f'segment'
-    video_seg.dectime_base = f'dectime_ffmpeg'
-    video_seg.bench_stamp = f'bench: utime'
-    video_seg.multithread = f'single'
+    video_seg = util.VideoStats(config=config,
+                                project=f'results{sl}{project}')
 
-    video_seg.quality_list = config.quality_list
+    df = {}
 
-    for video_seg.name in config.videos_list:
-        for video_seg.fmt in config.tile_list:
-            for video_seg.quality in config.quality_list:
-                print(f'Processing {video_seg.basename}.txt')
+    for (video_seg.name,
+         video_seg.fmt,
+         video_seg.quality) in it(config.videos_list,
+                                  config.tile_list,
+                                  config.quality_list):
 
-                for video_seg.tile in range(1, video_seg.num_tiles + 1):
-                    chunks = video_seg.duration * video_seg.fps
+        for video_seg.tile in range(1, video_seg.num_tiles + 1):
+            c_name = (f'{config.videos_list[video_seg.name]["group"]}_'
+                      f'{video_seg.name}_'
+                      f'{video_seg.fmt}_'
+                      f'{config.factor}{video_seg.quality}_'
+                      f'tile{video_seg.tile}')
 
-                    for video_seg.chunk in range(1, chunks + 1):
-                        # Processing segment size (bytes)
-                        file = video_seg.segment_path + '.mp4'
-                        if os.path.isfile(file):
-                            video_seg.size = os.path.getsize(file)
+            # Processando taxa Salvando em bps
+            size_list = []
+            for video_seg.chunk in range(1, video_seg.chunks + 1):
+                file = f'{video_seg.segment_path}.mp4'
+                if os.path.isfile(file):
+                    size_list.append(os.path.getsize(file))
+            df[f'{c_name}_rate'] = size_list * 8 * (config.gop * config.fps)
 
-                        # Processing decoding time
-                        file = video_seg.log_path + '.txt'
-                        if os.path.isfile(file):
-                            times = []
-                            f = open(file, 'r', encoding='utf-8')
+            # Processando tempos
+            times_list = []
+            for video_seg.chunk in range(1, video_seg.chunks + 1):
+                file = f'{video_seg.log_path}.txt'
+                if os.path.isfile(file):
+                    print(f'Processando {file}')
+                    f = open(file, 'r', encoding='utf-8')
 
-                            for line in f:
-                                if line.find(video_seg.bench_stamp) >= 0:
-                                    # Pharse da antiga decodificação
-                                    if video_seg.factor in 'crf':
-                                        line = line.replace('bench: ', ' ')
-                                        line = line.replace('s ', ' ')
-                                        line = line.strip()[:-1]
-                                        line = line.split(' ')
-                                        for i in range(0, len(line), 3):
-                                            times.append(float(line[i][6:]))
+                    times = []
+                    for line in f:
+                        if line.find(video_seg.bench_stamp) >= 0:
+                            # Pharse da antiga decodificação
+                            if video_seg.factor in 'crf':
+                                line = line.replace('bench: ', ' ')
+                                line = line.replace('s ', ' ')
+                                line = line.strip()[:-1]
+                                line = line.split(' ')
+                                for i in range(0, len(line), 3):
+                                    times.append(float(line[i][6:]))
+                            elif video_seg.factor in ['scale', 'qp']:
+                                line = line.split(' ')[1]
+                                line = line.split('=')[1]
+                                times.append(float(line[:-1]))
+                    f.close()
 
-                                    elif video_seg.factor in ['scale', 'qp']:
-                                        line = line.split(' ')[1]
-                                        line = line.split('=')[1]
-                                        times.append(float(line[:-1]))
-                            f.close()
+                    times_list.append(np.average(times))
+            df[f'{c_name}_time'] = times_list
 
-                            video_seg.times = np.average(times)
+    name = f'{dectime_name}_single.json'
 
-    util.save_json(dict(video_seg.dectime), f'dectime_'
-                                            f'{len(config.videos_list)}videos_'
-                                            f'{config.factor}_multikey.json')
+    util.save_json(df, name)
 
 
 def graph1(graph_folder):
