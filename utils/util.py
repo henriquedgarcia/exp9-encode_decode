@@ -57,52 +57,23 @@ class Config:
             self.tile_list = self.tile_list2
 
 
-class Video:
+class VideoStats:
     class AutoDict(dict):
         def __missing__(self, key):
             value = self[key] = type(self)()
             return value
 
-    def __init__(self, config: Config, dectime: dict = None):
-        if dectime is None:
-            self.dectime = self.AutoDict()
-        else:
-            self.dectime = self.AutoDict(dectime)
-
-        self.sl = '/'
-        self.config = config
-        self.m = self.n = self.num_tiles = None
-        self.bench_stamp = None
-
-        self.scale = config.scale
-        self.fps = config.fps
-        self.gop = config.gop
-        self.duration = config.duration
-
-        # saída: dicionário com todos os dados de saída
-
-        # pastas
-        self._basename = None
-        self.project = None
-        self.dectime_base = None
-        self.segment_base = None
-        self._log_path = None
-        self._segment_path = None
-
-        self.decoder = None
-        self.name = None
-        self._fmt = None
-        self.factor = None
-        self.quality = None
-        self.tile = None
-        self.chunk = None
-        self.multithread = None
-
     @property
     def basename(self):
+        """
+        Retorna o nome base do chunk de um tile.
+        Ex: "clans_4320x2160_30_2x2_qp25"
+        :return:
+        """
         if self.factor is None or self.quality is None or self.name is None:
-            exit('[basename] Esta faltando algum atributo (factor, quality or '
-                 'name).')
+            exit(
+                '[basename] Esta faltando algum atributo (factor, quality or '
+                'name).')
 
         self._basename = (f'{self.name}_'
                           f'{self.scale}_'
@@ -113,6 +84,13 @@ class Video:
 
     @property
     def segment_path(self):
+        """
+        Retorna o caminho completo para um chunk sem a extensão.
+        Ex: /results/ffmpeg_scale_12videos_60s_qp/segment/clans_4320x2160_30_2x2
+        _scale4320x2160/tile3_024
+
+        :return: str
+        """
         if self.project is None or \
                 self.segment_base is None or \
                 self.tile is None or \
@@ -125,8 +103,11 @@ class Video:
                               f'tile{self.tile}_{self.chunk:03}')
         return self._segment_path
 
-    @property
     def log_path(self):
+        """
+        Retorna o caminho completo para o arquivo de log da decodificação
+        :return:
+        """
         self._log_path = (f'{self.project}{self.sl}'
                           f'{self.dectime_base}{self.sl}'
                           f'{self.basename}{self.sl}'
@@ -190,6 +171,50 @@ class Video:
         self._fmt = value
         self.m, self.n = list(map(int, value.split('x')))
         self.num_tiles = self.m * self.n
+
+    def __init__(self, config: Config, project, dectime: dict = None,
+                 segment_base=f'segment', dectime_base=f'dectime_ffmpeg',
+                 bench_stamp=f'bench: utime', multithread=f'single'):
+        # saída: dicionário com todos os dados de saída
+        if dectime is None:
+            self.dectime = self.AutoDict()
+        else:
+            self.dectime = self.AutoDict(dectime)
+
+        # Configurações
+        self.bench_stamp = bench_stamp
+        self.multithread = multithread
+        self.project = project
+        self.dectime_base = dectime_base
+        self.segment_base = segment_base
+        self.sl = check_system()['sl']
+        self.config = config
+        self.scale = config.scale
+        self.fps = config.fps
+        self.gop = config.gop
+        self.duration = config.duration
+        self.quality_list = config.quality_list
+        self.factor = config.factor
+        self.chunks = int(np.ceil(config.duration * config.fps / config.gop))
+
+        # Property 'log_path'
+        self._log_path = None
+
+        # Property 'basename'
+        self._basename = None
+
+        # Property 'segment_path'
+        self._segment_path = None
+
+        # Property 'fmt'
+        self.m = self.n = self.num_tiles = None
+        self._fmt = None
+
+        # Atribs ok
+        self.name = None
+        self.quality = None
+        self.tile = None
+        self.chunk = None
 
 
 class Atribs:
