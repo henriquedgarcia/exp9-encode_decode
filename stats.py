@@ -15,19 +15,17 @@ from utils import util
 
 sl = util.check_system()['sl']
 
-project = 'times_12videos_crf'
-config = util.Config('Config.json', factor='crf')
-dectime = util.load_json('times_12videos_crf.json')
+project = 'ffmpeg_scale_12videos_60s_qp'
+config = util.Config('config.json', factor='scale')
+dectime_name = f'times_{project}'
 color_list = ['blue', 'orange', 'green', 'red']
-# bins = 100
 dists = ['burr12', 'expon', 'fatiguelife', 'gamma', 'genpareto', 'halfnorm',
          'invgauss', 'rayleigh', 'rice', 't']
 
 
 def main():
-    json2pandas()
     # psnr()  # Processar psnr também. à fazer
-    # stats()
+    stats()
     # graph1(graph_folder='1_graph1-tiles-chunks_x_dec_time')
     # graph2(graph_folder='2_graph2-quality-chunks_x_dec_time')
     # graph3(graph_folder='3_graph3_heatmap')
