@@ -694,7 +694,7 @@ def _run(command, log_path, ext, overwrite=False, log_mode='w',
 
 
 # Funções para estatística
-def collect_data(video_seg: Video):
+def collect_data(video_seg: VideoStats):
     if video_seg.decoder in 'ffmpeg':
         video_seg.bench_stamp = 'bench: utime'
     elif video_seg.decoder in 'mp4client':
@@ -714,7 +714,7 @@ def collect_data(video_seg: Video):
     return dict(video_seg.dectime)
 
 
-def _get_times(dectime: Video) -> list:
+def _get_times(dectime: VideoStats) -> list:
     # with open(f'{dectime.log_path}.txt', 'r') as f:
     try:
         f = open(f'{dectime.log_path}.txt', 'r')
