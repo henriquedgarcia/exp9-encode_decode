@@ -470,11 +470,19 @@ def hist1samefig(graph_folder):
             short_sse = fitter_dict[quality]
             short_sse = short_sse.df_errors
             short_sse = short_sse.sort_values(by="sumsquare_error")
-            short_sse = short_sse.index[0]
+            short_sse = short_sse.index[0:5]
 
             # Melhor fit
-            sse = fitter_dict[quality].df_errors["sumsquare_error"][short_sse]
-            best_dist_df[name][col_label] = f'{short_sse}, SSE={sse: .1f}'
+            e0 = fitter_dict[quality].df_errors["sumsquare_error"][short_sse[0]]
+            e1 = fitter_dict[quality].df_errors["sumsquare_error"][short_sse[1]]
+            e2 = fitter_dict[quality].df_errors["sumsquare_error"][short_sse[2]]
+            e3 = fitter_dict[quality].df_errors["sumsquare_error"][short_sse[3]]
+            e4 = fitter_dict[quality].df_errors["sumsquare_error"][short_sse[4]]
+            best_dist_df[name][col_label] = (f'{short_sse[0]}-SSE={e0: .1f},'
+                                             f'{short_sse[1]}-SSE={e1: .1f},'
+                                             f'{short_sse[2]}-SSE={e2: .1f},'
+                                             f'{short_sse[3]}-SSE={e3: .1f},'
+                                             f'{short_sse[4]}-SSE={e4: .1f}')
 
         # Para cada video e fmt cria uma figura. cuidado. se mudar o formato do
         # gráfico vai ter que mudar tudo dentro da função.
