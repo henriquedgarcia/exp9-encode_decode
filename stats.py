@@ -143,6 +143,51 @@ def stats():
     json2pandas(out_name)
 
 
+# 21/09/2019
+def graph0_sum_ts(graph_folder):
+    """
+    Já estou usando o novo json com chaves simples
+    :param graph_folder:
+    :return:
+    """
+    dirname = f'results{sl}{project}{sl}{graph_folder}'
+    os.makedirs(f'{dirname}{sl}data', exist_ok=True)
+    fig = plt.figure(figsize=(7, 7), dpi=200)
+    ax1: matplotlib.axes.Axes = fig.add_subplot(211)
+    ax2: matplotlib.axes.Axes = fig.add_subplot(212)
+
+    for fmt in config.tile_list:
+        df1 = get_data_tudo(tile_list=[fmt], metrics='time')
+        df2 = get_data_tudo(tile_list=[fmt], metrics='size')
+        time_chunks = df1.sum(axis=1) / (12 * 4)
+        rate_chunks = df2.sum(axis=1) / (12 * 4)
+        leg1 = (f'{fmt}\n'
+                f'avg={time_chunks.mean(): .3f} s\n'
+                f'std={time_chunks.std(): .3f} s')
+        leg2 = (f'{fmt}\n'
+                f'avg={rate_chunks.mean() / (1000000): .2f} Mbps\n'
+                f'std={rate_chunks.std() / (1000000): .2f} Mbps')
+        ax1.plot(time_chunks, label=leg1)
+        ax2.plot(rate_chunks, label=leg2)
+
+    ax1.set_title(f'Decoding Time x chunk')
+    ax1.set_xlabel('Chunk')
+    ax1.set_ylabel('Decoding Time (s)')
+    ax1.set_ylim(bottom=0)
+    ax1.legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
+    ax2.set_title(f'Bitrate x Time')
+    ax2.set_xlabel('Chunk')
+    ax2.set_ylabel('Bitrate (bps)')
+    # ax2.set_ylim(bottom=0)
+    ax2.ticklabel_format(axis='y', style='sci', scilimits=(6, 6))
+    ax2.legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
+
+    fig.tight_layout()
+    fig.savefig(f'{dirname}{sl}graph_fmt-bitrate_x_time_ts')
+    # plt.show()
+    print('')
+
+
 def graph1(graph_folder):
     """
     Já estou usando o novo json com chaves simples
