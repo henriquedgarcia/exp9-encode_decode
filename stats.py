@@ -225,7 +225,6 @@ def graph1(graph_folder):
     # ax2.set_ylim(bottom=0)
     ax2.ticklabel_format(axis='y', style='sci', scilimits=(6, 6))
     ax2.legend(loc='upper left', ncol=1, bbox_to_anchor=(1.01, 1.0))
-
     fig.tight_layout()
     fig.savefig(f'{dirname}{sl}graph_fmt-bitrate_x_time_ts')
     # plt.show()
@@ -343,6 +342,7 @@ def graph1(graph_folder):
     print('')
 
 
+# hist0
 def histogram_name_fmt(graph_folder):
     dirname = f'results{sl}{project}{sl}{graph_folder}'
     os.makedirs(dirname + f'{sl}data', exist_ok=True)
