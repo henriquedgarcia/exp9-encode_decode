@@ -85,8 +85,10 @@ def stats():
             for video_seg.chunk in range(1, video_seg.chunks + 1):
                 file = f'{video_seg.segment_path}.mp4'
                 if os.path.isfile(file):
-                    size_list.append(os.path.getsize(file))
-            df[f'{c_name}_rate'] = size_list * 8 * (config.gop * config.fps)
+                    # O tamanho do chunk só pode ser considerado taxa porque o
+                    # chunk tem 1 segndo
+                    size_list.append(os.path.getsize(file) * 8)
+            df[f'{c_name}_rate'] = size_list
 
             # Processando tempos
             times_list = []
