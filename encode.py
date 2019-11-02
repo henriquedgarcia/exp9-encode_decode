@@ -14,7 +14,7 @@ else:
 
 output = (f'{gpds}results{sl}ffmpeg_'
           f'{config.factor}_{len(config.videos_list)}videos_'
-          f'{config.duration}s_qp')
+          f'{config.duration}s_scale')
 
 
 def main():
