@@ -25,7 +25,7 @@ dists = ['burr12', 'expon', 'fatiguelife', 'gamma', 'genpareto', 'halfnorm',
 
 def main():
     # psnr()  # Processar psnr também. à fazer
-    stats()
+    # stats()
     # graph1(graph_folder='1_graph1-tiles-chunks_x_dec_time')
     # graph2(graph_folder='2_graph2-quality-chunks_x_dec_time')
     # graph3(graph_folder='3_graph3_heatmap')
@@ -41,6 +41,7 @@ def main():
     # graph5c()  # Geralzão por qualidade
     # graph5d()  # Geralzão por fmt
     # graph5e()  # Geralzão por name
+    pass
 
 
 def json2pandas():
