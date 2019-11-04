@@ -73,16 +73,15 @@ def stats():
          video_seg.quality) in it(config.videos_list,
                                   config.tile_list,
                                   config.quality_list):
-
         for video_seg.tile in range(1, video_seg.num_tiles + 1):
-            c_name = (f'{config.videos_list[video_seg.name]["group"]}_'
-                      f'{video_seg.name}_'
-                      f'{video_seg.fmt}_'
-                      f'{config.factor}{video_seg.quality}_'
-                      f'tile{video_seg.tile}')
+            col_name = (f'{config.videos_list[video_seg.name]["group"]}_'
+                        f'{video_seg.name}_'
+                        f'{video_seg.fmt}_'
+                        f'{config.factor}{video_seg.quality}_'
+                        f'tile{video_seg.tile}')
 
-            # Processando taxa Salvando em bps
-            size_list = []
+            # Coletando taxa Salvando em bps
+            chunks_rates = []
             for video_seg.chunk in range(1, video_seg.chunks + 1):
                 file = f'{video_seg.segment_path}.mp4'
                 if os.path.isfile(file):
