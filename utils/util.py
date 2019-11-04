@@ -435,6 +435,7 @@ def _encode_ffmpeg(video):
                  f':min-keyint={video.gop}'
                  f':open-gop=0'
                  f':info=0'
+                 f':fps={video.fps}'
                  f':psnr=1'
                  f':temporal-layers=0'
                  f':temporal-mvp=0'
