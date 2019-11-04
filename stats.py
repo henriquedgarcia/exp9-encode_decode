@@ -87,8 +87,11 @@ def stats():
                 if os.path.isfile(file):
                     # O tamanho do chunk só pode ser considerado taxa porque o
                     # chunk tem 1 segndo
-                    size_list.append(os.path.getsize(file) * 8)
-            df[f'{c_name}_rate'] = size_list
+                    chunk_size_b = os.path.getsize(file) * 8
+                    chunk_dur = config.gop / config.fps
+                    rate = chunk_size_b / chunk_dur
+                    chunks_rates.append(rate)
+            df[f'{col_name}_rate'] = chunks_rates
 
             # Processando tempos
             times_list = []
