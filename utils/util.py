@@ -103,6 +103,7 @@ class VideoStats:
                               f'tile{self.tile}_{self.chunk:03}')
         return self._segment_path
 
+    @property
     def log_path(self):
         """
         Retorna o caminho completo para o arquivo de log da decodificação
