@@ -134,7 +134,6 @@ def stats():
                     times_list.append(dec_time)
                     video_seg.times = dec_time
             df[f'{col_name}_time'] = times_list
-            
     # Save singlekey
     name = f'{dectime_name}_single.json'
     util.save_json(df, name)
