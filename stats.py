@@ -57,7 +57,6 @@ def main():
     # graph0_sum_ts(graph_folder='0_graph0-tudo-fmt-sumtiles_x_chunks')
     # graph0_sum_s(graph_folder='0_graph0-tudo-fmt-sumtiles_x_chunks')
     # graph1(graph_folder='0_graph0-group-fmts_x_chunks')
-
     # graph1(graph_folder='1_graph1-tiles-chunks_x_dec_time')
     # graph2(graph_folder='2_graph2-quality-chunks_x_dec_time')
     # graph3(graph_folder='3_graph3_heatmap')
