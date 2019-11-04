@@ -98,28 +98,9 @@ def stats():
             for video_seg.chunk in range(1, video_seg.chunks + 1):
                 file = f'{video_seg.log_path}.txt'
                 if os.path.isfile(file):
-                    print(f'Processando {file}')
-                    f = open(file, 'r', encoding='utf-8')
-
-                    times = []
-                    for line in f:
-                        if line.find(video_seg.bench_stamp) >= 0:
-                            # Pharse da antiga decodificação
-                            if video_seg.factor in 'crf':
-                                line = line.replace('bench: ', ' ')
-                                line = line.replace('s ', ' ')
-                                line = line.strip()[:-1]
-                                line = line.split(' ')
-                                for i in range(0, len(line), 3):
-                                    times.append(float(line[i][6:]))
-                            elif video_seg.factor in ['scale', 'qp']:
-                                line = line.split(' ')[1]
-                                line = line.split('=')[1]
-                                times.append(float(line[:-1]))
-                    f.close()
-
-                    times_list.append(np.average(times))
-            df[f'{c_name}_time'] = times_list
+                    dec_time = get_time(file, video_seg)
+                    times_list.append(dec_time)
+            df[f'{col_name}_time'] = times_list
 
     name = f'{dectime_name}_single.json'
 
@@ -1157,6 +1138,34 @@ def get_data_chunks(name, fmt, quality, tile):
     # Plota os dados
     corr = np.corrcoef((time, size))[1][0]
     return time, size, corr
+
+
+def get_time(file, video_seg):
+    print(f'Processando {file}')
+    try:
+        f = open(file, 'r', encoding='utf-8')
+    except FileNotFoundError:
+        print(f'Arquivo {file} não encontrado.')
+        return 0
+
+    chunks_times = []
+    for line in f:
+        if line.find(video_seg.bench_stamp) >= 0:
+            # Pharse da antiga decodificação
+            if video_seg.factor in 'crf':
+                line = line.replace('bench: ', ' ')
+                line = line.replace('s ', ' ')
+                line = line.strip()[:-1]
+                line = line.split(' ')
+                for i in range(0, len(line), 3):
+                    chunks_times.append(float(line[i][6:]))
+            elif video_seg.factor in ['scale', 'qp']:
+                line = line.strip()
+                line = line.split(' ')[1]
+                line = line.split('=')[1]
+                chunks_times.append(float(line[:-1]))
+    f.close()
+    return np.average(chunks_times)
 
 
 class Heatmap:
