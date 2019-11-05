@@ -31,7 +31,6 @@ c_dist = {'burr12': 'yellow',  # 2, 4
 
 
 def main():
-    json2pandas()
     # psnr()  # Processar psnr também. à fazer
     # stats()
     global bins
@@ -138,6 +137,12 @@ def stats():
                             f.close()
 
                             video_seg.times = np.average(times)
+    out_name = f'dectimes_{len(config.videos_list)}videos_{config.factor}'
+
+    util.save_json(dict(video_seg.dectime), f'{out_name}_multikey.json')
+    json2pandas(out_name)
+
+
 # 21/09/2019
 def graph0_sum_ts(graph_folder):
     """
