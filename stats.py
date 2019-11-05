@@ -32,6 +32,7 @@ c_dist = {'burr12': 'yellow',  # 2, 4
           'genpareto': 'yellow'}  # 1
 
 
+
 def main():
     # psnr()  # Processar psnr também. à fazer
     # stats()
