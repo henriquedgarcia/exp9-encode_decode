@@ -14,14 +14,20 @@ from matplotlib import colors
 from utils import util
 
 sl = util.check_system()['sl']
-
-project = 'times_12videos_crf'
-config = util.Config('Config.json', factor='crf')
-dectime = util.load_json('times_12videos_crf.json')
+project = 'times_12videos_scale'
+config = util.Config('Config.json', factor='scale')
+# dectime = util.load_json('times_12videos_crf.json')
+dectime_flat = util.load_json('times_ffmpeg_scale_12videos_60s_scale_single.json')
 color_list = ['blue', 'orange', 'green', 'red']
-# bins = 100
-dists = ['burr12', 'expon', 'fatiguelife', 'gamma', 'genpareto', 'halfnorm',
-         'invgauss', 'rayleigh', 'rice', 't']
+bins = 'auto'
+dists = ['burr12', 'fatiguelife', 'gamma', 'invgauss', 'rayleigh', 'lognorm',
+         'genpareto', 'pareto', 'halfnorm', 'expon']
+
+c_dist = {'burr12': 'yellow',  # 2, 4
+          'invgauss': 'black',  # 1, 2, 3, 4
+          'lognorm': 'red',  # 1, 2, 3, 4
+          'fatiguelife': 'yellow',  # 3
+          'genpareto': 'yellow'}  # 1
 
 
 def main():
