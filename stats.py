@@ -598,7 +598,6 @@ def histogram_group_fmt(graph_folder, force_fit=True,
 def heatmap_fmt_quality(graph_folder):
     dirname = f'results{sl}{project}{sl}{graph_folder}'
     os.makedirs(f'{dirname}{sl}data', exist_ok=True)
-    bins = 'auto'
 
     for fmt in config.tile_list:
         m, n = list(map(int, fmt.split('x')))
