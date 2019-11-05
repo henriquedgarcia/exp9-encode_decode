@@ -103,6 +103,7 @@ class VideoStats:
                               f'tile{self.tile}_{self.chunk:03}')
         return self._segment_path
 
+    @property
     def log_path(self):
         """
         Retorna o caminho completo para o arquivo de log da decodificação
@@ -435,6 +436,7 @@ def _encode_ffmpeg(video):
                  f':min-keyint={video.gop}'
                  f':open-gop=0'
                  f':info=0'
+                 f':fps={video.fps}'
                  f':psnr=1'
                  f':temporal-layers=0'
                  f':temporal-mvp=0'

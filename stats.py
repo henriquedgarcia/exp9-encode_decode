@@ -16,9 +16,11 @@ from matplotlib import colors
 from utils import util
 
 sl = util.check_system()['sl']
-project = 'times_12videos_scale'
+
+project = 'ffmpeg_scale_12videos_60s_scale'
 config = util.Config('Config.json', factor='scale')
-# dectime = util.load_json('times_12videos_crf.json')
+dectime_name = f'times_{project}'
+dectime = util.load_json('times_12videos_crf.json')
 dectime_flat = util.load_json('times_ffmpeg_scale_12videos_60s_scale_single.json')
 color_list = ['blue', 'orange', 'green', 'red']
 bins = 'auto'
@@ -55,6 +57,7 @@ def main():
     # graph0_sum_ts(graph_folder='0_graph0-tudo-fmt-sumtiles_x_chunks')
     # graph0_sum_s(graph_folder='0_graph0-tudo-fmt-sumtiles_x_chunks')
     # graph1(graph_folder='0_graph0-group-fmts_x_chunks')
+
     # graph1(graph_folder='1_graph1-tiles-chunks_x_dec_time')
     # graph2(graph_folder='2_graph2-quality-chunks_x_dec_time')
     # graph3(graph_folder='3_graph3_heatmap')
@@ -69,6 +72,7 @@ def main():
     # graph5c()  # Geralzão por qualidade
     # graph5d()  # Geralzão por fmt
     # graph5e()  # Geralzão por name
+    pass
 
 
 def json2pandas(json_filename):
@@ -92,62 +96,57 @@ def json2pandas(json_filename):
 
 def stats():
     # Base object
-    video_seg = util.Video(config=config)
-    video_seg.project = f'results{sl}ffmpeg_scale_12videos_60s'
-    video_seg.factor = f'scale'
-    video_seg.segment_base = f'segment'
-    video_seg.dectime_base = f'dectime_ffmpeg'
-    video_seg.bench_stamp = f'bench: utime'
-    video_seg.multithread = f'single'
+    video_seg = util.VideoStats(config=config,
+                                project=f'results{sl}{project}')
 
-    video_seg.quality_list = config.quality_list
+    df = {}
 
-    for video_seg.name in config.videos_list:
-        for video_seg.fmt in config.tile_list:
-            for video_seg.quality in config.quality_list:
-                print(f'Processing {video_seg.basename}.txt')
+    for (video_seg.name,
+         video_seg.fmt,
+         video_seg.quality) in it(config.videos_list,
+                                  config.tile_list,
+                                  config.quality_list):
+        for video_seg.tile in range(1, video_seg.num_tiles + 1):
+            col_name = (f'{config.videos_list[video_seg.name]["group"]}_'
+                        f'{video_seg.name}_'
+                        f'{video_seg.fmt}_'
+                        f'{config.factor}{video_seg.quality}_'
+                        f'tile{video_seg.tile}')
 
-                for video_seg.tile in range(1, video_seg.num_tiles + 1):
-                    chunks = video_seg.duration * video_seg.fps
+            # Coletando taxa Salvando em bps
+            chunks_rates = []
+            for video_seg.chunk in range(1, video_seg.chunks + 1):
+                file = f'{video_seg.segment_path}.mp4'
+                if os.path.isfile(file):
+                    # O tamanho do chunk só pode ser considerado taxa porque o
+                    # chunk tem 1 segndo
+                    chunk_size_b = os.path.getsize(file) * 8
+                    chunk_dur = config.gop / config.fps
+                    rate = chunk_size_b / chunk_dur
+                    chunks_rates.append(rate)
+            df[f'{col_name}_rate'] = chunks_rates
 
-                    for video_seg.chunk in range(1, chunks + 1):
-                        # Processing segment size (bytes)
-                        file = video_seg.segment_path + '.mp4'
-                        if os.path.isfile(file):
-                            video_seg.size = os.path.getsize(file)
+            # Processando tempos
+            times_list = []
+            for video_seg.chunk in range(1, video_seg.chunks + 1):
+                file = f'{video_seg.log_path}.txt'
+                if os.path.isfile(file):
+                    dec_time = get_time(file, video_seg)
+                    times_list.append(dec_time)
+                    video_seg.times = dec_time
+            df[f'{col_name}_time'] = times_list
+            
+    # Save singlekey
+    name = f'{dectime_name}_single.json'
+    util.save_json(df, name)
 
-                        # Processing decoding time
-                        file = video_seg.log_path + '.txt'
-                        if os.path.isfile(file):
-                            times = []
-                            f = open(file, 'r', encoding='utf-8')
-
-                            for line in f:
-                                if line.find(video_seg.bench_stamp) >= 0:
-                                    # Pharse da antiga decodificação
-                                    if video_seg.factor in 'crf':
-                                        line = line.replace('bench: ', ' ')
-                                        line = line.replace('s ', ' ')
-                                        line = line.strip()[:-1]
-                                        line = line.split(' ')
-                                        for i in range(0, len(line), 3):
-                                            times.append(float(line[i][6:]))
-
-                                    elif video_seg.factor in ['scale', 'qp']:
-                                        line = line.split(' ')[1]
-                                        line = line.split('=')[1]
-                                        times.append(float(line[:-1]))
-                            f.close()
-
-                            video_seg.times = np.average(times)
+    # Save multikey
     out_name = f'dectimes_{len(config.videos_list)}videos_{config.factor}'
-
     util.save_json(dict(video_seg.dectime), f'{out_name}_multikey.json')
     json2pandas(out_name)
 
 
-# 21/09/2019
-def graph0_sum_ts(graph_folder):
+def graph1(graph_folder):
     """
     Já estou usando o novo json com chaves simples
     :param graph_folder:
@@ -1494,6 +1493,34 @@ def get_data_chunks(name, fmt, quality, tile, dec=dectime):
     # Plota os dados
     corr = np.corrcoef((time, size))[1][0]
     return time, size, corr
+
+
+def get_time(file, video_seg):
+    print(f'Processando {file}')
+    try:
+        f = open(file, 'r', encoding='utf-8')
+    except FileNotFoundError:
+        print(f'Arquivo {file} não encontrado.')
+        return 0
+
+    chunks_times = []
+    for line in f:
+        if line.find(video_seg.bench_stamp) >= 0:
+            # Pharse da antiga decodificação
+            if video_seg.factor in 'crf':
+                line = line.replace('bench: ', ' ')
+                line = line.replace('s ', ' ')
+                line = line.strip()[:-1]
+                line = line.split(' ')
+                for i in range(0, len(line), 3):
+                    chunks_times.append(float(line[i][6:]))
+            elif video_seg.factor in ['scale', 'qp']:
+                line = line.strip()
+                line = line.split(' ')[1]
+                line = line.split('=')[1]
+                chunks_times.append(float(line[:-1]))
+    f.close()
+    return np.average(chunks_times)
 
 
 class Heatmap:

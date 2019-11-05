@@ -1,15 +1,20 @@
 #!/bin/env python3
 from utils import util
 
-gpds = ''
 config = util.Config('config.json', factor='scale')
 sl = util.check_system()['sl']
 
 yuv_input = f'..{sl}yuv-full'
-# gpds = gpds + f'{sl}mnt{sl}ssd{sl}henrique{sl}'
+
+server = False
+if server:
+    gpds = f'{sl}mnt{sl}ssd{sl}henrique{sl}'
+else:
+    gpds = ''
+
 output = (f'{gpds}results{sl}ffmpeg_'
           f'{config.factor}_{len(config.videos_list)}videos_'
-          f'{config.duration}s_qp')
+          f'{config.duration}s_scale')
 
 
 def main():
