@@ -34,12 +34,30 @@ def main():
     json2pandas()
     # psnr()  # Processar psnr também. à fazer
     # stats()
+    global bins
+    for bins in ['auto']:
+        # for bins in ['fd', 'rice', 'sturges', 'stone', 'sqrt', 'doane', 'scott']:
+        # for bins in np.linspace(15, 80, 14):
+        # for bins in ['fd', 'rice', 'sturges', 'stone', 'sqrt', 'doane', 'scott',
+        #              'auto', 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75,
+        #              80]:
+        # bins = int(bins)
+        histogram_tudo_fmt('histogram_tudo-fmt', force_fit=False)
+        # histogram_tudo_fmt_quality('histogram_tudo_fmt_quality',
+        #                            force_fit=True, join_quality=True)
+        # histogram_group_fmt('histogram_group-fmt',
+        #                     force_fit=False,
+        #                     join_quality=True)
+
+    # graph0(graph_folder='0_graph0-tudo-fmts_x_chunks')
+    # graph0_sum_ts(graph_folder='0_graph0-tudo-fmt-sumtiles_x_chunks')
+    # graph0_sum_s(graph_folder='0_graph0-tudo-fmt-sumtiles_x_chunks')
+    # graph1(graph_folder='0_graph0-group-fmts_x_chunks')
     # graph1(graph_folder='1_graph1-tiles-chunks_x_dec_time')
     # graph2(graph_folder='2_graph2-quality-chunks_x_dec_time')
     # graph3(graph_folder='3_graph3_heatmap')
     # histogram_name_fmt('histogram_name-fmt')
-    # histogram_group_fmt('histogram_group-fmt')
-    # heatmap_fmt_quality('heatmap_fmt-quality')
+    # heatmap_fmt_quality_2('heatmap_fmt-quality_time')
     # hist1samefig(graph_folder="hist1samefig")
     # hist1sameplt(graph_folder="hist1sameplt")
     # hist2samefig(graph_folder="hist2samefig")
