@@ -19,10 +19,11 @@ sl = util.check_system()['sl']
 project = 'ffmpeg_scale_12videos_60s_scale'
 config = util.Config('Config.json', factor='scale')
 dectime_name = f'times_{project}'
-dectime = util.load_json('times_12videos_crf.json')
-dectime_flat = util.load_json('times_ffmpeg_scale_12videos_60s_scale_single.json')
+dectime_multi = util.load_json(f'{dectime_name}_multikey.json')
+dectime_flat = util.load_json(f'{dectime_name}_singleke.json')
 color_list = ['blue', 'orange', 'green', 'red']
 bins = 'auto'
+
 dists = ['burr12', 'fatiguelife', 'gamma', 'invgauss', 'rayleigh', 'lognorm',
          'genpareto', 'pareto', 'halfnorm', 'expon']
 
@@ -31,7 +32,6 @@ c_dist = {'burr12': 'yellow',  # 2, 4
           'lognorm': 'red',  # 1, 2, 3, 4
           'fatiguelife': 'yellow',  # 3
           'genpareto': 'yellow'}  # 1
-
 
 
 def main():
