@@ -342,7 +342,6 @@ def graph1(graph_folder):
     print('')
 
 
-# hist0
 def histogram_name_fmt(graph_folder):
     dirname = f'results{sl}{project}{sl}{graph_folder}'
     os.makedirs(dirname + f'{sl}data', exist_ok=True)
@@ -456,7 +455,8 @@ def histogram_tudo_fmt(graph_folder, force_fit=False, join_quality=True, ):
 
 def histogram_tudo_fmt_quality(graph_folder, join_quality=True,
                                force_fit=False):
-    """Usado no Eletronic Imaging"""
+    """Usado no Eletronic Imaging
+    """
     dirname = f'results{sl}{project}{sl}{graph_folder}'
     os.makedirs(dirname + f'{sl}data', exist_ok=True)
     df_columns = {'Format': [],
@@ -637,41 +637,6 @@ def histogram_group_fmt(graph_folder, force_fit=True,
     pd.DataFrame(df_columns).to_csv(f'{name}.csv', index='Format')
 
     print(f'hist bins {bins}, tudo_{config.factor}')
-
-
-def histogram_tudo_fmt(graph_folder):
-    dirname = f'results{sl}{project}{sl}{graph_folder}'
-    os.makedirs(dirname + f'{sl}data', exist_ok=True)
-
-    for bins in ['auto']:
-        plt.close()
-        fig = plt.figure(figsize=(7.5, 6), dpi=200)
-        for n, fmt in enumerate(config.tile_list, 1):
-            ax = fig.add_subplot(2, 2, n)
-
-            # Coleta dados
-            time, _, corr = get_data_tudo_fmt(fmt)
-            data_stats_t = [np.average(time), np.std(time), corr]
-            f_t_name = (f'{dirname}{sl}data{sl}'
-                        f'fitter_time_{bins}bins_tudo_{fmt}_{config.factor}'
-                        f'.pickle')
-
-            # Faz o fit
-            f_t = make_fit(data=time, bins=bins, out_file=f_t_name)
-            # Faz o plot
-            ax = plota_hist(f_t, ax, bins, data_stats_t, 'time', 'pdf')
-            # infos
-            ax.legend(loc='best')
-            ax.set_title(f'PDF Decoding Time - {fmt}')
-            ax.set_xlabel('Decoding Time')
-
-        # Salva
-        plt.tight_layout()
-
-        # fig.savefig(f'{dirname}{sl}hist_groups_bins{bins}_tudo_'
-        #             f'{config.factor}')
-        fig.show()
-        print(f'hist bins {bins}, tudo_{config.factor}')
 
 
 def heatmap_fmt_quality(graph_folder):
