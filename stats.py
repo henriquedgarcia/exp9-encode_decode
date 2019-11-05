@@ -6,9 +6,11 @@ from itertools import product as it
 
 import fitter
 import matplotlib.axes
+import matplotlib.figure
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import scipy
 from matplotlib import colors
 
 from utils import util
