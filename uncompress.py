@@ -15,10 +15,10 @@ def main():
         start_time = config.videos_list[name]['time']
     
         in_name = f'{folder_in}/{name}.mp4'
-        out_name = f'{name}_{config.scale}_{config.fps}.yuv'
+        out_name = f'{name}_{config.scale}_{config.fps}.mp4'
     
         par_in = f'-y -hide_banner -v quiet -ss {start_time} -i {in_name}'
-        par_out_60s = f'-t 60 -r {config.fps} -vf scale={config.scale} -map 0:0 {folder_out}/{out_name}'
+        par_out_60s = f'-t 60 -r {config.fps} -crf 0 -vf scale={config.scale} -map 0:0 {folder_out}/{out_name}'
     
         command = f'ffmpeg {par_in} {par_out_60s}'
         print(f'Processando {name}.')
