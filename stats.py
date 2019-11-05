@@ -201,7 +201,7 @@ def graph0(graph_folder):
     # plot1
     ax: matplotlib.axes.Axes = fig.add_subplot(1, 4, 1)
     for n, fmt in zip([4, 3, 2, 1], config.tile_list):
-        df = get_data_tudo(tile_list=[fmt])
+        df = get_data(tile_list=[fmt])
         time_chunks = df.mean(axis=1)
         avg = time_chunks.mean()
         std = time_chunks.std()
@@ -210,7 +210,7 @@ def graph0(graph_folder):
                f'avg={avg: .3f} s\n'
                f'std={std: .3f} s')
         ax.plot(time_chunks, label=leg)
-    df = get_data_tudo()
+    df = get_data()
     df = df.mean(axis=1)
     avg = df.mean()
     std = df.std()
@@ -275,7 +275,7 @@ def graph1(graph_folder):
             ax = fig.add_subplot(1, 4, n1, sharey=ax)
 
         for n, fmt in enumerate(config.tile_list, 1):
-            df = get_data_tudo(groups=[group], tile_list=[fmt])
+            df = get_data(groups=[group], tile_list=[fmt])
             df2[fmt] = df.mean(axis=1)
             avg = df2[fmt].mean()
             std = df2[fmt].std()
