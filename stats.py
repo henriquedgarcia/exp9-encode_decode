@@ -157,8 +157,8 @@ def graph0_sum_ts(graph_folder):
     ax2: matplotlib.axes.Axes = fig.add_subplot(212)
 
     for fmt in config.tile_list:
-        df1 = get_data_tudo(tile_list=[fmt], metrics='time')
-        df2 = get_data_tudo(tile_list=[fmt], metrics='size')
+        df1 = get_data(tile_list=[fmt], metrics='time')
+        df2 = get_data(tile_list=[fmt], metrics='size')
         time_chunks = df1.sum(axis=1) / (12 * 4)
         rate_chunks = df2.sum(axis=1) / (12 * 4)
         leg1 = (f'{fmt}\n'
