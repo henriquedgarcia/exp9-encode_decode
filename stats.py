@@ -1315,6 +1315,82 @@ def plota_hist(f, ax: matplotlib.axes.Axes, bins, data_stats, metric, func,
     return ax
 
 
+def get_data(groups=(0, 1, 2, 3),
+             videos_list=config.videos_list,
+             tile_list=config.tile_list,
+             quality_list=config.quality_list,
+             tiles=None,
+             metrics='time'):
+    df = pd.DataFrame()
+    corr = []
+    for group in groups:
+        for name in videos_list:
+            if config.videos_list[name]['group'] not in str(group):
+                continue
+
+            for fmt in tile_list:
+                m, n = list(map(int, fmt.split('x')))
+
+                for quality in quality_list:
+                    if tiles is None:
+                        tiles = (range(1, m * n + 1))
+
+                    for tile in tiles:
+                        col = (f'{group}_{name}_{fmt}_'
+                               f'{config.factor}{quality}_tile{tile}_'
+                               f'{metrics}')
+                        if metrics in 'time':
+                            col_s = (f'{group}_{name}_{fmt}_'
+                                     f'{config.factor}{quality}_tile{tile}_'
+                                     f'rate')
+                            corr.append(np.corrcoef((col, col_s))[1][0])
+                        else:
+                            corr = 0
+                        df[col] = dectime_flat[col]
+
+    return df, np.average(corr)
+
+
+def get_data_tudo_fmt(fmt):
+    size = []
+    time = []
+
+    for name in config.videos_list:
+        t, s, _ = get_data_quality(name, fmt)
+        time.extend(t)
+        size.extend(s)
+    corr = np.corrcoef((time, size))[1][0]
+
+    return time, size, corr
+
+
+def get_data_name_tile(fmt, quality):
+    size = []
+    time = []
+
+    for name in config.videos_list:
+        t, s, _ = get_data_tiles(name, fmt, quality)
+        time.extend(t)
+        size.extend(s)
+    corr = np.corrcoef((time, size))[1][0]
+
+    return time, size, corr
+
+
+def get_data_tudo_fmt_quality(fmt, quality):
+    size = []
+    time = []
+    corr = []
+    for name in config.videos_list:
+        t, s, _ = get_data_tiles(name, fmt, quality)
+        time.extend(t)
+        size.extend(s)
+        corr.append(np.corrcoef((t, s))[1][0])
+    corr = np.average(corr)
+
+    return time, size, corr
+
+
 def get_data_group_fmt(group, fmt):
     size = []
     time = []
@@ -1394,7 +1470,7 @@ def get_data_tiles(name, fmt, quality):
     return time, size, corr
 
 
-def get_data_chunks(name, fmt, quality, tile):
+def get_data_chunks(name, fmt, quality, tile, dec=dectime):
     size = []
     time = []
 
