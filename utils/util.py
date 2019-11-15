@@ -778,9 +778,13 @@ def save_json(obj: dict, filename: str):
 
 
 def load_json(filename: str = 'times.json') -> dict:
+    import pandas as pd
+
     with open(filename, 'r') as f:
-        data = json.load(f)
-    return data
+        js_data = json.load(f)
+        pd_data = pd.DataFrame(js_data)
+
+    return pd_data
 
 
 def show_json(obj: dict, show=True, ret=False):
