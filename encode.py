@@ -3,6 +3,8 @@ from utils import util
 
 config = util.Config('config.json', factor='scale')
 sl = util.check_system()['sl']
+project = (f'ffmpeg_{config.factor}_{len(config.videos_list)}videos_'
+           f'{config.duration}s_qp')
 
 yuv_input = f'..{sl}yuv-full'
 
@@ -12,9 +14,7 @@ if server:
 else:
     gpds = ''
 
-output = (f'{gpds}results{sl}ffmpeg_'
-          f'{config.factor}_{len(config.videos_list)}videos_'
-          f'{config.duration}s_scale')
+output = f'{gpds}results{sl}{project}'
 
 
 def main():
