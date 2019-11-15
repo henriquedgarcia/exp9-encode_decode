@@ -38,12 +38,13 @@ def main():
     # psnr()  # Processar psnr também. à fazer
     # stats()
     global bins
-    for bins in ['auto']:
-        # for bins in ['fd', 'rice', 'sturges', 'stone', 'sqrt', 'doane', 'scott']:
-        # for bins in np.linspace(15, 80, 14):
-        # for bins in ['fd', 'rice', 'sturges', 'stone', 'sqrt', 'doane', 'scott',
-        #              'auto', 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75,
-        #              80]:
+    bin_types1 = ['auto']
+    bin_types2 = np.linspace(15, 80, 14, dtype=int)
+    bin_types3 = ['fd', 'rice', 'sturges', 'stone', 'sqrt', 'doane', 'scott']
+    bin_types4 = ['fd', 'rice', 'sturges', 'stone', 'sqrt', 'doane', 'scott',
+                  'auto', 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75,
+                  80]
+    for bins in bin_types1:
         # bins = int(bins)
         histogram_tudo_fmt('histogram_tudo-fmt', force_fit=False)
         # histogram_tudo_fmt_quality('histogram_tudo_fmt_quality',
