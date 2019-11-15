@@ -124,6 +124,7 @@ def stats():
                     chunk_dur = config.gop / config.fps
                     rate = chunk_size_b / chunk_dur
                     chunks_rates.append(rate)
+                    video_seg.size = rate
             df[f'{col_name}_rate'] = chunks_rates
 
             # Processando tempos
