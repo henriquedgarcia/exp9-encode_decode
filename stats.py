@@ -16,7 +16,7 @@ from matplotlib import colors
 from utils import util
 
 sl = util.check_system()['sl']
-project = 'ffmpeg_scale_12videos_60s_scale'
+project = 'ffmpeg_scale_12videos_60s_qp'
 config = util.Config('config.json', factor='scale')
 dectime_name = f'times_{project}'
 dectime_multi = util.load_json(f'{dectime_name}_multikey.json')
