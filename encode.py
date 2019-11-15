@@ -22,8 +22,6 @@ def main():
 
 
 def encode():
-    # Configure objetcts
-
     # Create video object and your main folders
     video = util.VideoParams(config=config,
                              yuv=yuv_input)
