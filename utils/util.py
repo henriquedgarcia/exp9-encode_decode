@@ -3,6 +3,7 @@ import json
 import os
 import platform
 import subprocess
+import pandas as pd
 import time
 import shlex
 import numpy as np
@@ -777,8 +778,7 @@ def save_json(obj: dict, filename: str):
         json.dump(obj, f, indent=2)
 
 
-def load_json(filename: str = 'times.json') -> dict:
-    import pandas as pd
+def load_json(filename: str = 'times.json') -> pd.DataFrame:
 
     with open(filename, 'r') as f:
         js_data = json.load(f)
