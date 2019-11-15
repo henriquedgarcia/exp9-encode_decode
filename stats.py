@@ -380,7 +380,6 @@ def histogram_tudo_fmt(graph_folder, force_fit=False, join_quality=True, ):
                    'SSE': [],
                    'Parameters': []}
 
-    # for n, fmt in enumerate(['12x8'], 1):
     for n, fmt in enumerate(config.tile_list, 1):
         print(f'processando {fmt}')
         if join_quality:
