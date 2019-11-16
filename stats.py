@@ -136,14 +136,15 @@ def stats():
                     times_list.append(dec_time)
                     video_seg.times = dec_time
             df[f'{col_name}_time'] = times_list
+
     # Save singlekey
     name = f'{dectime_name}_single.json'
     util.save_json(df, name)
 
     # Save multikey
-    out_name = f'dectimes_{len(config.videos_list)}videos_{config.factor}'
-    util.save_json(dict(video_seg.dectime), f'{out_name}_multikey.json')
-    json2pandas(out_name)
+    out_name = f'times_{project}_multikey.json'
+    util.save_json(dict(video_seg.dectime), f'{out_name}')
+    # json2pandas(out_name)
 
 
 # 21/09/2019
