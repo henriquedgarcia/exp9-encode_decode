@@ -41,8 +41,8 @@ def main():
     global bins
     bin_types1 = ['auto']
     bin_types2 = np.linspace(15, 80, 14, dtype=int)
-    bin_types3 = ['fd', 'rice', 'sturges', 'stone', 'sqrt', 'doane', 'scott']
-    bin_types4 = ['fd', 'rice', 'sturges', 'stone', 'sqrt', 'doane', 'scott',
+    bin_types3 = ['fd', 'rice', 'sturges', 'sqrt', 'doane', 'scott']
+    bin_types4 = ['fd', 'rice', 'sturges', 'sqrt', 'doane', 'scott',
                   'auto', 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75,
                   80]
     for bins in bin_types1:
