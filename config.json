@@ -35,19 +35,59 @@
     40,
     46
   ],
-  "tile_list1": [
-    "1x1",
-    "3x2",
-    "6x4",
-    "12x8"
-  ],
-  "tile_list2": [
+  "tile_list": [
     "1x1",
     "3x2",
     "4x3",
+    "6x3",
     "6x4",
+    "6x5",
+    "6x6",
+    "7x6",
     "8x6",
-    "9x8"
+    "9x6"
+    ],
+  "tile_list_linear_six": [
+    "1x1",
+    "3x2",
+    "4x3",
+    "6x3",
+    "6x4",
+    "6x5",
+    "6x6",
+    "7x6",
+    "8x6",
+    "9x6"
+    ],
+  "tile_list_linear_eight": [
+    "1x1",
+    "4x2",
+    "4x4",
+    "6x4",
+    "8x4",
+    "8x5",
+    "8x6",
+    "8x7",
+    "8x8",
+    "8x9"
+  ],
+  "tile_list_6TimesQuadratic": [
+    "1x1",
+    "3x2",
+    "6x4",
+    "9x6",
+    "12x8"
+  ],
+  "tile_list_1TimesQuadratic": [
+    "1x1",
+    "2x2",
+    "3x3",
+    "4x4",
+    "5x5",
+    "6x6",
+    "7x7",
+    "8x8",
+    "9x9"
   ],
   "single_videos_list": {
     "surf": {},
