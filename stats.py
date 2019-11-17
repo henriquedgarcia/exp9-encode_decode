@@ -45,14 +45,20 @@ def main():
     bin_types4 = ['fd', 'rice', 'sturges', 'sqrt', 'doane', 'scott',
                   'auto', 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75,
                   80]
-    for bins in bin_types1:
+    for bins in bin_types4:
+        pass
         # bins = int(bins)
-        histogram_tudo_fmt('histogram_tudo-fmt', force_fit=False)
-        # histogram_tudo_fmt_quality('histogram_tudo_fmt_quality',
-        #                            force_fit=True, join_quality=True)
-        # histogram_group_fmt('histogram_group-fmt',
-        #                     force_fit=False,
-        #                     join_quality=True)
+        histogram_fmt('histogram_fmt', force_fit=False)
+        histogram_fmt_quality('histogram_fmt_quality',
+                              force_fit=True, join_quality=True)
+        histogram_fmt_quality_2('histogram_fmt_quality_2',
+                                force_fit=True, join_quality=True)
+        histogram_fmt_group('histogram_fmt_group',
+                            force_fit=False,
+                            join_quality=True)
+        histogram_fmt_group_2('histogram_fmt_group_2',
+                              force_fit=False,
+                              join_quality=True)
 
     # graph0(graph_folder='0_graph0-tudo-fmts_x_chunks')
     # graph0_sum_ts(graph_folder='0_graph0-tudo-fmt-sumtiles_x_chunks')
@@ -367,7 +373,7 @@ def histogram_name_fmt(graph_folder):
                 print(f'hist {bins} bins, {name}_{fmt}')
 
 
-def histogram_tudo_fmt(graph_folder, force_fit=False, join_quality=True, ):
+def histogram_fmt(graph_folder, force_fit=False, join_quality=True):
     """Usado no SVR e Eletronic Imaging"""
     dirname = f'results{sl}{project}{sl}{graph_folder}'
     os.makedirs(dirname + f'{sl}data', exist_ok=True)
@@ -470,8 +476,7 @@ def histogram_tudo_fmt(graph_folder, force_fit=False, join_quality=True, ):
     print(f'hist bins {bins}, tudo_{config.factor}')
 
 
-def histogram_tudo_fmt_quality(graph_folder, join_quality=True,
-                               force_fit=False):
+def histogram_fmt_quality(graph_folder, force_fit=False, join_quality=True):
     """Usado no Eletronic Imaging
     """
     dirname = f'results{sl}{project}{sl}{graph_folder}'
@@ -1635,8 +1640,7 @@ def get_data(groups=(0, 1, 2, 3),
              tile_list=config.tile_list,
              quality_list=config.quality_list,
              tiles=None,
-             metrics='time'):
-
+             single=True):
     df_t = pd.DataFrame()
     df_r = pd.DataFrame()
     corr = []
@@ -1811,7 +1815,8 @@ def get_data_tiles(name, fmt, quality):
     return time, size, corr
 
 
-def get_data_chunks(name, fmt, quality, tile, dec=dectime):
+def get_data_chunks(name, fmt, quality, tile):
+    # dec = dectime_multi
     size = []
     time = []
 
