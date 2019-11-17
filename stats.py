@@ -373,68 +373,82 @@ def histogram_tudo_fmt(graph_folder, force_fit=False, join_quality=True, ):
     os.makedirs(dirname + f'{sl}data', exist_ok=True)
 
     plt.close()
-    fig = plt.figure(figsize=(7.5, 5), dpi=220, tight_layout=True)
-    fig_relative = plt.figure(figsize=(7.5, 5), dpi=220, tight_layout=True)
+    fig = plt.figure(figsize=(13, 7.2), dpi=220, tight_layout=True,
+                     facecolor='0.9')
+    # fig = plt.figure(figsize=(7.5, 5), dpi=220, tight_layout=True)
+    fig_relative = plt.figure(figsize=(13, 7.2), dpi=220, tight_layout=True,
+                              facecolor='0.5')
     ax = None
 
-    dict_params = {'Format': [],
-                   'Statistics': [],
-                   'Distribution': [],
-                   'SSE': [],
-                   'Parameters': []}
+    df_columns = {'Format': [],
+                  'Statistics': [],
+                  'Distribution': [],
+                  'SSE': [],
+                  'Parameters': []}
 
     for n, fmt in enumerate(config.tile_list, 1):
+        if fmt in "9x8": continue
+
         print(f'processando {fmt}')
+
+        # Prepara plot
         if join_quality:
             if ax is None:
-                ax = fig.add_subplot(2, 2, n)
+                ax = fig.add_subplot(2, 3, n)
             else:
-                ax = fig.add_subplot(2, 2, n, sharex=ax)
-            ax_relative = fig_relative.add_subplot(2, 2, n)
+                ax = fig.add_subplot(2, 3, n, sharex=ax)
+            ax_relative = fig_relative.add_subplot(2, 3, n)
         else:
-            # Comente o item acima e descomente o item abaixo para separar os
-            # gráficos
-            fig = plt.figure(figsize=(7.5, 5), dpi=220)
+            fig = plt.figure(figsize=(13, 7.2), dpi=220,
+                             facecolor='0.5')
             ax = fig.add_subplot(1, 1, 1)
-            fig_relative = plt.figure(figsize=(7.5, 5), dpi=220,
-                                      tight_layout=True)
-            ax_relative = fig_relative.add_subplot(2, 2, n)
+            fig_relative = plt.figure(figsize=(13, 7.2), dpi=220,
+                                      tight_layout=True,
+                                      facecolor='0.5')
+            ax_relative = fig_relative.add_subplot(2, 3, n)
 
         # Coleta dados
-        # _, _, corr = get_data_tudo_fmt(fmt)
-        df, corr = get_data(tile_list=[fmt],
-                            metrics='time')
-        time = df.stack().to_list()
-        data_stats_t = [np.average(time), np.std(time), corr]
-        st = (f'Average {np.average(time)}, '
-              f'Standard Deviation {np.std(time)}, '
-              f'Correlation {corr}')
+        print(f'Coletando dados')
+
+        df_t, df_r, corr = get_data(tile_list=[fmt])
+        time = df_t.stack().tolist()
+        stats_t = {'avg': np.average(time),
+                   'std': np.std(time),
+                   'corr': corr}
+        st = (f'Average {stats_t["avg"]}, '
+              f'Standard Deviation {stats_t["std"]}, '
+              f'Correlation {stats_t["corr"]}')
+
         f_t_name = (f'{dirname}{sl}data{sl}'
                     f'fitter_time_{bins}bins_tudo_{fmt}_{config.factor}'
                     f'.pickle')
 
-        # Faz o fit
+        # Faz o fit e salva distribuições em dataframe
+        print(f'Fazendo o fit e criando tabela de resultados')
         f_t = make_fit(data=time, bins=bins, out_file=f_t_name,
                        overwrite=force_fit)
-        res = scipy.stats.relfreq(time, numbins=len(f_t.y))
+        make_df_params_from_fit(f_t, df_columns, fmt=fmt, st=st)
+
+        # Verifica se a PDF e a frequencia relativa estão coerentes
+        # Calcula a frequencia relativa
+        rel_t = scipy.stats.relfreq(time, numbins=len(f_t.y))
+        # soma a área de cada barra do histograma de densidade
         a1 = np.sum([y * (f_t.x[1] - f_t.x[0]) for y in f_t.y])
-        a2 = np.sum(res.frequency)
-        label = (f'sum PDF={a1: .3f}\n'
-                 f'sum freq_rel={a2: .3f}\n'
-                 f'numbins={len(f_t.x)}')
-        ax_relative.bar(f_t.x, res.frequency, width=f_t.x[1] - f_t.x[0],
-                        label=label)
-        ax_relative.legend()
+        # soma todas as frequencias relativas
+        a2 = np.sum(rel_t.frequency)
+
+        # Faz o plot da frequência relativa
+        ax_relative.bar(f_t.x, rel_t.frequency, width=f_t.x[1] - f_t.x[0])
+        ax_relative.legend([f'sum PDF={a1: .3f}\n'
+                            f'sum freq_rel={a2: .3f}\n'
+                            f'numbins={len(f_t.x)}'])
         ax_relative.set_title(f'{fmt}')
         ax_relative.set_xlabel('Decoding Time')
         ax_relative.set_ylabel('Relative Frequency')
 
-        make_df_params_from_fit(f_t, dict_params, fmt=fmt, st=st)
-
         # Faz o plot
         label = f'Empirical'
-        ax = plota_hist(f_t, ax, bins, data_stats_t, 'time', 'pdf',
-                        label=label)
+        ax = plota_hist(f_t, ax, bins, stats_t, 'time', 'pdf', label=label)
 
         # infos
         ax.legend(loc='best')
@@ -444,13 +458,13 @@ def histogram_tudo_fmt(graph_folder, force_fit=False, join_quality=True, ):
     print(f'Salvando a figura')
     fig.set_tight_layout(True)
     name = f'{dirname}{sl}hist_{bins}bins_tudo_{config.factor}'
-    fig.savefig(f'{name}_1')
-    fig_relative.savefig(f'{name}_relative_1')
+    fig.savefig(f'{name}', facecolor='0.9')
+    fig_relative.savefig(f'{name}_relative', facecolor='0.9')
 
     # Salva Dataframe
     print(f'Salvando a tabela')
     name = f'{dirname}{sl}hist_{bins}bins_tudo_{config.factor}'
-    pd.DataFrame(dict_params).to_csv(f'{name}.csv', index='Format')
+    pd.DataFrame(df_columns).to_csv(f'{name}.csv', index='Format')
 
     # fig.show()
     print(f'hist bins {bins}, tudo_{config.factor}')
