@@ -1565,7 +1565,13 @@ def make_df_params_from_fit(f, df_dict: dict, st, fmt=None, quality=None,
 
 def plota_hist(f, ax: matplotlib.axes.Axes, bins, data_stats, metric, func,
                label=None, fmt='') -> plt.Axes:
-    [avg, std, corr] = data_stats
+    if isinstance(data_stats, dict):
+        avg = data_stats['avg']
+        std = data_stats['std']
+        corr = data_stats['corr']
+    elif isinstance(data_stats, list):
+        [avg, std, corr] = data_stats
+
     errors = f.df_errors
     errors_sorted = errors.sort_values(by="sumsquare_error")
     short_sse = errors_sorted.index[0:3]
