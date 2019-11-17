@@ -8,7 +8,7 @@ project = (f'ffmpeg_{cfg.factor}_{len(cfg.videos_list)}videos_'
 
 yuv_input = f'..{sl}yuv-full'
 
-server = False
+server = True
 if server:
     gpds = f'{sl}mnt{sl}ssd{sl}henrique{sl}'
 else:
