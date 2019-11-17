@@ -484,75 +484,92 @@ def histogram_tudo_fmt_quality(graph_folder, join_quality=True,
                   'Parameters': []}
 
     for fmt in config.tile_list:
+        if fmt in "9x8": continue
+
         plt.close()
-        fig = plt.figure(figsize=(7.5, 5), dpi=220)
-        fig_relative = plt.figure(figsize=(7.5, 5), dpi=220, tight_layout=True)
+        fig = plt.figure(figsize=(13, 7.2), dpi=220, tight_layout=True,
+                         facecolor='0.9')
+        fig_relative = plt.figure(figsize=(13, 7.2), dpi=220, tight_layout=True,
+                                  facecolor='0.9')
+        ax = None
 
         for n, quality in enumerate(config.quality_list, 1):
             print(f'processando {fmt}-{quality}')
 
+            # Prepara plot
             if join_quality:
-                ax = fig.add_subplot(2, 2, n)
-                ax_relative = fig_relative.add_subplot(2, 2, n)
+                if ax is None:
+                    ax = fig.add_subplot(2, 3, n)
+                else:
+                    ax = fig.add_subplot(2, 3, n, sharex=ax)
+                ax_relative = fig_relative.add_subplot(2, 3, n)
             else:
-                fig = plt.figure(figsize=(7.5, 5), dpi=220)
+                fig = plt.figure(figsize=(13, 7.2), dpi=220,
+                                 facecolor='0.9')
                 ax = fig.add_subplot(1, 1, 1)
-                fig_relative = plt.figure(figsize=(7.5, 5), dpi=220,
-                                          tight_layout=True)
-                ax_relative = fig_relative.add_subplot(2, 2, n)
+                fig_relative = plt.figure(figsize=(13, 7.2), dpi=220,
+                                          tight_layout=True,
+                                          facecolor='0.9')
+                ax_relative = fig_relative.add_subplot(2, 3, n)
 
             # Coleta dados
             print(f'Coletando dados')
-            # _, _, corr = get_data_tudo_fmt_quality(fmt, quality)
-            df, corr = get_data(tile_list=[fmt],
-                                quality_list=[quality],
-                                metrics='time')
-            time = df.stack().to_list()
-
-            data_stats_t = [np.average(time), np.std(time), corr]
-            st = (f'Average {np.average(time)}, '
-                  f'Standard Deviation {np.std(time)}, '
-                  f'Correlation {corr}')
+            df_t, df_r, corr = get_data(tile_list=[fmt],
+                                        quality_list=[quality])
+            time = df_t.stack().tolist()
+            stats_t = {'avg': np.average(time),
+                       'std': np.std(time),
+                       'corr': corr}
+            st = (f'Average {stats_t["avg"]}, '
+                  f'Standard Deviation {stats_t["std"]}, '
+                  f'Correlation {stats_t["corr"]}')
             f_t_name = (f'{dirname}{sl}data{sl}'
-                        f'fitter_time_{bins}bins_tudo_{fmt}_'
-                        f'{config.factor}{quality}.pickle')
-
+                        f'fitter_time_{bins}bins_tudo_{fmt}_{config.factor}'
+                        f'.pickle')
             # Faz o fit
             print(f'Fazendo o fit e criando tabela de resultados')
             f_t = make_fit(data=time, bins=bins, out_file=f_t_name,
                            overwrite=force_fit)
-            res = scipy.stats.relfreq(time, numbins=len(f_t.y))
-            a1 = np.sum([y * (f_t.x[1] - f_t.x[0]) for y in f_t.y])
-            a2 = np.sum(res.frequency)
-            label = (f'sum PDF={a1: .3f}\n'
-                     f'sum freq_rel={a2: .3f}\n'
-                     f'numbins={len(f_t.x)}')
-            ax_relative.bar(f_t.x, res.frequency, width=f_t.x[1] - f_t.x[0],
-                            label=label)
-            ax_relative.legend()
-            ax_relative.set_title(f'{fmt}')
-            ax_relative.set_xlabel('Decoding Time')
-            ax_relative.set_ylabel('Relative Frequency')
-
             make_df_params_from_fit(f_t, df_columns, fmt=fmt, quality=quality,
                                     st=st)
 
+            # verifica se a PDF e a frequencia relativa estão coerentes
+            # Calcula a frequencia relativa
+            rel_t = scipy.stats.relfreq(time, numbins=len(f_t.y))
+            # soma a área de cada barra do histograma de densidade
+            a1 = np.sum([y * (f_t.x[1] - f_t.x[0]) for y in f_t.y])
+            # soma todas as frequencias relativas
+            a2 = np.sum(rel_t.frequency)
+
+            # Faz o plot da frequência relativa
+            ax_relative.bar(f_t.x, rel_t.frequency, width=f_t.x[1] - f_t.x[0])
+            ax_relative.legend([f'sum PDF={a1: .3f}\n'
+                                f'sum freq_rel={a2: .3f}\n'
+                                f'numbins={len(f_t.x)}\n'
+                                f'dectime_avg={stats_t["avg"]:.03f} s\n'
+                                f'dectime_std={stats_t["std"]:.03f} s\n'
+                                f'rate_corr={stats_t["corr"]:.03f}'],
+                               loc='upper right')
+            ax_relative.set_title(f'{fmt} - {config.factor} {quality}')
+            ax_relative.set_xlabel('Decoding Time')
+            ax_relative.set_ylabel('Relative Frequency')
+
             # Faz o plot
-            label = None
-            # label = f'Empirical'
-            ax = plota_hist(f_t, ax, bins, data_stats_t, 'time', 'pdf',
-                            label=label)
+            # label = None
+            label = f'Empirical'
+            ax = plota_hist(f=f_t, ax=ax, bins=bins, data_stats=stats_t,
+                            metric='time', func='pdf', label=label)
 
             # infos
-            ax.legend(loc='best')
+            ax.legend(loc='upper right')
             ax.set_title(f'{fmt} - {config.factor} {quality}')
             ax.set_xlabel('Decoding Time')
 
         print(f'Salvando a figura')
         fig.set_tight_layout(True)
-        name = f'{dirname}{sl}hist_tudo_{fmt}{config.factor}_{bins}bins'
-        fig.savefig(f'{name}')
-        fig_relative.savefig(f'{name}_relative_1')
+        name = f'{dirname}{sl}hist_tudo_{fmt}_{config.factor}_{bins}bins'
+        fig.savefig(f'{name}', facecolor='0.9')
+        fig_relative.savefig(f'{name}_relative', facecolor='0.9')
 
     # Salva Dataframe
     print(f'Salvando a tabela')
