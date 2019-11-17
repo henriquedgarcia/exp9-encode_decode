@@ -1820,7 +1820,6 @@ def get_data_chunks(name, fmt, quality, tile, dec=dectime):
         if name in 'ninja_turtles' and chunk > 58:
             size.append(0)
             time.append(0)
-        dec = dectime[name]
         dec = dec[fmt]
         dec = dec[str(quality)]
         dec = dec[str(tile)]
