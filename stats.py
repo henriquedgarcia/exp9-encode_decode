@@ -1650,9 +1650,10 @@ def get_data(groups=(0, 1, 2, 3),
                 m, n = list(map(int, fmt.split('x')))
 
                 if tiles is None:
-                    tiles = (range(1, m * n + 1))
+                    tiles = range(1, m * n + 1)
 
                 for quality in quality_list:
+                    quality = str(quality)
                     for tile in tiles:
                         col_t = (f'{group}_{name}_{fmt}_'
                                  f'{config.factor}{quality}_'
@@ -1662,10 +1663,31 @@ def get_data(groups=(0, 1, 2, 3),
                                  f'{config.factor}{quality}_'
                                  f'tile{tile}_'
                                  f'rate')
-                        df_t[col_t] = dectime_flat[col_t]
-                        df_r[col_r] = dectime_flat[col_r]
-                        c = np.corrcoef(df_t, df_r)[1][0]
-                        corr.append(c)
+
+                        time = []
+                        rate = []
+                        if single:
+                            # As taxas do json singlekey já estão em bps.
+                            d = dectime_flat
+                            time = d[col_t]
+                            rate = d[col_r]
+                            c = np.corrcoef((time, rate))[1][0]
+                            corr.append(c)
+                        else:
+                            pass
+                            # Dúvida... as taxas dos dados multikey estão em
+                            # bits ou bytes?
+                            # d = dectime_multi
+                            # for chunk in range(1, config.duration + 1):
+                            #     if name in 'ninja_turtles' and chunk > 58:
+                            #         time.append(0)
+                            #         rate.append(0)
+                            #     d = d[fmt][str(quality)][str(tile)][str(chunk)]
+                            #     time.append(float(d['times']))
+                            #     rate.append(float(d['size']) * 8)
+
+                        df_t[col_t] = time
+                        df_r[col_r] = rate
 
     return df_t, df_r, np.average(corr)
 
