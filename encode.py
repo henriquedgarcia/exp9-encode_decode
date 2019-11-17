@@ -1,10 +1,10 @@
 #!/bin/env python3
 from utils import util
 
-config = util.Config('config.json', factor='scale')
-sl = util.check_system()['sl']
-project = (f'ffmpeg_{config.factor}_{len(config.videos_list)}videos_'
-           f'{config.duration}s_qp')
+cfg = util.Config('config.json', factor='crf')
+sl = cfg.sl
+project = (f'ffmpeg_{cfg.factor}_{len(cfg.videos_list)}videos_'
+           f'{cfg.duration}s')
 
 yuv_input = f'..{sl}yuv-full'
 
@@ -23,7 +23,7 @@ def main():
 
 def encode():
     # Create video object and your main folders
-    video = util.VideoParams(config=config,
+    video = util.VideoParams(config=cfg,
                              yuv=yuv_input)
 
     # Set basic configuration
@@ -31,13 +31,13 @@ def encode():
     video.project = output
 
     # iterate over 3 factors: video (complexity), tiles format, quality
-    for video.name in config.videos_list:
-        for video.tile_format in config.tile_list:
-            for video.quality in getattr(config, f'{video.factor}_list'):
+    for video.name in cfg.videos_list:
+        for video.tile_format in cfg.tile_list:
+            for video.quality in getattr(cfg, f'{video.factor}_list'):
                 util.encode(video)
                 # util.encapsule(video)
                 # util.extract_tile(video)
-                util.make_segments(video)
+                # util.make_segments(video)
 
 
 if __name__ == '__main__':
