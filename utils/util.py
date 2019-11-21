@@ -456,7 +456,7 @@ def _encode_ffmpeg(video):
                       f':qpmax={video.quality}"')
     elif video.factor in 'rate':
         rate = int(video.quality / video.number_tiles)
-        param_out = (f'-b:v {rate} {param_out}')
+        param_out = f'-b:v {rate} {param_out}'
     elif video.factor in 'crf':
         param_out = f'-crf {video.quality} -tune psnr {param_out}"'
     elif video.factor in 'scale':
