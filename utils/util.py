@@ -461,10 +461,18 @@ def _encode_ffmpeg(video):
     elif video.factor in 'crf':
         param_out = f'-crf {video.quality} -tune psnr {param_out}"'
     elif video.factor in 'scale':
-        param_out = (f'{param_out}'
-                     f':qp=25'
-                     f':qpmin=25'
-                     f':qpmax=25"')
+        if 'crf' in video.project:
+            param_out = (f'{param_out}'
+                         f':crf=28'
+                         f':crfmin=28'
+                         f':crfmax=28"')
+        elif 'qp' in video.project:
+            param_out = (f'{param_out}'
+                         f':qp=25'
+                         f':qpmin=25'
+                         f':qpmax=25"')
+        else:
+            exit('Fator de codificação inválido.')
     else:
         exit('Fator de qualidade só pode ser "qp" ou "rate" ou crf.')
 
