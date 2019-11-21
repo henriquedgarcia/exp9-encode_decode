@@ -52,10 +52,11 @@ class Config:
         self.quality_list = self.config_data[f'{self.factor}_list']
 
         # Seleciona o tile_list de acordo com o factor
-        if self.factor not in 'scale':
-            self.tile_list = self.tile_list1
-        else:
-            self.tile_list = self.tile_list2
+        # if self.factor in 'scale':
+        #     self.tile_list = self.tile_list2
+        # else:
+        #     self.tile_list = self.tile_list1
+        #     self.tile_list = self.tile_list2
 
 
 class VideoStats:
