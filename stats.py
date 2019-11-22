@@ -17,8 +17,9 @@ from utils import util
 
 sl = util.check_system()['sl']
 project = 'ffmpeg_crf_12videos_60s'
-config = util.Config('config.json', factor='scale')
+config = util.Config('config.json', factor='crf')
 dectime_name = f'times_{project}'
+
 if os.path.isfile(f'{dectime_name}_multikey.json'):
     dectime_multi = util.load_json(f'{dectime_name}_multikey.json')
 if os.path.isfile(f'{dectime_name}_single.json'):
