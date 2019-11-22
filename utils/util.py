@@ -26,6 +26,7 @@ class Config:
         self.fps = 0
         self.gop = 0
         self.duration = 0
+        self.dists = []
         self.qp_list = []  # Quality
         self.rate_list = []  # Quality
         self.crf_list = []  # Quality
