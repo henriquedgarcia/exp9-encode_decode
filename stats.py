@@ -24,9 +24,6 @@ dectime_flat = util.load_json(f'{dectime_name}_singleke.json')
 color_list = ['blue', 'orange', 'green', 'red']
 bins = 'auto'
 
-dists = ['burr12', 'fatiguelife', 'gamma', 'invgauss', 'rayleigh', 'lognorm',
-         'genpareto', 'pareto', 'halfnorm', 'expon']
-
 c_dist = {'burr12': 'yellow',  # 2, 4
           'invgauss': 'black',  # 1, 2, 3, 4
           'lognorm': 'red',  # 1, 2, 3, 4
@@ -749,7 +746,9 @@ def hist1samefig(graph_folder):
             col_label = f'{fmt}-{quality}'
 
             # Faz o fit
-            f = fitter.fitter.Fitter(data, bins='auto', distributions=dists,
+            f = fitter.fitter.Fitter(data,
+                                     bins='auto',
+                                     distributions=config.dists,
                                      verbose=False)
             fitter_dict[quality] = f
             fitter_dict[quality].fit()
@@ -968,7 +967,8 @@ def hist2samefig(graph_folder):
             col_label = f'{fmt}-{quality}'
 
             # Faz o fit
-            f = fitter.fitter.Fitter(data, bins='auto', distributions=dists,
+            f = fitter.fitter.Fitter(data, bins='auto',
+                                     distributions=config.dists,
                                      verbose=False)
             fitter_dict[fmt] = f
             fitter_dict[fmt].fit()
@@ -1239,7 +1239,7 @@ def make_fit(data, out_file, bins, overwrite=False):
         # Caso contrário calcule o fit e salve.
         print('Calculando o fit.')
         f = fitter.fitter.Fitter(data, bins=bins,
-                                 distributions=dists,
+                                 distributions=config.dists,
                                  verbose=False,
                                  timeout=30)
         f.fit()
