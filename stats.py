@@ -42,7 +42,10 @@ def main():
         #              'auto', 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75,
         #              80]:
         # bins = int(bins)
-        histogram_tudo_fmt('histogram_tudo-fmt', force_fit=False)
+        histogram_tudo_fmt('histogram_tudo-fmt',
+                           force_fit=False,
+                           join_quality=True,
+                           bins=bins)
         # histogram_tudo_fmt_quality('histogram_tudo_fmt_quality',
         #                            force_fit=True, join_quality=True)
         # histogram_group_fmt('histogram_group-fmt',
@@ -360,7 +363,8 @@ def histogram_name_fmt(graph_folder):
                 print(f'hist {bins} bins, {name}_{fmt}')
 
 
-def histogram_tudo_fmt(graph_folder, force_fit=False, join_quality=True, ):
+def histogram_tudo_fmt(graph_folder, force_fit=False, join_quality=True,
+                       bins='auto'):
     """Usado no SVR e Eletronic Imaging"""
     dirname = f'results{sl}{project}{sl}{graph_folder}'
     os.makedirs(dirname + f'{sl}data', exist_ok=True)
