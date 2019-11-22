@@ -21,7 +21,8 @@ class AutoDict(dict):
 
 class Config:
     def __init__(self, filename: str, factor: str):
-        self.filename = filename
+        self.filename = filename  # Obrigatório na inicialização
+        self.factor = factor  # Obrigatório na inicialização
         self.scale = ''
         self.fps = 0
         self.gop = 0
@@ -36,7 +37,6 @@ class Config:
         self.tile_list2 = []
         self.videos_list = {}
         self.single_videos_list = {}
-        self.factor = factor  # Obrigatório na inicialização
         self.config_data = {}
         self.sl = check_system()['sl']
         if filename:
