@@ -658,51 +658,50 @@ def decode(video: VideoParams, command=''):
             _decode(command, video.dectime_log, 'txt', log_mode='a')
 
 
-def _decode(command, log_path, ext, overwrite=False, log_mode='w',
-            bench_stamp='bench: utime'):
+
+def _decode(command, log_path, ext, overwrite=False, log_mode='a'):
     if os.path.isfile(f'{log_path}.{ext}') \
             and not overwrite \
             and log_mode in 'w':
         print(f'arquivo {log_path}.{ext} existe. Pulando.')
     else:
-        with subprocess.Popen(shlex.split(command),
-                              stdout=subprocess.PIPE,
-                              stderr=subprocess.STDOUT,
-                              encoding='utf-8') as proc, \
-                open('temp.txt', 'w', encoding='utf-8') as f:
-            for line in proc.stdout:
-                if line.find(bench_stamp) >= 0:
-                    f.write(line)
+        sys = check_system()['sys']
+        if 'unix' in sys:
+            f1 = open('temp.txt', 'rw', encoding='utf-8')
+            proc = subprocess.run(shlex.split(command),
+                                  stdout=f1,
+                                  stderr=subprocess.STDOUT,
+                                  encoding='utf-8',
+                                  text=True)
 
-        with open('temp.txt', 'r', encoding='utf-8') as f1, \
-                open(f'{log_path}.{ext}', log_mode, encoding='utf-8') as f2:
+            f1.seek(0)
+            f2 = open(f'{log_path}.{ext}', log_mode, encoding='utf-8')
             f2.write(f1.read())
+        elif "windows" in sys:
+            exit("não rode em windows, menino")
+            for attempts in range(5):
+                print(command)
+                f1 = open('temp.txt', 'w', encoding='utf-8')
+                try:
+                    f2 = open(f'{log_path}.{ext}', log_mode, encoding='utf-8')
+                except FileNotFoundError:
+                    print(f'Tentativa {attempts}. Erro ao abrir o arquivo '
+                          f'{log_path}.{ext}. Tentando novamente em 5s.')
+                    f1.close()
+                    time.sleep(5)
+                    continue
 
-        # attempts = 1
-        # while True:
-        #     print(command)
-        #
-        #     try:
-        #         # p = subprocess.run(f'{command} 1>2 temp.txt', shell=True, encoding='utf-8')
-        #         # print(f'Returncode = {p.returncode}')
-        #         with open('temp.txt', 'w', encoding='utf-8') as f:
-        #             p = subprocess.run(' '.join(command))
-        #             print(f'Returncode = {p.returncode}')
-        #             if p.returncode != 0:
-        #                 print(f'Tentativa {attempts}. Erro. Exitcode == {p.returncode}. Tentando novamente.')
-        #                 attempts += 1
-        #                 continue
-        #
-        #         with open('temp.txt', 'r', encoding='utf-8') as f1, \
-        #                 open(f'{log_path}.{ext}', log_mode, encoding='utf-8') as f2:
-        #             f2.write(f1.read())
-        #             break
-        #
-        #     except FileNotFoundError:
-        #         print(f'Tentativa {attempts}. Erro ao abrir o arquivo {"temp.txt" + ".log"}')
-        #         print('Tentando novamente em 5s.')
-        #         attempts += 1
-        #         time.sleep(5)
+                p = subprocess.run(' '.join(command), shell=True,
+                                   encoding='utf-8', stdout=f1,
+                                   stderr=subprocess.STDOUT)
+                if p.returncode != 0:
+                    print(f'Returncode = {p.returncode}')
+                    print(f'Tentativa {attempts}. Erro. Exitcode == '
+                          f'{p.returncode}. Tentando novamente.')
+                    continue
+
+                f2.write(f1.read())
+                break
 
 
 # Funções para estatística
