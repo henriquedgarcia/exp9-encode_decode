@@ -1,12 +1,12 @@
-import itertools
 import json
 import os
 import platform
-import subprocess
-import pandas as pd
-import time
 import shlex
+import subprocess
+import time
+
 import numpy as np
+import pandas as pd
 
 
 # Minhas classes
