@@ -8,7 +8,7 @@ project = (f'ffmpeg_{cfg.factor}_{len(cfg.videos_list)}videos_'
 
 yuv_input = f'..{sl}yuv-full'
 
-server = True
+server = False
 if server:
     gpds = f'{sl}mnt{sl}ssd{sl}henrique{sl}'
 else:
@@ -37,7 +37,7 @@ def encode():
                 util.encode(video)
                 # util.encapsule(video)
                 # util.extract_tile(video)
-                # util.make_segments(video)
+                util.make_segments(video)
 
 
 if __name__ == '__main__':

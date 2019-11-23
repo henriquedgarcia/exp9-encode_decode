@@ -3,6 +3,17 @@
   "fps": 30,
   "gop": 30,
   "duration": 60,
+  "dists": [
+    "burr12",
+    "fatiguelife",
+    "gamma",
+    "invgauss",
+    "rayleigh",
+    "lognorm",
+    "genpareto",
+    "pareto",
+    "halfnorm",
+    "expon"],
   "qp_list1": [
     20,
     27,
@@ -16,16 +27,16 @@
     44
   ],
   "scale_list": [
-    "6480x3240",
-    "4320x2160",
+    "2160x1080",
     "2880x1440",
-    "2160x1080"
+    "4320x2160",
+    "6480x3240"
   ],
   "rate_list": [
-    24000000,
-    16000000,
+    2000000,
     8000000,
-    2000000
+    16000000,
+    24000000
   ],
   "crf_list": [
     16,

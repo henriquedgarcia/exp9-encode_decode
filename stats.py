@@ -16,23 +16,31 @@ from matplotlib import colors
 from utils import util
 
 sl = util.check_system()['sl']
-project = 'ffmpeg_scale_12videos_60s_qp'
+project = 'ffmpeg_crf_12videos_60s'
 config = util.Config('config.json', factor='scale')
 dectime_name = f'times_{project}'
-# dectime_multi = util.load_json(f'{dectime_name}_multikey.json')
-dectime_flat = util.load_json(f'{dectime_name}_single.json')
+if os.path.isfile(f'{dectime_name}_multikey.json'):
+    dectime_multi = util.load_json(f'{dectime_name}_multikey.json')
+if os.path.isfile(f'{dectime_name}_single.json'):
+    dectime_flat = util.load_json(f'{dectime_name}_single.json')
 
 color_list = ['blue', 'orange', 'green', 'red']
 bins = 'auto'
 
-dists = ['burr12', 'fatiguelife', 'gamma', 'invgauss', 'rayleigh', 'lognorm',
-         'genpareto', 'pareto', 'halfnorm', 'expon']
+c_dist = {
+    'burr12': 'yellow',  # 2, 4
+    'invgauss': 'black',  # 1, 2, 3, 4
+    'lognorm': 'red',  # 1, 2, 3, 4
+    'fatiguelife': 'yellow',  # 3
+    'genpareto': 'yellow'
+    }  # 1
 
-c_dist = {'burr12': 'yellow',  # 2, 4
-          'invgauss': 'black',  # 1, 2, 3, 4
-          'lognorm': 'red',  # 1, 2, 3, 4
-          'fatiguelife': 'yellow',  # 3
-          'genpareto': 'yellow'}  # 1
+a = ("#f5793a",
+     "#a95aa1",
+     "#85c0f9",
+     "#0f2080",
+     "#9c9eb5",
+     "#c9bd9e")
 
 
 def main():
@@ -48,6 +56,7 @@ def main():
     for bins in bin_types4:
         pass
         # bins = int(bins)
+
         histogram_fmt('histogram_fmt', force_fit=False)
         histogram_fmt_quality('histogram_fmt_quality',
                               force_fit=True, join_quality=True)
@@ -386,11 +395,13 @@ def histogram_fmt(graph_folder, force_fit=False, join_quality=True):
                               facecolor='0.5')
     ax = None
 
-    df_columns = {'Format': [],
-                  'Statistics': [],
-                  'Distribution': [],
-                  'SSE': [],
-                  'Parameters': []}
+    df_columns = {
+        'Format': [],
+        'Statistics': [],
+        'Distribution': [],
+        'SSE': [],
+        'Parameters': []
+        }
 
     for n, fmt in enumerate(config.tile_list, 1):
         if fmt in "9x8": continue
@@ -418,9 +429,11 @@ def histogram_fmt(graph_folder, force_fit=False, join_quality=True):
 
         df_t, df_r, corr = get_data(tile_list=[fmt])
         time = df_t.stack().tolist()
-        stats_t = {'avg': np.average(time),
-                   'std': np.std(time),
-                   'corr': corr}
+        stats_t = {
+            'avg': np.average(time),
+            'std': np.std(time),
+            'corr': corr
+            }
         st = (f'Average {stats_t["avg"]}, '
               f'Standard Deviation {stats_t["std"]}, '
               f'Correlation {stats_t["corr"]}')
@@ -481,12 +494,14 @@ def histogram_fmt_quality(graph_folder, force_fit=False, join_quality=True):
     """
     dirname = f'results{sl}{project}{sl}{graph_folder}'
     os.makedirs(dirname + f'{sl}data', exist_ok=True)
-    df_columns = {'Format': [],
-                  'Quality': [],
-                  'Statistics': [],
-                  'Distribution': [],
-                  'SSE': [],
-                  'Parameters': []}
+    df_columns = {
+        'Format': [],
+        'Quality': [],
+        'Statistics': [],
+        'Distribution': [],
+        'SSE': [],
+        'Parameters': []
+        }
 
     for fmt in config.tile_list:
         if fmt in "9x8": continue
@@ -522,9 +537,11 @@ def histogram_fmt_quality(graph_folder, force_fit=False, join_quality=True):
             df_t, df_r, corr = get_data(tile_list=[fmt],
                                         quality_list=[quality])
             time = df_t.stack().tolist()
-            stats_t = {'avg': np.average(time),
-                       'std': np.std(time),
-                       'corr': corr}
+            stats_t = {
+                'avg': np.average(time),
+                'std': np.std(time),
+                'corr': corr
+                }
             st = (f'Average {stats_t["avg"]}, '
                   f'Standard Deviation {stats_t["std"]}, '
                   f'Correlation {stats_t["corr"]}')
@@ -590,12 +607,14 @@ def histogram_fmt_quality_2(graph_folder, force_fit=False, join_quality=True):
     """
     dirname = f'results{sl}{project}{sl}{graph_folder}'
     os.makedirs(dirname + f'{sl}data', exist_ok=True)
-    df_columns = {'Format': [],
-                  'Quality': [],
-                  'Statistics': [],
-                  'Distribution': [],
-                  'SSE': [],
-                  'Parameters': []}
+    df_columns = {
+        'Format': [],
+        'Quality': [],
+        'Statistics': [],
+        'Distribution': [],
+        'SSE': [],
+        'Parameters': []
+        }
 
     for quality in config.quality_list:
         plt.close()
@@ -630,9 +649,11 @@ def histogram_fmt_quality_2(graph_folder, force_fit=False, join_quality=True):
             df_t, df_r, corr = get_data(tile_list=[fmt],
                                         quality_list=[quality])
             time = df_t.stack().tolist()
-            stats_t = {'avg': np.average(time),
-                       'std': np.std(time),
-                       'corr': corr}
+            stats_t = {
+                'avg': np.average(time),
+                'std': np.std(time),
+                'corr': corr
+                }
             st = (f'Average {stats_t["avg"]}, '
                   f'Standard Deviation {stats_t["std"]}, '
                   f'Correlation {stats_t["corr"]}')
@@ -696,12 +717,14 @@ def histogram_fmt_group(graph_folder, force_fit=True,
                         join_quality=True):
     dirname = f'results{sl}{project}{sl}{graph_folder}'
     os.makedirs(dirname + f'{sl}data', exist_ok=True)
-    df_columns = {'Format': [],
-                  'Group': [],
-                  'Statistics': [],
-                  'Distribution': [],
-                  'SSE': [],
-                  'Parameters': []}
+    df_columns = {
+        'Format': [],
+        'Group': [],
+        'Statistics': [],
+        'Distribution': [],
+        'SSE': [],
+        'Parameters': []
+        }
 
     for fmt in config.tile_list:
         if fmt in "9x8": continue
@@ -738,9 +761,11 @@ def histogram_fmt_group(graph_folder, force_fit=True,
                                         groups=[group])
             time = df_t.stack().tolist()
 
-            stats_t = {'avg': np.average(time),
-                       'std': np.std(time),
-                       'corr': corr}
+            stats_t = {
+                'avg': np.average(time),
+                'std': np.std(time),
+                'corr': corr
+                }
             st = (f'Average {stats_t["avg"]}, '
                   f'Standard Deviation {stats_t["std"]}, '
                   f'Correlation {stats_t["corr"]}')
@@ -804,12 +829,14 @@ def histogram_fmt_group_2(graph_folder, force_fit=True,
                           join_quality=True):
     dirname = f'results{sl}{project}{sl}{graph_folder}'
     os.makedirs(dirname + f'{sl}data', exist_ok=True)
-    df_columns = {'Format': [],
-                  'Group': [],
-                  'Statistics': [],
-                  'Distribution': [],
-                  'SSE': [],
-                  'Parameters': []}
+    df_columns = {
+        'Format': [],
+        'Group': [],
+        'Statistics': [],
+        'Distribution': [],
+        'SSE': [],
+        'Parameters': []
+        }
 
     for fmt in config.tile_list:
         for group in ['0', '1', '2', '3']:
@@ -847,9 +874,11 @@ def histogram_fmt_group_2(graph_folder, force_fit=True,
                                             groups=[group])
                 time = df_t.stack().tolist()
 
-                stats_t = {'avg': np.average(time),
-                           'std': np.std(time),
-                           'corr': corr}
+                stats_t = {
+                    'avg': np.average(time),
+                    'std': np.std(time),
+                    'corr': corr
+                    }
                 st = (f'Average {stats_t["avg"]}, '
                       f'Standard Deviation {stats_t["std"]}, '
                       f'Correlation {stats_t["corr"]}')
@@ -1005,8 +1034,10 @@ def hist1samefig(graph_folder):
         for tile, chunk in list(it(range(1, m * n + 1),
                                    range(1, config.duration + 1))):
             if name in 'ninja_turtles' and chunk > 58: continue
-            t = dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['times']
-            s = dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['size']
+            t = dectime_multi[name][fmt][str(quality)][str(tile)][str(chunk)][
+                'times']
+            s = dectime_multi[name][fmt][str(quality)][str(tile)][str(chunk)][
+                'size']
             times[name][fmt][quality].append(t)
             sizes[name][fmt][quality].append(s)
 
@@ -1020,7 +1051,9 @@ def hist1samefig(graph_folder):
             col_label = f'{fmt}-{quality}'
 
             # Faz o fit
-            f = fitter.fitter.Fitter(data, bins='auto', distributions=dists,
+            f = fitter.fitter.Fitter(data,
+                                     bins='auto',
+                                     distributions=config.dists,
                                      verbose=False)
             fitter_dict[quality] = f
             fitter_dict[quality].fit()
@@ -1239,7 +1272,8 @@ def hist2samefig(graph_folder):
             col_label = f'{fmt}-{quality}'
 
             # Faz o fit
-            f = fitter.fitter.Fitter(data, bins='auto', distributions=dists,
+            f = fitter.fitter.Fitter(data, bins='auto',
+                                     distributions=config.dists,
                                      verbose=False)
             fitter_dict[fmt] = f
             fitter_dict[fmt].fit()
@@ -1360,8 +1394,10 @@ def hist2sameplt(graph_folder):
         for tile, chunk in it(range(1, m * n + 1),
                               range(1, config.duration + 1)):
             if name in 'ninja_turtles' and chunk > 58: continue
-            t = dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['times']
-            s = dectime[name][fmt][str(quality)][str(tile)][str(chunk)]['size']
+            t = dectime_multi[name][fmt][str(quality)][str(tile)][str(chunk)][
+                'times']
+            s = dectime_multi[name][fmt][str(quality)][str(tile)][str(chunk)][
+                'size']
             times[name][fmt][quality].append(t)
             sizes[name][fmt][quality].append(s)
 
@@ -1510,7 +1546,7 @@ def make_fit(data, out_file, bins, overwrite=False):
         # Caso contrário calcule o fit e salve.
         print('Calculando o fit.')
         f = fitter.fitter.Fitter(data, bins=bins,
-                                 distributions=dists,
+                                 distributions=config.dists,
                                  verbose=False,
                                  timeout=30)
         f.fit()

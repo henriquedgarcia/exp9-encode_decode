@@ -6,3 +6,4 @@ results/
 ffmpeg/
 temp.txt
 times_ffmpeg_scale_12videos_60s_qp_single.json.old
+times_ffmpeg_scale_12videos_60s_scale_single.json
