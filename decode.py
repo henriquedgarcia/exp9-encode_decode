@@ -9,8 +9,8 @@
 from utils import util
 
 sl = util.check_system()['sl']
-config = util.Config('config.json', factor='scale')
-output_folder = f'results{sl}ffmpeg_scale_12videos_60s_qp'
+config = util.Config('config.json', factor='crf')
+output_folder = f'results{sl}ffmpeg_crf_12videos_60s'
 yuv_folder = f'..{sl}yuv-10s'
 
 
