@@ -218,6 +218,7 @@ class VideoStats:
         self.quality = None
         self.tile = None
         self.chunk = None
+        self.decoder = None
 
 
 class Atribs:
