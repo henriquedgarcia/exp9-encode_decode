@@ -791,7 +791,6 @@ def save_json(obj: dict, filename: str):
 
 
 def load_json(filename: str = 'times.json') -> pd.DataFrame:
-
     with open(filename, 'r') as f:
         js_data = json.load(f)
         pd_data = pd.DataFrame(js_data)
