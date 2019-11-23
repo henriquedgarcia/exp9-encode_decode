@@ -649,8 +649,7 @@ def decode(video: VideoParams, command=''):
             # else:
             #     exit('Decoders disponíveis são mp4client e ffmpeg.')
 
-            print(f'Rodada {video.rodada} - {video.basename}_tile{video.tile}_'
-                  f'chunk{video.chunk}')
+            print(f'Rodada {video.rodada} - {video.segment_video}.mp4')
             _decode(command, video.dectime_log, 'txt')
 
 
