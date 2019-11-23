@@ -18,7 +18,7 @@ config.videos_list = {"ball": {},
                       "pluto": {},
                       "ski": {},
                       "super_mario": {}}
-output_folder = f'results{sl}ffmpeg_scale_12videos_60s_qp'
+output_folder = f'results{sl}ffmpeg_crf_12videos_60s'
 yuv_folder = f'..{sl}yuv-10s'
 
 
