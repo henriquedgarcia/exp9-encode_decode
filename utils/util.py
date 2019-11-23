@@ -641,22 +641,25 @@ def decode(video: VideoParams, command=''):
                                f'-codec hevc -threads 1 '
                                f'-i {video.segment_video}.mp4 '
                                f'-f null -')
-
-            elif video.decoder in 'mp4client':
-                if video.threads in 'multi':
-                    command = (f'start /b /wait '
-                               f'{video.program} -bench '
-                               f'{video.segment_video}.mp4')
-                else:
-                    command = (f'start /b /wait /affinity 0x800 '
-                               f'{video.program} -bench '
-                               f'{video.segment_video}.mp4')
             else:
-                exit('Decoders disponíveis são mp4client e ffmpeg.')
-            print(f'Rodada {video.rodada} - '
-                  f'{video.basename}_tile{video.tile}_chunk{video.chunk}')
-            _decode(command, video.dectime_log, 'txt', log_mode='a')
+                exit('Só decodifique em linux, please')
+            # elif video.decoder in 'mp4client':
+            #     if video.threads in 'multi':
+            #         # Se windows
+            #         command = (f'start /b /wait '
+            #                    f'{video.program} -bench '
+            #                    f'{video.segment_video}.mp4')
+            #     else:
+            #         # Se windows
+            #         command = (f'start /b /wait /affinity 0x800 '
+            #                    f'{video.program} -bench '
+            #                    f'{video.segment_video}.mp4')
+            # else:
+            #     exit('Decoders disponíveis são mp4client e ffmpeg.')
 
+            print(f'Rodada {video.rodada} - {video.basename}_tile{video.tile}_'
+                  f'chunk{video.chunk}')
+            _decode(command, video.dectime_log, 'txt')
 
 
 def _decode(command, log_path, ext, overwrite=False, log_mode='a'):
