@@ -483,34 +483,34 @@ def _encode_ffmpeg(video):
             tile_count += 1
             video.mp4_video = f'{video.mp4_folder}{video.sl}tile{tile_count}'
 
-            filter = (f'-vf "scale={scale},'
-                      f'crop=w={tile_w}:h={tile_h}:x={x}:y={y}"')
+            video_filter = (f'-vf "scale={scale},'
+                            f'crop=w={tile_w}:h={tile_h}:x={x}:y={y}"')
 
             if video.factor in 'rate':
                 # 1-pass
                 command = (f'{video.program} {global_params} {param_in} '
-                           f'{param_out}:pass=1" {filter} -f mp4 nul')
+                           f'{param_out}:pass=1" {video_filter} -f mp4 nul')
                 run(command, f'{video.mp4_video}', 'mp4', log_mode='none')
 
                 # 2-pass
                 command = (f'{video.program} {global_params} {param_in} '
-                           f'{param_out}:pass=2" {filter} -f mp4 '
+                           f'{param_out}:pass=2" {video_filter} -f mp4 '
                            f'{video.mp4_video}.mp4')
                 run(command, f'{video.mp4_video}', 'mp4', overwrite=True)
 
             elif video.factor in 'qp':
                 command = (f'{video.program} {global_params} {param_in} '
-                           f'{param_out} {filter} {video.mp4_video}.mp4')
+                           f'{param_out} {video_filter} {video.mp4_video}.mp4')
                 run(command, f'{video.mp4_video}', 'mp4', overwrite=True)
 
             elif video.factor in 'crf':
                 command = (f'{video.program} {global_params} {param_in} '
-                           f'{param_out} {filter} {video.mp4_video}.mp4')
+                           f'{param_out} {video_filter} {video.mp4_video}.mp4')
                 run(command, f'{video.mp4_video}', 'mp4', overwrite=True)
 
             elif video.factor in 'scale':
                 command = (f'{video.program} {global_params} {param_in} '
-                           f'{param_out} {filter} {video.mp4_video}.mp4')
+                           f'{param_out} {video_filter} {video.mp4_video}.mp4')
                 run(command, f'{video.mp4_video}', 'mp4', overwrite=True)
 
 
