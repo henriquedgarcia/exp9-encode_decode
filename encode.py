@@ -12,8 +12,7 @@ cfg.videos_list = {"ball": {},
                    "ski": {},
                    "super_mario": {}}
 
-project = (f'ffmpeg_{cfg.factor}_{len(cfg.videos_list)}videos_'
-           f'{cfg.duration}s')
+project = (f'ffmpeg_crf_12videos_60s')
 
 yuv_input = f'..{sl}yuv-full'
 
