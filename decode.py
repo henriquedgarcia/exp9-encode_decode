@@ -27,7 +27,7 @@ def main():
     video.quality_list = config.quality_list
     video.dectime_base = f'dectime_{video.decoder}'
 
-    # para cada video, para cada fmt, para cada qualidadae... decodificar 3
+    # para cada video, para cada fmt, para cada qualidade... decodificar 3
     # vezes todos os chunks de todos os tiles.
     for video.name in config.videos_list:
         for video.tile_format in config.tile_list:
