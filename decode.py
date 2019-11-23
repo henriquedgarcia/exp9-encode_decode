@@ -8,7 +8,6 @@
 # Início
 from utils import util
 
-
 config = util.Config('config.json', factor='crf')
 sl = config.sl
 config.videos_list = {"ball": {},
