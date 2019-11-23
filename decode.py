@@ -6,7 +6,6 @@
 # importlib.reload(modulename)
 
 # Início
-import itertools
 from utils import util
 
 sl = util.check_system()['sl']
