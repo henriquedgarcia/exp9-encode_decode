@@ -610,7 +610,7 @@ def make_segments(video):
         # Segment tiles in chunks
         command = (f'{mp4box} -split 1 {video.tiled_video}.mp4 '
                    f'-out {video.segment_folder}{video.sl}')
-        run(command, segment_log, 'log')
+        run(command, segment_log, 'log', overwrite=True)
 
 
 # Funções para decodificação
