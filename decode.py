@@ -7,7 +7,6 @@ config.videos_list = {"ball": {},
                       "elephants": {},
                       "lions": {},
                       "manhattan": {},
-                      "om_nom": {},
                       "pluto": {},
                       "ski": {},
                       "super_mario": {}}
