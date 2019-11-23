@@ -22,11 +22,13 @@ class AutoDict(dict):
 
 class Config:
     def __init__(self, filename: str, factor: str):
-        self.filename = filename
+        self.filename = filename  # Obrigatório na inicialização
+        self.factor = factor  # Obrigatório na inicialização
         self.scale = ''
         self.fps = 0
         self.gop = 0
         self.duration = 0
+        self.dists = []
         self.qp_list = []  # Quality
         self.rate_list = []  # Quality
         self.crf_list = []  # Quality
@@ -36,7 +38,6 @@ class Config:
         self.tile_list2 = []
         self.videos_list = {}
         self.single_videos_list = {}
-        self.factor = factor  # Obrigatório na inicialização
         self.config_data = {}
         self.sl = check_system()['sl']
         if filename:
@@ -52,11 +53,10 @@ class Config:
         self.quality_list = self.config_data[f'{self.factor}_list']
 
         # Seleciona o tile_list de acordo com o factor
-        # if self.factor in 'scale':
-        #     self.tile_list = self.tile_list2
-        # else:
-        #     self.tile_list = self.tile_list1
-        #     self.tile_list = self.tile_list2
+        if self.factor not in 'scale':
+            self.tile_list = self.tile_list1
+        else:
+            self.tile_list = self.tile_list2
 
 
 class VideoStats:
@@ -458,22 +458,14 @@ def _encode_ffmpeg(video):
                       f':qpmax={video.quality}"')
     elif video.factor in 'rate':
         rate = int(video.quality / video.number_tiles)
-        param_out = f'-b:v {rate} {param_out}'
+        param_out = (f'-b:v {rate} {param_out}')
     elif video.factor in 'crf':
         param_out = f'-crf {video.quality} -tune psnr {param_out}"'
     elif video.factor in 'scale':
-        if 'crf' in video.project:
-            param_out = (f'{param_out}'
-                         f':crf=28'
-                         f':crfmin=28'
-                         f':crfmax=28"')
-        elif 'qp' in video.project:
-            param_out = (f'{param_out}'
-                         f':qp=25'
-                         f':qpmin=25'
-                         f':qpmax=25"')
-        else:
-            exit('Fator de codificação inválido.')
+        param_out = (f'{param_out}'
+                     f':qp=25'
+                     f':qpmin=25'
+                     f':qpmax=25"')
     else:
         exit('Fator de qualidade só pode ser "qp" ou "rate" ou crf.')
 
@@ -790,12 +782,10 @@ def save_json(obj: dict, filename: str):
         json.dump(obj, f, indent=2)
 
 
-def load_json(filename: str = 'times.json') -> pd.DataFrame:
+def load_json(filename: str = 'times.json') -> dict:
     with open(filename, 'r') as f:
-        js_data = json.load(f)
-        pd_data = pd.DataFrame(js_data)
-
-    return pd_data
+        data = json.load(f)
+    return data
 
 
 def show_json(obj: dict, show=True, ret=False):
