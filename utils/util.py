@@ -661,16 +661,16 @@ def _decode(command, log_path, ext, overwrite=False, log_mode='a'):
     else:
         sys = check_system()['sys']
         if 'unix' in sys:
-            f1 = open('temp.txt', 'rw', encoding='utf-8')
-            proc = subprocess.run(shlex.split(command),
-                                  stdout=f1,
-                                  stderr=subprocess.STDOUT,
-                                  encoding='utf-8',
-                                  text=True)
+            f1 = open('temp.txt', 'w', encoding='utf-8')
+            subprocess.run(shlex.split(command), stdout=f1,
+                           stderr=subprocess.STDOUT, encoding='utf-8')
 
-            f1.seek(0)
+            f1.close()
+            f1 = open('temp.txt', 'r', encoding='utf-8')
             f2 = open(f'{log_path}.{ext}', log_mode, encoding='utf-8')
             f2.write(f1.read())
+            f1.close()
+            f2.close()
         elif "windows" in sys:
             exit("não rode em windows, menino")
             for attempts in range(5):
