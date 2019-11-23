@@ -8,8 +8,17 @@
 # Início
 from utils import util
 
-sl = util.check_system()['sl']
+
 config = util.Config('config.json', factor='crf')
+sl = config.sl
+config.videos_list = {"ball": {},
+                      "elephants": {},
+                      "lions": {},
+                      "manhattan": {},
+                      "om_nom": {},
+                      "pluto": {},
+                      "ski": {},
+                      "super_mario": {}}
 output_folder = f'results{sl}ffmpeg_crf_12videos_60s'
 yuv_folder = f'..{sl}yuv-10s'
 

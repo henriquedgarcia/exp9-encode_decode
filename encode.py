@@ -3,6 +3,15 @@ from utils import util
 
 cfg = util.Config('config.json', factor='crf')
 sl = cfg.sl
+cfg.videos_list = {"ball": {},
+                   "elephants": {},
+                   "lions": {},
+                   "manhattan": {},
+                   "om_nom": {},
+                   "pluto": {},
+                   "ski": {},
+                   "super_mario": {}}
+
 project = (f'ffmpeg_{cfg.factor}_{len(cfg.videos_list)}videos_'
            f'{cfg.duration}s')
 
@@ -34,7 +43,7 @@ def encode():
     for video.name in cfg.videos_list:
         for video.tile_format in cfg.tile_list:
             for video.quality in getattr(cfg, f'{video.factor}_list'):
-                util.encode(video)
+                # util.encode(video)
                 # util.encapsule(video)
                 # util.extract_tile(video)
                 util.make_segments(video)
