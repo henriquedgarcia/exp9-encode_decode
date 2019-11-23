@@ -655,11 +655,11 @@ def decode(video: VideoParams, command=''):
                 exit('Decoders disponíveis são mp4client e ffmpeg.')
             print(f'Rodada {video.rodada} - '
                   f'{video.basename}_tile{video.tile}_chunk{video.chunk}')
-            _run(command, video.dectime_log, 'txt', log_mode='a')
+            _decode(command, video.dectime_log, 'txt', log_mode='a')
 
 
-def _run(command, log_path, ext, overwrite=False, log_mode='w',
-         bench_stamp='bench: utime'):
+def _decode(command, log_path, ext, overwrite=False, log_mode='w',
+            bench_stamp='bench: utime'):
     if os.path.isfile(f'{log_path}.{ext}') \
             and not overwrite \
             and log_mode in 'w':
