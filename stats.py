@@ -15,18 +15,24 @@ from matplotlib import colors
 
 from utils import util
 
-sl = util.check_system()['sl']
-project = 'ffmpeg_crf_12videos_60s'
-config = util.Config('config.json', factor='crf')
-dectime_name = f'times_{project}'
+cfg = util.Config('config.json', factor='crf')
+cfg.project = 'ffmpeg_crf_12videos_60s'
+cfg.tile_list = ["1x1", "3x2", "6x4", "12x8"]
+cfg.quality_list = [15, 25, 35, 45]
 
-if os.path.isfile(f'{dectime_name}_multikey.json'):
+dectime_name = f'times_{cfg.project}'
+
+try:
     dectime_multi = util.load_json(f'{dectime_name}_multikey.json')
-if os.path.isfile(f'{dectime_name}_single.json'):
-    dectime_flat = util.load_json(f'{dectime_name}_single.json')
+except FileNotFoundError:
+    pass
+
+try:
+    dectime_flat = util.load_json(f'{dectime_name}_singlekey.json')
+except FileNotFoundError:
+    exit('kd o arquivo muleke doido.')
 
 color_list = ['blue', 'orange', 'green', 'red']
-bins = 'auto'
 
 c_dist = {
     'burr12': 'yellow',  # 2, 4
