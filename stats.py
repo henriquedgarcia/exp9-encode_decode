@@ -119,14 +119,14 @@ def stats():
 
     for (video_seg.name,
          video_seg.fmt,
-         video_seg.quality) in it(config.videos_list,
-                                  config.tile_list,
-                                  config.quality_list):
+         video_seg.quality) in it(cfg.videos_list,
+                                  cfg.tile_list,
+                                  cfg.quality_list):
         for video_seg.tile in range(1, video_seg.num_tiles + 1):
-            col_name = (f'{config.videos_list[video_seg.name]["group"]}_'
+            col_name = (f'{cfg.videos_list[video_seg.name]["group"]}_'
                         f'{video_seg.name}_'
                         f'{video_seg.fmt}_'
-                        f'{config.factor}{video_seg.quality}_'
+                        f'{cfg.factor}{video_seg.quality}_'
                         f'tile{video_seg.tile}')
 
             # Coletando taxa Salvando em bps
@@ -137,7 +137,7 @@ def stats():
                     # O tamanho do chunk só pode ser considerado taxa porque o
                     # chunk tem 1 segndo
                     chunk_size_b = os.path.getsize(file) * 8
-                    chunk_dur = config.gop / config.fps
+                    chunk_dur = cfg.gop / cfg.fps
                     rate = chunk_size_b / chunk_dur
                     chunks_rates.append(rate)
                     video_seg.size = rate
