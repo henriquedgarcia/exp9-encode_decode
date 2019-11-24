@@ -101,10 +101,9 @@ def main():
 
 def stats():
     # Base object
-    video_seg = util.VideoStats(config=config,
-                                project=f'results{sl}{project}')
-
     df = {}
+    video_seg = util.VideoStats(config=cfg,
+                                project=f'results{cfg.sl}{cfg.project}')
 
     for (video_seg.name,
          video_seg.fmt,
@@ -147,7 +146,7 @@ def stats():
     util.save_json(df, name)
 
     # Save multikey
-    out_name = f'times_{project}_multikey.json'
+    out_name = f'times_{cfg.project}_multikey.json'
     util.save_json(dict(video_seg.dectime), f'{out_name}')
     # json2pandas(out_name)
 
