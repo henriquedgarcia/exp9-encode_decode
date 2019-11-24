@@ -35,13 +35,26 @@ c_dist = {
     'fatiguelife': 'yellow',  # 3
     'genpareto': 'yellow'
     }  # 1
+# cfg.tile_list=['1x1']
+a = (
+    "#000000",
+    "#ff8888",
+    "#687964",
+    "#11cc22",
+    "#0f2080",
+    "#ff9910",
+    "#ffc428",
+    "#990099",
+    "#f5793a",
+    "#c9bd9e",
+    "#85c0f9",
+    )
 
-a = ("#f5793a",
-     "#a95aa1",
-     "#85c0f9",
-     "#0f2080",
-     "#9c9eb5",
-     "#c9bd9e")
+bin_types = [['auto'],
+             np.linspace(15, 80, 14, dtype=int),
+             ['fd', 'rice', 'sturges', 'sqrt', 'doane', 'scott'],
+             ['fd', 'rice', 'sturges', 'sqrt', 'doane', 'scott', 'auto', 15,
+              20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80]]
 
 
 def main():
