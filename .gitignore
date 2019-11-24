@@ -5,3 +5,4 @@ __pycache__/
 results/
 ffmpeg/
 temp.txt
+stats_old_function.py
