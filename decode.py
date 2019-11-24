@@ -1,16 +1,18 @@
 #!/bin/env python3
-# import sys
-# sys.modules[__name__].__dict__.clear()
-
-# import importlib
-# importlib.reload(modulename)
-
-# Início
-import itertools
 from utils import util
 
-sl = util.check_system()['sl']
+
 config = util.Config('config.json', factor='crf')
+sl = config.sl
+config.videos_list = {"ball": {},
+                      "clans": {},
+                      "elephants": {},
+                      "lions": {},
+                      "manhattan": {},
+                      "om_nom": {},
+                      "pluto": {},
+                      "ski": {},
+                      "super_mario": {}}
 output_folder = f'results{sl}ffmpeg_crf_12videos_60s'
 yuv_folder = f'..{sl}yuv-10s'
 
@@ -27,7 +29,7 @@ def main():
     video.quality_list = config.quality_list
     video.dectime_base = f'dectime_{video.decoder}'
 
-    # para cada video, para cada fmt, para cada qualidadae... decodificar 3
+    # para cada video, para cada fmt, para cada qualidade... decodificar 3
     # vezes todos os chunks de todos os tiles.
     for video.name in config.videos_list:
         for video.tile_format in config.tile_list:

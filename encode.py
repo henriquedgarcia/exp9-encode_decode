@@ -2,19 +2,25 @@
 from utils import util
 
 cfg = util.Config('config.json', factor='crf')
-sl = cfg.sl
-project = (f'ffmpeg_{cfg.factor}_{len(cfg.videos_list)}videos_'
-           f'{cfg.duration}s')
+project = f'ffmpeg_crf_12videos_60s'
+yuv_input = f'..{cfg.sl}yuv-full'
 
-yuv_input = f'..{sl}yuv-full'
+cfg.videos_list = {"ball": {},
+                   "elephants": {},
+                   "lions": {},
+                   "manhattan": {},
+                   "om_nom": {},
+                   "pluto": {},
+                   "ski": {},
+                   "super_mario": {}}
 
 server = True
 if server:
-    gpds = f'{sl}mnt{sl}ssd{sl}henrique{sl}'
+    gpds = f'{cfg.sl}mnt{cfg.sl}ssd{cfg.sl}henrique{cfg.sl}'
 else:
     gpds = ''
 
-output = f'{gpds}results{sl}{project}'
+output = f'{gpds}results{cfg.sl}{project}'
 
 
 def main():
@@ -35,6 +41,7 @@ def encode():
         for video.tile_format in cfg.tile_list:
             for video.quality in getattr(cfg, f'{video.factor}_list'):
                 util.encode(video)
+                # util.encode(video)
                 # util.encapsule(video)
                 # util.extract_tile(video)
                 # util.make_segments(video)

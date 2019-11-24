@@ -1,12 +1,12 @@
-import itertools
 import json
 import os
 import platform
-import subprocess
-import pandas as pd
-import time
 import shlex
+import subprocess
+import time
+
 import numpy as np
+import pandas as pd
 
 
 # Minhas classes
@@ -57,7 +57,6 @@ class Config:
         #     self.tile_list = self.tile_list2
         # else:
         #     self.tile_list = self.tile_list1
-        #     self.tile_list = self.tile_list2
 
 
 class VideoStats:
@@ -219,6 +218,7 @@ class VideoStats:
         self.quality = None
         self.tile = None
         self.chunk = None
+        self.decoder = None
 
 
 class Atribs:
@@ -484,34 +484,34 @@ def _encode_ffmpeg(video):
             tile_count += 1
             video.mp4_video = f'{video.mp4_folder}{video.sl}tile{tile_count}'
 
-            filter = (f'-vf "scale={scale},'
-                      f'crop=w={tile_w}:h={tile_h}:x={x}:y={y}"')
+            video_filter = (f'-vf "scale={scale},'
+                            f'crop=w={tile_w}:h={tile_h}:x={x}:y={y}"')
 
             if video.factor in 'rate':
                 # 1-pass
                 command = (f'{video.program} {global_params} {param_in} '
-                           f'{param_out}:pass=1" {filter} -f mp4 nul')
+                           f'{param_out}:pass=1" {video_filter} -f mp4 nul')
                 run(command, f'{video.mp4_video}', 'mp4', log_mode='none')
 
                 # 2-pass
                 command = (f'{video.program} {global_params} {param_in} '
-                           f'{param_out}:pass=2" {filter} -f mp4 '
+                           f'{param_out}:pass=2" {video_filter} -f mp4 '
                            f'{video.mp4_video}.mp4')
                 run(command, f'{video.mp4_video}', 'mp4', overwrite=True)
 
             elif video.factor in 'qp':
                 command = (f'{video.program} {global_params} {param_in} '
-                           f'{param_out} {filter} {video.mp4_video}.mp4')
+                           f'{param_out} {video_filter} {video.mp4_video}.mp4')
                 run(command, f'{video.mp4_video}', 'mp4', overwrite=True)
 
             elif video.factor in 'crf':
                 command = (f'{video.program} {global_params} {param_in} '
-                           f'{param_out} {filter} {video.mp4_video}.mp4')
+                           f'{param_out} {video_filter} {video.mp4_video}.mp4')
                 run(command, f'{video.mp4_video}', 'mp4', overwrite=True)
 
             elif video.factor in 'scale':
                 command = (f'{video.program} {global_params} {param_in} '
-                           f'{param_out} {filter} {video.mp4_video}.mp4')
+                           f'{param_out} {video_filter} {video.mp4_video}.mp4')
                 run(command, f'{video.mp4_video}', 'mp4', overwrite=True)
 
 
@@ -642,68 +642,74 @@ def decode(video: VideoParams, command=''):
                                f'-codec hevc -threads 1 '
                                f'-i {video.segment_video}.mp4 '
                                f'-f null -')
-
-            elif video.decoder in 'mp4client':
-                if video.threads in 'multi':
-                    command = (f'start /b /wait '
-                               f'{video.program} -bench '
-                               f'{video.segment_video}.mp4')
-                else:
-                    command = (f'start /b /wait /affinity 0x800 '
-                               f'{video.program} -bench '
-                               f'{video.segment_video}.mp4')
             else:
-                exit('Decoders disponíveis são mp4client e ffmpeg.')
-            print(f'Rodada {video.rodada} - '
-                  f'{video.basename}_tile{video.tile}_chunk{video.chunk}')
-            _run(command, video.dectime_log, 'txt', log_mode='a')
+                exit('Só decodifique em linux, please')
+            # elif video.decoder in 'mp4client':
+            #     if video.threads in 'multi':
+            #         # Se windows
+            #         command = (f'start /b /wait '
+            #                    f'{video.program} -bench '
+            #                    f'{video.segment_video}.mp4')
+            #     else:
+            #         # Se windows
+            #         command = (f'start /b /wait /affinity 0x800 '
+            #                    f'{video.program} -bench '
+            #                    f'{video.segment_video}.mp4')
+            # else:
+            #     exit('Decoders disponíveis são mp4client e ffmpeg.')
+
+            print(f'Rodada {video.rodada} - {video.basename}_tile{video.tile}_'
+                  f'chunk{video.chunk}')
+            _decode(command, video.dectime_log, 'txt')
 
 
-def _run(command, log_path, ext, overwrite=False, log_mode='w',
-         bench_stamp='bench: utime'):
+def _decode(command, log_path, ext, overwrite=False, log_mode='a',
+            bench_stamp="bench: utime="):
     if os.path.isfile(f'{log_path}.{ext}') \
             and not overwrite \
             and log_mode in 'w':
         print(f'arquivo {log_path}.{ext} existe. Pulando.')
     else:
-        with subprocess.Popen(shlex.split(command),
-                              stdout=subprocess.PIPE,
-                              stderr=subprocess.STDOUT,
-                              encoding='utf-8') as proc, \
-                open('temp.txt', 'w', encoding='utf-8') as f:
-            for line in proc.stdout:
-                if line.find(bench_stamp) >= 0:
-                    f.write(line)
+        sys = check_system()['sys']
+        if 'unix' in sys:
+            f1 = open('temp.txt', 'w', encoding='utf-8')
+            subprocess.run(shlex.split(command),
+                           stdout=f1,
+                           stderr=subprocess.STDOUT,
+                           encoding='utf-8',
+                           text=True)
 
-        with open('temp.txt', 'r', encoding='utf-8') as f1, \
-                open(f'{log_path}.{ext}', log_mode, encoding='utf-8') as f2:
-            f2.write(f1.read())
+            f1.close()
+            f1 = open('temp.txt', 'r', encoding='utf-8')
+            f2 = open(f'{log_path}.{ext}', log_mode, encoding='utf-8')
+            for line in f1:
+                if bench_stamp in line:
+                    f2.write(line.split(' ')[1])
+        elif "windows" in sys:
+            exit("não rode em windows, menino")
+            for attempts in range(5):
+                print(command)
+                f1 = open('temp.txt', 'w', encoding='utf-8')
+                try:
+                    f2 = open(f'{log_path}.{ext}', log_mode, encoding='utf-8')
+                except FileNotFoundError:
+                    print(f'Tentativa {attempts}. Erro ao abrir o arquivo '
+                          f'{log_path}.{ext}. Tentando novamente em 5s.')
+                    f1.close()
+                    time.sleep(5)
+                    continue
 
-        # attempts = 1
-        # while True:
-        #     print(command)
-        #
-        #     try:
-        #         # p = subprocess.run(f'{command} 1>2 temp.txt', shell=True, encoding='utf-8')
-        #         # print(f'Returncode = {p.returncode}')
-        #         with open('temp.txt', 'w', encoding='utf-8') as f:
-        #             p = subprocess.run(' '.join(command))
-        #             print(f'Returncode = {p.returncode}')
-        #             if p.returncode != 0:
-        #                 print(f'Tentativa {attempts}. Erro. Exitcode == {p.returncode}. Tentando novamente.')
-        #                 attempts += 1
-        #                 continue
-        #
-        #         with open('temp.txt', 'r', encoding='utf-8') as f1, \
-        #                 open(f'{log_path}.{ext}', log_mode, encoding='utf-8') as f2:
-        #             f2.write(f1.read())
-        #             break
-        #
-        #     except FileNotFoundError:
-        #         print(f'Tentativa {attempts}. Erro ao abrir o arquivo {"temp.txt" + ".log"}')
-        #         print('Tentando novamente em 5s.')
-        #         attempts += 1
-        #         time.sleep(5)
+                p = subprocess.run(' '.join(command), shell=True,
+                                   encoding='utf-8', stdout=f1,
+                                   stderr=subprocess.STDOUT)
+                if p.returncode != 0:
+                    print(f'Returncode = {p.returncode}')
+                    print(f'Tentativa {attempts}. Erro. Exitcode == '
+                          f'{p.returncode}. Tentando novamente.')
+                    continue
+
+                f2.write(f1.read())
+                break
 
 
 # Funções para estatística
@@ -789,7 +795,6 @@ def save_json(obj: dict, filename: str):
 
 
 def load_json(filename: str = 'times.json') -> pd.DataFrame:
-
     with open(filename, 'r') as f:
         js_data = json.load(f)
         pd_data = pd.DataFrame(js_data)
