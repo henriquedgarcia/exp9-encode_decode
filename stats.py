@@ -91,25 +91,6 @@ def main():
     pass
 
 
-def json2pandas(json_filename):
-    dec = util.load_json(json_filename)
-    # 12 videos x (1+6+24+92) tiles x 4 qualidades = 5.904 listas de 60 chunks
-    # x 2 11.808
-    df = pd.DataFrame()
-    for name in config.videos_list:
-        for fmt in config.tile_list:
-            m, n = list(map(int, fmt.split('x')))
-            for quality in config.quality_list:
-                for tile in range(1, m * n + 1):
-                    col_name = (f'{config.videos_list[name]["group"]}_{name}_'
-                                f'{fmt}_{config.factor}{quality}_tile{tile}')
-                    time, size, _ = get_data_chunks(name, fmt, quality, tile,
-                                                    dec=dec)
-                    df[f'{col_name}_time'] = time
-                    df[f'{col_name}_size'] = size
-    util.save_json(df.to_dict(), f'{json_filename}_singlekey.json')
-
-
 def stats():
     # Base object
     video_seg = util.VideoStats(config=config,
