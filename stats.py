@@ -1882,18 +1882,14 @@ def get_time(file, video_seg):
     except FileNotFoundError:
         print(f'Arquivo {file} não encontrado.')
         return 0
-
+    video_seg.bench_stamp = 'utime='
     chunks_times = []
     for line in f:
         if line.find(video_seg.bench_stamp) >= 0:
             # Pharse da antiga decodificação
             if video_seg.factor in 'crf':
-                line = line.replace('bench: ', ' ')
-                line = line.replace('s ', ' ')
-                line = line.strip()[:-1]
-                line = line.split(' ')
-                for i in range(0, len(line), 3):
-                    chunks_times.append(float(line[i][6:]))
+                line2 = line.replace('bench: ', ' ').replace('s', '').strip()
+                chunks_times.append(float(line2.split('=')[-1]))
             elif video_seg.factor in ['scale', 'qp']:
                 line = line.strip()
                 line = line.split(' ')[1]
