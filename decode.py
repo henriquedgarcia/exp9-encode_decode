@@ -3,15 +3,7 @@ from utils import util
 
 config = util.Config('config.json', factor='crf')
 sl = config.sl
-config.videos_list = {"ball": {},
-                      "clans": {},
-                      "elephants": {},
-                      "lions": {},
-                      "manhattan": {},
-                      "om_nom": {},
-                      "pluto": {},
-                      "ski": {},
-                      "super_mario": {}}
+
 output_folder = f'results{sl}ffmpeg_crf_12videos_60s'
 yuv_folder = f'..{sl}yuv-10s'
 
