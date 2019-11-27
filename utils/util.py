@@ -668,7 +668,9 @@ def _decode(command, log_path, ext, overwrite=False, log_mode='a'):
             f1.close()
             f1 = open('temp.txt', 'r', encoding='utf-8')
             f2 = open(f'{log_path}.{ext}', log_mode, encoding='utf-8')
-            f2.write(f1.read())
+            for line in f1:
+                if "bench: utime" in line:
+                    f2.write(line.split(' ')[1])
             f1.close()
             f2.close()
         elif "windows" in sys:
