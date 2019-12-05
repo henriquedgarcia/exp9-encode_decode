@@ -3,15 +3,6 @@ from utils import util
 
 cfg = util.Config('config.json', factor='crf')
 sl = cfg.sl
-cfg.videos_list = {"ball": {},
-                   "elephants": {},
-                   "lions": {},
-                   "manhattan": {},
-                   "om_nom": {},
-                   "pluto": {},
-                   "ski": {},
-                   "super_mario": {}}
-
 project = (f'ffmpeg_crf_12videos_60s')
 
 yuv_input = f'..{sl}yuv-full'
