@@ -593,7 +593,7 @@ def extract_tile(video):
             run(command, video.tiled_video, 'mp4', log_mode='a')
 
 
-def make_segments(video):
+def make_segments(video, overwrite=False):
     """
     Codifica o vídeo usando o codificador especificado em encoder
     :type video: VideoParams
@@ -610,7 +610,7 @@ def make_segments(video):
         # Segment tiles in chunks
         command = (f'{mp4box} -split 1 {video.tiled_video}.mp4 '
                    f'-out {video.segment_folder}{video.sl}')
-        run(command, segment_log, 'log', overwrite=True)
+        run(command, segment_log, 'log', overwrite=overwrite)
 
 
 # Funções para decodificação
