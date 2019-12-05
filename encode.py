@@ -33,10 +33,10 @@ def encode():
     for video.name in cfg.videos_list:
         for video.tile_format in cfg.tile_list:
             for video.quality in getattr(cfg, f'{video.factor}_list'):
-                # util.encode(video)
+                util.encode(video)
                 # util.encapsule(video)
                 # util.extract_tile(video)
-                util.make_segments(video)
+                util.make_segments(video, overwrite=False)
 
 
 if __name__ == '__main__':
