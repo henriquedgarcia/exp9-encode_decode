@@ -661,18 +661,14 @@ def _decode(command, log_path, ext, overwrite=False, log_mode='a'):
     else:
         sys = check_system()['sys']
         if 'unix' in sys:
-            f1 = open('temp.txt', 'w', encoding='utf-8')
-            subprocess.run(shlex.split(command), stdout=f1,
-                           stderr=subprocess.STDOUT, encoding='utf-8')
+            with open('temp.txt', 'w', encoding='utf-8') as f1:
+                subprocess.run(shlex.split(command), stdout=f1,
+                               stderr=subprocess.STDOUT, encoding='utf-8')
 
-            f1.close()
-            f1 = open('temp.txt', 'r', encoding='utf-8')
-            f2 = open(f'{log_path}.{ext}', log_mode, encoding='utf-8')
-            for line in f1:
-                if "bench: utime" in line:
-                    f2.write(line.split(' ')[1])
-            f1.close()
-            f2.close()
+            with open('temp.txt', 'r', encoding='utf-8') as f1, \
+                    open(f'{log_path}.{ext}', log_mode, encoding='utf-8') as f2:
+                f2.write(f1.read())
+
         elif "windows" in sys:
             exit("não rode em windows, menino")
             for attempts in range(5):
