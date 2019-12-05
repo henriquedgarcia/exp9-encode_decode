@@ -47,28 +47,28 @@ a = ("#f5793a",
 def main():
     # psnr()  # Processar psnr também. à fazer
     # stats()
-    global bins
-    bin_types1 = ['auto']
-    bin_types2 = np.linspace(15, 80, 14, dtype=int)
-    bin_types3 = ['fd', 'rice', 'sturges', 'sqrt', 'doane', 'scott']
-    bin_types4 = ['fd', 'rice', 'sturges', 'sqrt', 'doane', 'scott',
-                  'auto', 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75,
-                  80]
-    for bins in bin_types4:
-        pass
-        # bins = int(bins)
-
-        histogram_fmt('histogram_fmt', force_fit=False)
-        histogram_fmt_quality('histogram_fmt_quality',
-                              force_fit=True, join_quality=True)
-        histogram_fmt_quality_2('histogram_fmt_quality_2',
-                                force_fit=True, join_quality=True)
-        histogram_fmt_group('histogram_fmt_group',
-                            force_fit=False,
-                            join_quality=True)
-        histogram_fmt_group_2('histogram_fmt_group_2',
-                              force_fit=False,
-                              join_quality=True)
+    # global bins
+    # bin_types1 = ['auto']
+    # bin_types2 = np.linspace(15, 80, 14, dtype=int)
+    # bin_types3 = ['fd', 'rice', 'sturges', 'sqrt', 'doane', 'scott']
+    # bin_types4 = ['fd', 'rice', 'sturges', 'sqrt', 'doane', 'scott',
+    #               'auto', 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75,
+    #               80]
+    # for bins in bin_types4:
+    #     pass
+    #     bins = int(bins)
+        #
+        # histogram_fmt('histogram_fmt', force_fit=False)
+        # histogram_fmt_quality('histogram_fmt_quality',
+        #                       force_fit=True, join_quality=True)
+        # histogram_fmt_quality_2('histogram_fmt_quality_2',
+        #                         force_fit=True, join_quality=True)
+        # histogram_fmt_group('histogram_fmt_group',
+        #                     force_fit=False,
+        #                     join_quality=True)
+        # histogram_fmt_group_2('histogram_fmt_group_2',
+        #                       force_fit=False,
+        #                       join_quality=True)
 
     # graph0(graph_folder='0_graph0-tudo-fmts_x_chunks')
     # graph0_sum_ts(graph_folder='0_graph0-tudo-fmt-sumtiles_x_chunks')
