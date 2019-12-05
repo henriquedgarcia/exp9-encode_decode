@@ -101,17 +101,17 @@
     "9x9"
   ],
   "single_videos_list": {
-    "surf": {},
-    "om_nom": {},
-    "lions": {},
-    "rollercoaster": {},
-    "clans": {},
-    "super_mario": {},
-    "ski": {},
-    "elephants": {},
-    "pluto": {},
     "ball": {},
+    "clans": {},
+    "elephants": {},
+    "lions": {},
     "manhattan": {},
+    "om_nom": {},
+    "pluto": {},
+    "rollercoaster": {},
+    "ski": {},
+    "super_mario": {},
+    "surf": {},
     "venice": {}
   },
   "videos_list": {
