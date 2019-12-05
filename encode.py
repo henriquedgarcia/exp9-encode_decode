@@ -3,8 +3,8 @@ from utils import util
 
 cfg = util.Config('config.json', factor='crf')
 sl = cfg.sl
-project = (f'ffmpeg_crf_12videos_60s')
 
+project = f'ffmpeg_crf_12videos_60s'
 yuv_input = f'..{sl}yuv-full'
 
 server = False
