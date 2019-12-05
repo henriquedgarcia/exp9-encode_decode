@@ -141,6 +141,8 @@ def stats():
                     rate = chunk_size_b / chunk_dur
                     chunks_rates.append(rate)
                     video_seg.size = rate
+                else:
+                    exit(f'O arquivo {file} não foi encontrado')
             df[f'{col_name}_rate'] = chunks_rates
 
             # Processando tempos
@@ -151,6 +153,9 @@ def stats():
                     dec_time = get_time(file, video_seg)
                     times_list.append(dec_time)
                     video_seg.times = dec_time
+                else:
+                    exit(f'O arquivo {file} não foi encontrado.')
+
             df[f'{col_name}_time'] = times_list
 
     # Save singlekey
