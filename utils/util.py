@@ -614,7 +614,7 @@ def make_segments(video, overwrite=False):
 
 
 # Funções para decodificação
-def decode(video: VideoParams, command=''):
+def decode(video: VideoParams, command='', overwrite=False):
     """
     :param command:
     :param video:
@@ -650,7 +650,7 @@ def decode(video: VideoParams, command=''):
             #     exit('Decoders disponíveis são mp4client e ffmpeg.')
 
             print(f'Rodada {video.rodada} - {video.segment_video}.mp4')
-            _decode(command, video.dectime_log, 'txt')
+            _decode(command, video.dectime_log, 'txt', overwrite=overwrite)
 
 
 def _decode(command, log_path, ext, overwrite=False, log_mode='a'):

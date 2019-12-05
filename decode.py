@@ -26,7 +26,7 @@ def main():
         for video.tile_format in config.tile_list:
             for video.rodada in range(3):
                 for video.quality in video.quality_list:
-                    util.decode(video=video)
+                    util.decode(video=video, overwrite=False)
 
 
 if __name__ == '__main__':
